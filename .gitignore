@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/matlab,python,c,c++
-# Edit at https://www.toptal.com/developers/gitignore?templates=matlab,python,c,c++
+# Created by https://www.toptal.com/developers/gitignore/api/matlab,python,c,c++,opencv
+# Edit at https://www.toptal.com/developers/gitignore?templates=matlab,python,c,c++,opencv
 
 ### C ###
 # Prerequisites
@@ -107,6 +107,15 @@ codegen/
 
 # Octave session info
 octave-workspace
+
+### OpenCV ###
+#OpenCV for Mac and Linux
+#build and release folders
+*/CMakeFiles
+*/CMakeCache.txt
+*/Makefile
+*/cmake_install.cmake
+.DS_Store
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -247,4 +256,4 @@ dmypy.json
 # profiling data
 .prof
 
-# End of https://www.toptal.com/developers/gitignore/api/matlab,python,c,c++
+# End of https://www.toptal.com/developers/gitignore/api/matlab,python,c,c++,opencv
