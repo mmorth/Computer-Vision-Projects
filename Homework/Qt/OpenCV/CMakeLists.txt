@@ -16,6 +16,7 @@ find_package( OpenCV REQUIRED )
 
 add_executable(OpenCV
   main.cpp
+  HW2_2019/p1_opencv_code.cpp
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
