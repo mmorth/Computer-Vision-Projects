@@ -50,20 +50,20 @@ int main()
     // Determine the boundary of the image
     bool searchingRight = false;
     bool foundResult = false;
-    Point topLeft = Point(0, 0);
-    Point topRight = Point(0, 0);
-    Point bottomRight = Point(0, 0);
-    Point bottomLeft = Point(0, 0);
-    for (int i = 0; i < grid.rows; i++) {
-        for (int j = 0; j < grid.cols; j++) {
-            if ((int) grid.at<uchar>(i, j) > 0 && topLeft == Point(0,0)) {
-                topLeft = Point(i, j);
+    int minRow = 0;
+    int maxRow = 0;
+    int minCol = 0;
+    int maxCol = 0;
+    for (int r = 0; r < grid.rows; r++) {
+        for (int c = 0; c < grid.cols; c++) {
+            if ((int) grid.at<uchar>(r, c) > 0 && minRow == 0) {
+                minRow = r;
+                minCol = c;
                 searchingRight = true;
             }
-            else if ((int) grid.at<uchar>(i, j) == 0 && searchingRight == true) {
-                topRight = Point(i, j-1);
-                bottomLeft = Point(topLeft.x+topRight.y-topLeft.y, topLeft.y);
-                bottomRight = Point(bottomLeft.x, topRight.y);
+            else if ((int) grid.at<uchar>(r, c) == 0 && searchingRight == true) {
+                maxCol = c;
+                maxRow = minRow + (maxCol - minCol);
                 foundResult = true;
                 break;
             }
@@ -76,10 +76,6 @@ int main()
     // Using the grid dimensions, display only the grid pixels and pixels within the grid
     bitwise_not(src, src);
     dst = src;
-    int minRow = topLeft.x;
-    int maxRow = bottomLeft.x;
-    int minCol = topLeft.y;
-    int maxCol = topRight.y;
     for (int i = 0; i < grid.rows; i++) {
         for (int j = 0; j < grid.cols; j++) {
             if (!(i >= minRow && i <= maxRow && j >= minCol && j <= maxCol)) {
@@ -88,7 +84,7 @@ int main()
         }
     }
 
-    imshow( "Image", dst );
+    imshow( "p1", dst );
 
     while(1)
     {
