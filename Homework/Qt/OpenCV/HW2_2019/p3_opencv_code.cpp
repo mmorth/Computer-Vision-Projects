@@ -1,36 +1,38 @@
-//#include <iostream>
+#include <iostream>
 
-//#include <opencv2/opencv.hpp>
-//#include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv2/highgui/highgui.hpp>
-//#include <opencv2/imgcodecs/imgcodecs.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgcodecs/imgcodecs.hpp>
 
-//using namespace std;
-//using namespace cv;
+using namespace std;
+using namespace cv;
 
-//Mat src;
-//Mat horiz;
-//Mat vert;
-//Mat grid;
-//Mat letters;
-//Mat dst;
+Mat src;
+Mat horiz;
+Mat vert;
+Mat grid;
+Mat letters;
+Mat dst;
 
-//int erosion_elem = 0;
-//int erosion_width = 0;
-//int erosion_height = 0;
-//int dilation_width = 0;
-//int dilation_height = 0;
-//int dilation_elem = 0;
-//int max_kernel_size = 100;
+int erosion_elem = 0;
+int erosion_width = 0;
+int erosion_height = 0;
+int dilation_width = 0;
+int dilation_height = 0;
+int dilation_elem = 0;
+int max_kernel_size = 100;
 
 
-//int main()
-//{
-//    char keyPress;
-//    cout << "p1_opencv_code.cpp\n";
-//    // Read image
-//    src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_1\\p1_search.png", IMREAD_GRAYSCALE);
+int main()
+{
+    char keyPress;
+    cout << "p1_opencv_code.cpp\n";
+    // Read image
+    src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_3\\p3_search.png", IMREAD_GRAYSCALE);
 //    bitwise_not(src, src);
+
+    imshow("Original", src);
 
 //    // Extract the vertical lines of the grid
 //    Mat element1 = getStructuringElement( MORPH_RECT,
@@ -84,17 +86,35 @@
 //        }
 //    }
 
-//    imshow( "p1", dst );
+////    imshow( "p1", dst );
 
-//    while(1)
-//    {
-//        keyPress = waitKey();
-//        // Press q key to close window
-//        if (keyPress == 'q')
-//        {
-//            destroyAllWindows();
-//            break;
-//        }
-//    }
-//    return 0;
-//}
+//    // Subtract the horizontal and vertical from the inverted image (should remove those lines)
+//    Mat letters;
+//    bitwise_not(dst, letters);
+//    bitwise_not(dst, dst);
+//    letters = letters-vert;
+//    letters = letters-horiz;
+
+//    // Subtract the isolated characters image from the original inverted image (should leave only grid)
+//    grid = dst - letters;
+
+//    // Invert the colors of these results back to the original black and white composition
+//    bitwise_not(letters, letters);
+//    bitwise_not(grid, grid);
+
+//    // Show results
+//    imshow("Letters", letters);
+//    imshow("Grid", grid);
+
+    while(1)
+    {
+        keyPress = waitKey();
+        // Press q key to close window
+        if (keyPress == 'q')
+        {
+            destroyAllWindows();
+            break;
+        }
+    }
+    return 0;
+}

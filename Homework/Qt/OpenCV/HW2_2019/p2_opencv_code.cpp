@@ -84,7 +84,23 @@
 //        }
 //    }
 
-//    imshow( "p1", dst );
+//    // Subtract the horizontal and vertical from the inverted image (should remove those lines)
+//    Mat letters;
+//    bitwise_not(dst, letters);
+//    bitwise_not(dst, dst);
+//    letters = letters-vert;
+//    letters = letters-horiz;
+
+//    // Subtract the isolated characters image from the original inverted image (should leave only grid)
+//    grid = dst - letters;
+
+//    // Invert the colors of these results back to the original black and white composition
+//    bitwise_not(letters, letters);
+//    bitwise_not(grid, grid);
+
+//    // Show results
+//    imshow("Letters", letters);
+//    imshow("Grid", grid);
 
 //    while(1)
 //    {
