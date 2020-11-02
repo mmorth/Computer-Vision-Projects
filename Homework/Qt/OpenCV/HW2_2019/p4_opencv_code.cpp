@@ -31,18 +31,24 @@ int main()
     result.create( result_cols, result_rows, CV_32FC1 );
 
     // Do the Matching and Normalize
-    int match_method = TM_CCOEFF_NORMED;
+    int match_method = TM_CCOEFF;
     matchTemplate( src, temp, result, match_method );
     normalize( result, result, 0, 1, NORM_MINMAX, -1, Mat() );
+
+    // Convert the source to BGR to allow the A's to be colored red
+    cvtColor(src, src, COLOR_GRAY2BGR);
 
     // Localizing the best match with minMaxLoc
     Point minLoc; Point maxLoc;
     Point matchLoc;
     double minVal; double maxVal;
-    for(int k=1;k<=100;k++)
+    for(int k=1;k<=1;k++)
     {
-        double threshold = 0.95;
+        // Create the threshold and determine the min and max locations
+        double threshold = 0.999;
         minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
+
+        // TODO: Update this masking to prevent from matching the same instance multiple times
         result.at<float>(minLoc.x,minLoc.y)=1.0;
         result.at<float>(maxLoc.x,maxLoc.y)=0.0;
 
@@ -52,13 +58,21 @@ int main()
         else
         { matchLoc = maxLoc; }
 
-        // Show me what you got
-        if(maxVal >threshold && 0!=matchLoc .x && 0!=matchLoc .y )
+        printf("maxVal = %.2lf\n", maxVal);
+        // Draw the bounding box around all A template matches
+        if(maxVal >= threshold && matchLoc.x != 0 && matchLoc.y != 0)
         {
-            rectangle( dst, matchLoc, Point( matchLoc.x + temp.cols , matchLoc.y + temp.rows ), Scalar::all(0), 2, 8, 0 );
+            rectangle( src, matchLoc, Point( matchLoc.x + temp.cols , matchLoc.y + temp.rows ), Scalar(0, 0, 255), FILLED, 8, 0 );
             rectangle( result, matchLoc, Point( matchLoc.x + temp.cols , matchLoc.y + temp.rows ), Scalar::all(0), 2, 8, 0 );
         }
     }
+
+    // TODO: Remote duplicate matching for same A instance
+    // TODO: Determine how to remove the random match in top left
+
+    // Color all the A's red in the original image
+    cvtColor(dst, dst, COLOR_GRAY2BGR);
+    addWeighted(src, 0.5, dst, 0.5, 0, dst);
 
     imshow( "Display", dst );
 //    imshow( "Result", result );
