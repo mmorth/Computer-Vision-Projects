@@ -1,91 +1,75 @@
-#include <iostream>
+//#include <iostream>
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgcodecs/imgcodecs.hpp>
+//#include <opencv2/opencv.hpp>
+//#include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv2/highgui/highgui.hpp>
+//#include <opencv2/imgcodecs/imgcodecs.hpp>
 
-using namespace std;
-using namespace cv;
+//using namespace std;
+//using namespace cv;
 
-int main()
-{
-    char keyPress;
-    cout << "p3_opencv_code.cpp\n";
+//int main()
+//{
+//    char keyPress;
+//    cout << "p4_opencv_code.cpp\n";
 
-    // Read image and template and make a copy to have the original image
-    Mat src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_4\\p4_search.png", IMREAD_GRAYSCALE);
-    Mat temp = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\A.png", IMREAD_GRAYSCALE);
-    Mat dst = src.clone();
+//    // Read image and template and make a copy to have the original image
+//    Mat src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_4\\p4_search.png", IMREAD_GRAYSCALE);
+//    Mat temp = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\A.png", IMREAD_GRAYSCALE);
+//    Mat dst = src.clone();
 
-    // Execute template matching
-    Mat matchResult;
-    matchTemplate(src, temp, matchResult, TM_CCOEFF_NORMED);
-    cv::threshold(matchResult, matchResult, 0.90, 1., THRESH_BINARY);
+//    // Source: https://stackoverflow.com/questions/32041063/multiple-template-matching-only-detects-one-match/32095085#32095085
 
-    /// Create the result matrix
-    int result_cols =  src.cols - temp.cols + 1;
-    int result_rows = src.rows - temp.rows + 1;
+//    // Match the A template on the grid
+//    Mat1f result;
+//    matchTemplate(src, temp, result, TM_CCOEFF_NORMED);
 
-    Mat result;
-    result.create( result_cols, result_rows, CV_32FC1 );
+//    // Replace all pixels with a value less than 0.95 with 0, so they are not processed as a match (confidence threshold)
+//    double thresh = 0.95;
+//    threshold(result, result, thresh, 1., THRESH_BINARY);
 
-    // Do the Matching and Normalize
-    int match_method = TM_CCOEFF;
-    matchTemplate( src, temp, result, match_method );
-    normalize( result, result, 0, 1, NORM_MINMAX, -1, Mat() );
+//    // Find the contours of the grayscale match result (these will be all the points where A's are located)
+//    Mat1b resb;
+//    result.convertTo(resb, CV_8U, 255);
 
-    // Convert the source to BGR to allow the A's to be colored red
-    cvtColor(src, src, COLOR_GRAY2BGR);
+//    vector<vector<Point>> contours;
+//    findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
 
-    // Localizing the best match with minMaxLoc
-    Point minLoc; Point maxLoc;
-    Point matchLoc;
-    double minVal; double maxVal;
-    for(int k=1;k<=1;k++)
-    {
-        // Create the threshold and determine the min and max locations
-        double threshold = 0.999;
-        minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
+//    // Convert the source to BGR to allow the A's to be colored red
+//    cvtColor(src, src, COLOR_GRAY2BGR);
 
-        // TODO: Update this masking to prevent from matching the same instance multiple times
-        result.at<float>(minLoc.x,minLoc.y)=1.0;
-        result.at<float>(maxLoc.x,maxLoc.y)=0.0;
+//    // Process each matching A
+//    for (int i=0; i<contours.size(); ++i)
+//    {
+//        // Mask out all other matching A's except the one that corresponds to the current contour
+//        Mat1b mask(result.rows, result.cols, uchar(0));
+//        drawContours(mask, contours, i, Scalar(255), FILLED);
 
-        // For SQDIFF and SQDIFF_NORMED, the best matches are lower values. For all the other methods, the higher the better
-        if( match_method  == TM_SQDIFF || match_method == TM_SQDIFF_NORMED )
-        { matchLoc = minLoc; }
-        else
-        { matchLoc = maxLoc; }
+//        // Find the maximum matching location
+//        Point max_point;
+//        double max_val;
+//        minMaxLoc(result, NULL, &max_val, NULL, &max_point, mask);
 
-        printf("maxVal = %.2lf\n", maxVal);
-        // Draw the bounding box around all A template matches
-        if(maxVal >= threshold && matchLoc.x != 0 && matchLoc.y != 0)
-        {
-            rectangle( src, matchLoc, Point( matchLoc.x + temp.cols , matchLoc.y + temp.rows ), Scalar(0, 0, 255), FILLED, 8, 0 );
-            rectangle( result, matchLoc, Point( matchLoc.x + temp.cols , matchLoc.y + temp.rows ), Scalar::all(0), 2, 8, 0 );
-        }
-    }
+//        // Highlight squares with A's with red
+//        rectangle(src, Rect(max_point.x, max_point.y, temp.cols, temp.rows), Scalar(0,0,255), FILLED);
+//    }
 
-    // TODO: Remote duplicate matching for same A instance
-    // TODO: Determine how to remove the random match in top left
+//    // Convert dst to BGR to color A matches
+//    cvtColor(dst, dst, COLOR_GRAY2BGR);
+//    addWeighted(src, 0.5, dst, 0.5, 0, dst);
 
-    // Color all the A's red in the original image
-    cvtColor(dst, dst, COLOR_GRAY2BGR);
-    addWeighted(src, 0.5, dst, 0.5, 0, dst);
+//    // Display result
+//    imshow("Result", dst);
 
-    imshow( "Display", dst );
-//    imshow( "Result", result );
-
-    while(1)
-    {
-        keyPress = waitKey();
-        // Press q key to close window
-        if (keyPress == 'q')
-        {
-            destroyAllWindows();
-            break;
-        }
-    }
-    return 0;
-}
+//    while(1)
+//    {
+//        keyPress = waitKey();
+//        // Press q key to close window
+//        if (keyPress == 'q')
+//        {
+//            destroyAllWindows();
+//            break;
+//        }
+//    }
+//    return 0;
+//}
