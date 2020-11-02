@@ -9,102 +9,57 @@ using namespace std;
 using namespace cv;
 
 Mat src;
-Mat horiz;
-Mat vert;
-Mat grid;
-Mat letters;
 Mat dst;
-
-int erosion_elem = 0;
-int erosion_width = 0;
-int erosion_height = 0;
-int dilation_width = 0;
-int dilation_height = 0;
-int dilation_elem = 0;
-int max_kernel_size = 100;
-
+RNG rng(12345);
 
 int main()
 {
     char keyPress;
-    cout << "p1_opencv_code.cpp\n";
-    // Read image
+    cout << "p3_opencv_code.cpp\n";
+
+    // Read image and make a copy to have the original image
     src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_3\\p3_search.png", IMREAD_GRAYSCALE);
-//    bitwise_not(src, src);
+    dst = src.clone();
 
-    imshow("Original", src);
+    // Invert the image and provide thresholding to remove various pixel noise within boxes
+    bitwise_not(src, src);
+    threshold(src, src, 15, 100, THRESH_BINARY);
 
-//    // Extract the vertical lines of the grid
-//    Mat element1 = getStructuringElement( MORPH_RECT,
-//                         Size( 2*0 + 1, 2*17+1 ),
-//                         Point( 0, 17 ) );
-//    morphologyEx( src, vert, MORPH_OPEN, element1 );
+    // Determine contours of image
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    findContours(src, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
-//    // Extract the horizontal lines of the grid
-//    Mat element2 = getStructuringElement( MORPH_RECT,
-//                         Size( 2*10 + 1, 2*0+1 ),
-//                         Point( 10, 0 ) );
-//    morphologyEx( src, horiz, MORPH_OPEN, element2 );
+    // Fill in the the boxes with random color
+    Mat drawing = Mat(src.size(), CV_8UC3, Scalar(0, 0, 0));
+    for( size_t i = 0; i< contours.size(); i++ )
+    {
+        // Fill in the contour boxes with random color
+        Scalar color = Scalar( rng.uniform(0, 256), rng.uniform(0,256), rng.uniform(0,256) );
+        drawContours( drawing, contours, (int)i, color, FILLED, 8, hierarchy, 0 );
+        // Remove color from the contour themselves (will be colored using original grid color
+        Scalar gridColor = Scalar( 0, 0, 0 );
+        drawContours( drawing, contours, (int)i, gridColor, 1, 8, hierarchy, 0 );
+    }
 
-//    // Combine the horizontal and vertical lines into one image
-//    grid = horiz+vert;
+    // Convert the original image to BGR format
+    cvtColor(dst, dst, COLOR_GRAY2BGR);
 
-//    // Determine the boundary of the image
-//    bool searchingRight = false;
-//    bool foundResult = false;
-//    int minRow = 0;
-//    int maxRow = 0;
-//    int minCol = 0;
-//    int maxCol = 0;
-//    for (int r = 0; r < grid.rows; r++) {
-//        for (int c = 0; c < grid.cols; c++) {
-//            if ((int) grid.at<uchar>(r, c) > 0 && minRow == 0) {
-//                minRow = r;
-//                minCol = c;
-//                searchingRight = true;
-//            }
-//            else if ((int) grid.at<uchar>(r, c) == 0 && searchingRight == true) {
-//                maxCol = c;
-//                maxRow = minRow + (maxCol - minCol);
-//                foundResult = true;
-//                break;
-//            }
-//        }
-//        if (foundResult) {
-//            break;
-//        }
-//    }
+    // Filter out boxed color at contour intersections
+    vector<int> box_filter = {223, 7, 58};
+    Mat mask;
+    inRange(drawing, box_filter, box_filter, mask);
+    cvtColor(mask, mask, COLOR_GRAY2BGR);
+    bitwise_not(mask, mask);
+    bitwise_and(drawing, mask, drawing);
 
-//    // Using the grid dimensions, display only the grid pixels and pixels within the grid
-//    bitwise_not(src, src);
-//    dst = src;
-//    for (int i = 0; i < grid.rows; i++) {
-//        for (int j = 0; j < grid.cols; j++) {
-//            if (!(i >= minRow && i <= maxRow && j >= minCol && j <= maxCol)) {
-//                dst.at<uchar>(i, j) = 255;
-//            }
-//        }
-//    }
+    // Draw the original color grid lines on the image
+    bitwise_not(dst, dst);
+    drawing = drawing + dst;
+    bitwise_not(drawing, drawing);
 
-////    imshow( "p1", dst );
-
-//    // Subtract the horizontal and vertical from the inverted image (should remove those lines)
-//    Mat letters;
-//    bitwise_not(dst, letters);
-//    bitwise_not(dst, dst);
-//    letters = letters-vert;
-//    letters = letters-horiz;
-
-//    // Subtract the isolated characters image from the original inverted image (should leave only grid)
-//    grid = dst - letters;
-
-//    // Invert the colors of these results back to the original black and white composition
-//    bitwise_not(letters, letters);
-//    bitwise_not(grid, grid);
-
-//    // Show results
-//    imshow("Letters", letters);
-//    imshow("Grid", grid);
+    // Display result
+    imshow("Contours", drawing);
 
     while(1)
     {
