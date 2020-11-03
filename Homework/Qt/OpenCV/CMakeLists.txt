@@ -21,6 +21,8 @@ add_executable(OpenCV
   HW2_2019/p3_opencv_code.cpp
   HW2_2019/p4_opencv_code.cpp
   HW2_2019/p5_opencv_code.cpp
+  HW2_2019/p6_opencv_code.cpp
+  HW2_2019/p7_opencv_code.cpp
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 

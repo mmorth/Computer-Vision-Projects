@@ -19,6 +19,7 @@
 //    Mat dst = src.clone();
 
 //    // Source: https://stackoverflow.com/questions/32041063/multiple-template-matching-only-detects-one-match/32095085#32095085
+//    // The following code is based on the solution from this link
 
 //    // Match the A template on the grid
 //    Mat1f result;
@@ -28,10 +29,11 @@
 //    double thresh = 0.95;
 //    threshold(result, result, thresh, 1., THRESH_BINARY);
 
-//    // Find the contours of the grayscale match result (these will be all the points where A's are located)
-//    Mat1b resb;
+//    // Convert result to CV_8U to support finding contours
+//    Mat resb;
 //    result.convertTo(resb, CV_8U, 255);
 
+//    // Find the contours of the grayscale match result (these will be all the points where A's are located)
 //    vector<vector<Point>> contours;
 //    findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
 
@@ -39,10 +41,10 @@
 //    cvtColor(src, src, COLOR_GRAY2BGR);
 
 //    // Process each matching A
-//    for (int i=0; i<contours.size(); ++i)
+//    for (uint i=0; i<contours.size(); ++i)
 //    {
 //        // Mask out all other matching A's except the one that corresponds to the current contour
-//        Mat1b mask(result.rows, result.cols, uchar(0));
+//        Mat mask(result.rows, result.cols, uchar(0));
 //        drawContours(mask, contours, i, Scalar(255), FILLED);
 
 //        // Find the maximum matching location
