@@ -11,8 +11,10 @@ using namespace cv;
 RNG rng(12345);
 
 void processLetter(Mat src, Mat hl, Mat temp, char letter);
+bool dfs(int x, int y, int index, string word, vector<Point> previousLetterMatches);
 
 string wordsToSearch[] = {"LINEAR", "ALGEBRA"};
+int numWords = 2;
 char board[14][14];
 
 int main()
@@ -69,13 +71,36 @@ int main()
         // Need to store index/rectangle locations to be able to highlight the result locations
             // Maybe by multiplying the index by a value and adding an offset? (reverse of index calculation)
 
-    processLetter(src, hl, c);
-    processLetter(src, hl, r);
+
 
     // Loop through all vowel templates
     for(int i = 0; i < 26; i++) {
         // Call the function that will determine locations of each vowel and color them (apply these to the same image)
         processLetter(src, hl, letterTemplates[i], letters[i]);
+    }
+
+    // Search for each word in grid
+    for (int i = 0; i < numWords; i++) {
+        char firstLetter = wordsToSearch[0].at(i);
+        bool found = false;
+        for (int j = 0; j < 14; j++) {
+            // Loop through each row in grid
+            for (int k = 0; k < 14; k++) {
+                // Loop through each col in grid
+                if (board[j][k] == firstLetter) {
+                    // See if match starts at this location
+                    vector<Point> list;
+                    bool result = dfs(j, k, 0, wordsToSearch[i], list);
+                    if (result) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
     }
 
     // Convert dst to BGR to color A matches
@@ -113,9 +138,6 @@ void processLetter(Mat src, Mat hl, Mat temp) {
     Mat resb;
     result.convertTo(resb, CV_8U, 255);
 
-//    std::string s(1, cur);
-//    imshow(s, resb);
-
     // Find the contours of the grayscale match result (these will be all the points where A's are located)
     vector<vector<Point>> contours;
     findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
@@ -135,11 +157,40 @@ void processLetter(Mat src, Mat hl, Mat temp) {
         double max_val;
         minMaxLoc(result, NULL, &max_val, NULL, &max_point, mask);
 
-        printf("(%d, %d)\n", max_point.x, max_point.y);
+        // Store the detected letter in the correct location in board
 
-        // Highlight squares with A's with red
-        rectangle(hl, Rect(max_point.x, max_point.y, temp.cols, temp.rows), color, FILLED);
     }
+}
 
-    cur++;
+// Run depth-first search to find the words in the grid
+bool dfs(int x, int y, int index, string word, vector<Point> previousLetterMatches) {
+    if (index == word.length()) {
+        // Shade all locations in match
+        return true;
+    } else if (x < 0 || x > 13 || y < 0 || y > 13) {
+        // Out of bounds
+        return false;
+    } else if (word.at(index) != board[x][y]) {
+        // No matching letter in this direction
+        return false;
+    } else {
+        bool found = false;
+
+        char temp = board[x][y];
+        board[x][y] = '*';
+
+        if (dfs(x-1, y-1, index+1, word, previousLetterMatches) ||
+                dfs(x-1, y, index+1, word, previousLetterMatches) ||
+                dfs(x-1, y+1, index+1, word, previousLetterMatches) ||
+                dfs(x, y-1, index+1, word, previousLetterMatches) ||
+                dfs(x, y+1, index+1, word, previousLetterMatches) ||
+                dfs(x+1, y-1, index+1, word, previousLetterMatches) ||
+                dfs(x+1, y, index+1, word, previousLetterMatches) ||
+                dfs(x+1, y+1, index+1, word, previousLetterMatches)) {
+            found = true;
+        }
+
+        board[x][y] = temp;
+        return found;
+    }
 }
