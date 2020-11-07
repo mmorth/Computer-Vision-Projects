@@ -62,8 +62,13 @@
 //    char keyPress;
 //    cout << "Welcome to Qt\n";
 //    // Read image
-//    src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_1\\p1_search.png", IMREAD_GRAYSCALE);
-//    bitwise_not(src, src);
+////    src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\H.png", IMREAD_GRAYSCALE);
+////    medianBlur(src, dst, 3);
+////    fastNlMeansDenoising(src, dst, 50);
+
+////    imshow("Noisy", dst);
+
+////    bitwise_not(src, src);
 
 ////    namedWindow("Homework", WINDOW_AUTOSIZE); // Create Window
 
@@ -87,74 +92,74 @@
 ////            &dilation_height, max_kernel_size,
 ////            Dilation );
 
-//    // Extract the vertical lines of the grid
-//    Mat element1 = getStructuringElement( MORPH_RECT,
-//                         Size( 2*0 + 1, 2*17+1 ),
-//                         Point( 0, 17 ) );
-//    morphologyEx( src, vert, MORPH_OPEN, element1 );
+////    // Extract the vertical lines of the grid
+////    Mat element1 = getStructuringElement( MORPH_RECT,
+////                         Size( 2*0 + 1, 2*17+1 ),
+////                         Point( 0, 17 ) );
+////    morphologyEx( src, vert, MORPH_OPEN, element1 );
 
-////    imshow("vert", vert);
+//////    imshow("vert", vert);
 
-//    // Extract the horizontal lines of the grid
-//    Mat element2 = getStructuringElement( MORPH_RECT,
-//                         Size( 2*10 + 1, 2*0+1 ),
-//                         Point( 10, 0 ) );
-//    morphologyEx( src, horiz, MORPH_OPEN, element2 );
+////    // Extract the horizontal lines of the grid
+////    Mat element2 = getStructuringElement( MORPH_RECT,
+////                         Size( 2*10 + 1, 2*0+1 ),
+////                         Point( 10, 0 ) );
+////    morphologyEx( src, horiz, MORPH_OPEN, element2 );
 
-////    imshow("horiz", horiz);
+//////    imshow("horiz", horiz);
 
-//    // Combine the horizontal and vertical lines into one image
-//    grid = horiz+vert;
-////    imshow("grid", src);
+////    // Combine the horizontal and vertical lines into one image
+////    grid = horiz+vert;
+//////    imshow("grid", src);
 
-//    // Determine the boundary of the image
-//    bool searchingRight = false;
-//    bool foundResult = false;
-//    Point topLeft = Point(0, 0);
-//    Point topRight = Point(0, 0);
-//    Point bottomRight = Point(0, 0);
-//    Point bottomLeft = Point(0, 0);
-//    for (int i = 0; i < grid.rows; i++) {
-//        for (int j = 0; j < grid.cols; j++) {
-//            if ((int) grid.at<uchar>(i, j) > 0 && topLeft == Point(0,0)) {
-//                topLeft = Point(i, j);
-//                searchingRight = true;
-//            }
-//            else if ((int) grid.at<uchar>(i, j) == 0 && searchingRight == true) {
-//                topRight = Point(i, j-1);
-//                bottomLeft = Point(topLeft.x+topRight.y-topLeft.y, topLeft.y);
-//                bottomRight = Point(bottomLeft.x, topRight.y);
-//                foundResult = true;
-//                break;
-//            }
-//        }
-//        if (foundResult) {
-//            break;
-//        }
-//    }
+////    // Determine the boundary of the image
+////    bool searchingRight = false;
+////    bool foundResult = false;
+////    Point topLeft = Point(0, 0);
+////    Point topRight = Point(0, 0);
+////    Point bottomRight = Point(0, 0);
+////    Point bottomLeft = Point(0, 0);
+////    for (int i = 0; i < grid.rows; i++) {
+////        for (int j = 0; j < grid.cols; j++) {
+////            if ((int) grid.at<uchar>(i, j) > 0 && topLeft == Point(0,0)) {
+////                topLeft = Point(i, j);
+////                searchingRight = true;
+////            }
+////            else if ((int) grid.at<uchar>(i, j) == 0 && searchingRight == true) {
+////                topRight = Point(i, j-1);
+////                bottomLeft = Point(topLeft.x+topRight.y-topLeft.y, topLeft.y);
+////                bottomRight = Point(bottomLeft.x, topRight.y);
+////                foundResult = true;
+////                break;
+////            }
+////        }
+////        if (foundResult) {
+////            break;
+////        }
+////    }
 
-//    // Print the boundary positions
-//    printf("topLeft: row = %d, col = %d\n", topLeft.x, topLeft.y);
-//    printf("topRight: row = %d, col = %d\n", topRight.x, topRight.y);
-//    printf("bottomLeft: row = %d, col = %d\n", bottomLeft.x, bottomLeft.y);
-//    printf("bottomRight: row = %d, col = %d\n", bottomRight.x, bottomLeft.y);
+////    // Print the boundary positions
+////    printf("topLeft: row = %d, col = %d\n", topLeft.x, topLeft.y);
+////    printf("topRight: row = %d, col = %d\n", topRight.x, topRight.y);
+////    printf("bottomLeft: row = %d, col = %d\n", bottomLeft.x, bottomLeft.y);
+////    printf("bottomRight: row = %d, col = %d\n", bottomRight.x, bottomLeft.y);
 
-//    // Using the grid dimensions, display the outer pixels of the grid
-//    bitwise_not(src, src);
-//    dst = src;
-//    int minRow = topLeft.x;
-//    int maxRow = bottomLeft.x;
-//    int minCol = topLeft.y;
-//    int maxCol = topRight.y;
-//    for (int i = 0; i < grid.rows; i++) {
-//        for (int j = 0; j < grid.cols; j++) {
-//            if (!(i >= minRow && i <= maxRow && j >= minCol && j <= maxCol)) {
-//                dst.at<uchar>(i, j) = 255;
-//            }
-//        }
-//    }
+////    // Using the grid dimensions, display the outer pixels of the grid
+////    bitwise_not(src, src);
+////    dst = src;
+////    int minRow = topLeft.x;
+////    int maxRow = bottomLeft.x;
+////    int minCol = topLeft.y;
+////    int maxCol = topRight.y;
+////    for (int i = 0; i < grid.rows; i++) {
+////        for (int j = 0; j < grid.cols; j++) {
+////            if (!(i >= minRow && i <= maxRow && j >= minCol && j <= maxCol)) {
+////                dst.at<uchar>(i, j) = 255;
+////            }
+////        }
+////    }
 
-//    imshow( "Image", dst );
+////    imshow( "Image", dst );
 
 ////    Erosion( 0, 0 );
 ////    Dilation( 0, 0 );

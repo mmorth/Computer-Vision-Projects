@@ -14,20 +14,26 @@ struct gridLocation {
     int row;
     int col;
 };
-enum BoardType { dogs, fruits, schoolLife };
+enum BoardType { dogs, fruits, schoolLife, dogsNoisy, fruitsNoisy, schoolLifeNoisy };
 enum MovementDirection { upLeft, up, upRight, leftMove, rightMove, downLeft, down, downRight, none };
 string dogWords[] = {"DALMATIAN", "DAUCHSHUND", "BEAGLE", "PINSCHER", "SHEPHERD", "MASTIFF", "SETTER", "CHIHUAHUA", "BULLDOG", "COLLIE", "HOUND", "CORGI", "TERRIER", "BOXER"};
 int numDogWords = 14;
 char dogBoard[14][14];
+char dogBoardNoisy[14][14];
 Mat hlDog;
-string fruitsWords[] = {"RASPBERRY", "LIME", "BLACKBERRY", "WATERMELON", "ORANGE", "BANANA", "PAPAYA", "LEMON", "KIWI", "STRAWBERRY", "GRAPE", "APPLE"};
+Mat hlDogNoisy;
+string fruitsWords[] = {"RASPBERRY", "LIME", "BLACKBERRY", "BLUEBERRY", "WATERMELON", "ORANGE", "BANANA", "PAPAYA", "LEMON", "KIWI", "STRAWBERRY", "GRAPE", "APPLE"};
 int numFruitWords = 13;
 char fruitBoard[14][14];
+char fruitBoardNoisy[14][14];
 Mat hlFruit;
+Mat hlFruitNoisy;
 string schoolLifeWords[] = {"GLITTER", "SHARPENER", "HOMEWORK", "JOURNAL", "ERASER", "BLACKBOARD", "NOTEBOOK", "BACKPACK", "CRAYONS", "SCISSORS", "GLUESTICK", "MARKERS", "BOOKS", "CALCULATION", "COMPASS", "PENS"};
 int numSchoolLifeWords = 16;
 char schoolBoard[14][14];
+char schoolBoardNoisy[14][14];
 Mat hlSchool;
+Mat hlSchoolNoisy;
 Mat tempMatch;
 vector<int> locations;
 
@@ -42,7 +48,7 @@ int main()
     locations.push_back(5);
     locations.push_back(9);
 
-    // Read image and template and make a copy to have the original image
+    // Read image and make a copy to have the original image
     Mat srcDog = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_10\\p10_search1.png", IMREAD_GRAYSCALE);
     Mat dstDog = srcDog.clone();
     hlDog = srcDog.clone();
@@ -53,7 +59,18 @@ int main()
     Mat dstSchool = srcSchool.clone();
     hlSchool = srcSchool.clone();
 
-    // Read in the vowel templates
+    // Read noisy image variants
+    Mat srcDogNoisy = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_10\\p10_noisy_search1.png", IMREAD_GRAYSCALE);
+    Mat dstDogNoisy = srcDogNoisy.clone();
+    hlDogNoisy = srcDogNoisy.clone();
+    Mat srcFruitNoisy = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_10\\p10_noisy_search2.png", IMREAD_GRAYSCALE);
+    Mat dstFruitNoisy = srcFruitNoisy.clone();
+    hlFruitNoisy = srcFruitNoisy.clone();
+    Mat srcSchoolNoisy = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_10\\p10_noisy_search3.png", IMREAD_GRAYSCALE);
+    Mat dstSchoolNoisy = srcSchoolNoisy.clone();
+    hlSchoolNoisy = srcSchoolNoisy.clone();
+
+    // Read in the letter templates
     tempMatch = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\A.png", IMREAD_GRAYSCALE);
     Mat a = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\A.png", IMREAD_GRAYSCALE);
     Mat b = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\B.png", IMREAD_GRAYSCALE);
@@ -193,6 +210,121 @@ int main()
     // Display final image
     imshow("School Result", dstSchool);
 
+    // Process noisy letters
+    for (int i = 0; i < 26; i++) {
+        medianBlur(letterTemplates[i], letterTemplates[i], 3);
+    }
+
+    // Process noisy boards
+    medianBlur(srcDogNoisy, srcDogNoisy, 3);
+    medianBlur(srcFruitNoisy, srcFruitNoisy, 3);
+    medianBlur(srcSchoolNoisy, srcSchoolNoisy, 3);
+
+    // Convert highlights to color
+    cvtColor(hlDogNoisy, hlDogNoisy, COLOR_GRAY2BGR);
+    cvtColor(hlFruitNoisy, hlFruitNoisy, COLOR_GRAY2BGR);
+    cvtColor(hlSchoolNoisy, hlSchoolNoisy, COLOR_GRAY2BGR);
+
+    for (int i = 0; i < 26; i++) {
+        processLetter(srcDogNoisy, letterTemplates[i], letters[i], dogsNoisy);
+        processLetter(srcFruitNoisy, letterTemplates[i], letters[i], fruitsNoisy);
+        processLetter(srcSchoolNoisy, letterTemplates[i], letters[i], schoolLifeNoisy);
+    }
+
+    // Search for each word in grid
+    for (int i = 0; i < numDogWords; i++) {
+        char firstLetter = dogWords[i].at(0);
+        bool found = false;
+        // Loop through each row in grid
+        for (int row = 0; row < 14; row++) {
+            // Loop through each col in grid
+            for (int col = 0; col < 14; col++) {
+                // Check if current position matches first letter of word
+                if (dogBoardNoisy[col][row] == firstLetter) {
+                    // See if match starts at this location
+                    vector<gridLocation> list;
+                    bool result = dfs(row, col, 0, dogWords[i], list, none, dogsNoisy);
+                    if (result) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+    }
+
+    // Convert dst to BGR to color A matches
+    cvtColor(dstDogNoisy, dstDogNoisy, COLOR_GRAY2BGR);
+    addWeighted(hlDogNoisy, 0.5, dstDogNoisy, 0.5, 0, dstDogNoisy);
+
+    // Display final image
+    imshow("Dog Result Noisy", dstDogNoisy);
+
+    for (int i = 0; i < numFruitWords; i++) {
+        char firstLetter = fruitsWords[i].at(0);
+        bool found = false;
+        // Loop through each row in grid
+        for (int row = 0; row < 14; row++) {
+            // Loop through each col in grid
+            for (int col = 0; col < 14; col++) {
+                // Check if current position matches first letter of word
+                if (fruitBoardNoisy[col][row] == firstLetter) {
+                    // See if match starts at this location
+                    vector<gridLocation> list;
+                    bool result = dfs(row, col, 0, fruitsWords[i], list, none, fruitsNoisy);
+                    if (result) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+    }
+
+    // Convert dst to BGR to color A matches
+    cvtColor(dstFruitNoisy, dstFruitNoisy, COLOR_GRAY2BGR);
+    addWeighted(hlFruitNoisy, 0.5, dstFruitNoisy, 0.5, 0, dstFruitNoisy);
+
+    // Display final image
+    imshow("Fruit Result Noisy", dstFruitNoisy);
+
+    for (int i = 0; i < numSchoolLifeWords; i++) {
+        char firstLetter = schoolLifeWords[i].at(0);
+        bool found = false;
+        // Loop through each row in grid
+        for (int row = 0; row < 14; row++) {
+            // Loop through each col in grid
+            for (int col = 0; col < 14; col++) {
+                // Check if current position matches first letter of word
+                if (schoolBoardNoisy[col][row] == firstLetter) {
+                    // See if match starts at this location
+                    vector<gridLocation> list;
+                    bool result = dfs(row, col, 0, schoolLifeWords[i], list, none, schoolLifeNoisy);
+                    if (result) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+    }
+
+    // Convert dst to BGR to color A matches
+    cvtColor(dstSchoolNoisy, dstSchoolNoisy, COLOR_GRAY2BGR);
+    addWeighted(hlSchoolNoisy, 0.5, dstSchoolNoisy, 0.5, 0, dstSchoolNoisy);
+
+    // Display final image
+    imshow("School Result Noisy", dstSchoolNoisy);
+
     while(1)
     {
         keyPress = waitKey();
@@ -238,15 +370,21 @@ void processLetter(Mat src, Mat temp, char letter, BoardType type) {
         minMaxLoc(result, NULL, &max_val, NULL, &max_point, mask);
 
         // Store the detected letter in the correct location in board
-        int colPos = (max_point.x - 30) / 40;
-        int rowPos = (max_point.y - 90) / 40;
+        int colPos = (max_point.x - 30) / 39;
+        int rowPos = (max_point.y - 90) / 39;
 
         if (type == dogs) {
             dogBoard[colPos][rowPos] = letter;
         } else if (type == fruits) {
             fruitBoard[colPos][rowPos] = letter;
-        } else {
+        } else if (type == schoolLife) {
             schoolBoard[colPos][rowPos] = letter;
+        } else if (type == dogsNoisy) {
+            dogBoardNoisy[colPos][rowPos] = letter;
+        } else if (type == fruitsNoisy) {
+            fruitBoardNoisy[colPos][rowPos] = letter;
+        } else {
+            schoolBoardNoisy[colPos][rowPos] = letter;
         }
     }
 }
@@ -273,8 +411,14 @@ bool dfs(int row, int col, int index, string word, vector<gridLocation> previous
                 rectangle(hlDog, Rect(pixelCol, pixelRow, tempMatch.cols, tempMatch.rows), color, FILLED);
             } else if (type == fruits) {
                 rectangle(hlFruit, Rect(pixelCol, pixelRow, tempMatch.cols, tempMatch.rows), color, FILLED);
-            } else {
+            } else if (type == schoolLife) {
                 rectangle(hlSchool, Rect(pixelCol, pixelRow, tempMatch.cols, tempMatch.rows), color, FILLED);
+            } else if (type == dogsNoisy) {
+                rectangle(hlDogNoisy, Rect(pixelCol, pixelRow, tempMatch.cols, tempMatch.rows), color, FILLED);
+            } else if (type == fruitsNoisy) {
+                rectangle(hlFruitNoisy, Rect(pixelCol, pixelRow, tempMatch.cols, tempMatch.rows), color, FILLED);
+            } else {
+                rectangle(hlSchoolNoisy, Rect(pixelCol, pixelRow, tempMatch.cols, tempMatch.rows), color, FILLED);
             }
         }
 
@@ -288,6 +432,12 @@ bool dfs(int row, int col, int index, string word, vector<gridLocation> previous
         } else if (type == fruits && word.at(index) != fruitBoard[col][row]) {
             return false;
         } else if (type == schoolLife && word.at(index) != schoolBoard[col][row]) {
+            return false;
+        } else if (type == dogsNoisy && word.at(index) != dogBoardNoisy[col][row]) {
+            return false;
+        } else if (type == fruitsNoisy && word.at(index) != fruitBoardNoisy[col][row]) {
+            return false;
+        } else if (type == schoolLifeNoisy && word.at(index) != schoolBoardNoisy[col][row]) {
             return false;
         }
 
@@ -307,9 +457,18 @@ bool dfs(int row, int col, int index, string word, vector<gridLocation> previous
         } else if (type == fruits) {
             temp = fruitBoard[col][row];
             fruitBoard[col][row] = '*';
-        } else {
+        } else if (type == schoolLife) {
             temp = schoolBoard[col][row];
             schoolBoard[col][row] = '*';
+        } else if (type == dogsNoisy) {
+            temp = dogBoardNoisy[col][row];
+            dogBoardNoisy[col][row] = '*';
+        } else if (type == fruitsNoisy) {
+            temp = fruitBoardNoisy[col][row];
+            fruitBoardNoisy[col][row] = '*';
+        } else {
+            temp = schoolBoardNoisy[col][row];
+            schoolBoardNoisy[col][row] = '*';
         }
 
         // Determine valid movement directions based on prior move
@@ -366,9 +525,16 @@ bool dfs(int row, int col, int index, string word, vector<gridLocation> previous
             dogBoard[col][row] = temp;
         } else if (type == fruits) {
             fruitBoard[col][row] = temp;
-        } else {
+        } else if (type == schoolLife) {
             schoolBoard[col][row] = temp;
+        } else if (type == dogsNoisy) {
+            dogBoardNoisy[col][row] = temp;
+        } else if (type == fruitsNoisy) {
+            fruitBoardNoisy[col][row] = temp;
+        } else {
+            schoolBoardNoisy[col][row] = temp;
         }
+
         return found;
     }
 }
