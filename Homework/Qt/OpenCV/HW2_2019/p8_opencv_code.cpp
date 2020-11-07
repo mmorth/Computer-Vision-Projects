@@ -4,18 +4,25 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
+#include <math.h>
 
 using namespace std;
 using namespace cv;
 
 RNG rng(12345);
-
-void processLetter(Mat src, Mat hl, Mat temp, char letter);
-bool dfs(int x, int y, int index, string word, vector<Point> previousLetterMatches);
-
+struct gridLocation {
+    int row;
+    int col;
+};
+enum MovementDirection { upLeft, up, upRight, leftMove, rightMove, downLeft, down, downRight, none };
 string wordsToSearch[] = {"LINEAR", "ALGEBRA"};
 int numWords = 2;
 char board[14][14];
+Mat hl;
+Mat tempMatch;
+
+void processLetter(Mat src, Mat temp, char letter);
+bool dfs(int row, int col, int index, string word, vector<gridLocation> previousLetterMatches, MovementDirection move);
 
 int main()
 {
@@ -23,11 +30,12 @@ int main()
     cout << "p6_opencv_code.cpp\n";
 
     // Read image and template and make a copy to have the original image
-    Mat src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_5\\p5_search.png", IMREAD_GRAYSCALE);
+    Mat src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Part_8\\p8_search.png", IMREAD_GRAYSCALE);
     Mat dst = src.clone();
-    Mat hl = src.clone();
+    hl = src.clone();
 
     // Read in the vowel templates
+    tempMatch = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\A.png", IMREAD_GRAYSCALE);
     Mat a = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\A.png", IMREAD_GRAYSCALE);
     Mat b = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\B.png", IMREAD_GRAYSCALE);
     Mat c = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2019\\HW2\\Letter_Cutouts\\C.png", IMREAD_GRAYSCALE);
@@ -62,35 +70,34 @@ int main()
     // Change hl (highlighted) from grayscale to BGR to enable coloring of letters
     cvtColor(hl, hl, COLOR_GRAY2BGR);
 
-    // Need to figure out how to map from the bounding rectangle location to the letter
-        // Maybe do some sort of modulus to convert from pixel location to grid lookup index
-
-    // Create a list of all words that need to be found
-    // Run through and create a 2D array of letter locations based on width and height pixel location
-    // Run DFS/BFS to determine where matching locations would be
-        // Need to store index/rectangle locations to be able to highlight the result locations
-            // Maybe by multiplying the index by a value and adding an offset? (reverse of index calculation)
-
-
-
     // Loop through all vowel templates
     for(int i = 0; i < 26; i++) {
         // Call the function that will determine locations of each vowel and color them (apply these to the same image)
-        processLetter(src, hl, letterTemplates[i], letters[i]);
+        processLetter(src, letterTemplates[i], letters[i]);
+    }
+
+    // TODO: Remove after debug
+    for (int row = 0; row < 14; row++) {
+        for (int col = 0; col < 14; col++) {
+            std::cout << board[col][row] << ' ';
+        }
+        std::cout << std::endl;
     }
 
     // Search for each word in grid
     for (int i = 0; i < numWords; i++) {
-        char firstLetter = wordsToSearch[0].at(i);
+        printf("Checking for %s!!!!!\n", wordsToSearch[i].c_str());
+        char firstLetter = wordsToSearch[i].at(0);
         bool found = false;
-        for (int j = 0; j < 14; j++) {
-            // Loop through each row in grid
-            for (int k = 0; k < 14; k++) {
-                // Loop through each col in grid
-                if (board[j][k] == firstLetter) {
+        // Loop through each row in grid
+        for (int row = 0; row < 14; row++) {
+            // Loop through each col in grid
+            for (int col = 0; col < 14; col++) {
+                // Check if current position matches first letter of word
+                if (board[col][row] == firstLetter) {
                     // See if match starts at this location
-                    vector<Point> list;
-                    bool result = dfs(j, k, 0, wordsToSearch[i], list);
+                    vector<gridLocation> list;
+                    bool result = dfs(row, col, 0, wordsToSearch[i], list, none);
                     if (result) {
                         found = true;
                         break;
@@ -125,7 +132,7 @@ int main()
 
 // Source: https://stackoverflow.com/questions/32041063/multiple-template-matching-only-detects-one-match/32095085#32095085
 // This code is based on the solution at this link
-void processLetter(Mat src, Mat hl, Mat temp) {
+void processLetter(Mat src, Mat temp, char letter) {
     // Match the A template on the grid
     Mat1f result;
     matchTemplate(src, temp, result, TM_CCOEFF_NORMED);
@@ -142,9 +149,6 @@ void processLetter(Mat src, Mat hl, Mat temp) {
     vector<vector<Point>> contours;
     findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
 
-    // Define the color to color this letter
-    Scalar color = Scalar(rng.uniform(0, 256), rng.uniform(0,256), rng.uniform(0,256));
-
     // Process each matching A
     for (uint i=0; i<contours.size(); ++i)
     {
@@ -158,39 +162,99 @@ void processLetter(Mat src, Mat hl, Mat temp) {
         minMaxLoc(result, NULL, &max_val, NULL, &max_point, mask);
 
         // Store the detected letter in the correct location in board
-
+        int colPos = (max_point.x - 30) / 40;
+        int rowPos = (max_point.y - 90) / 40;
+        board[colPos][rowPos] = letter;
     }
 }
 
 // Run depth-first search to find the words in the grid
-bool dfs(int x, int y, int index, string word, vector<Point> previousLetterMatches) {
-    if (index == word.length()) {
+bool dfs(int row, int col, int index, string word, vector<gridLocation> previousLetterMatches, MovementDirection move) {
+    // Check what position the move recent find is
+    if (index == word.size()) {
         // Shade all locations in match
+        Scalar color = Scalar(rng.uniform(0, 256), rng.uniform(0,256), rng.uniform(0,256));
+        for (int i = 0; i < previousLetterMatches.size(); i++) {
+            // Convert board position to pixel location
+            gridLocation cur = previousLetterMatches.at(i);
+            int pixelRow = (cur.row * 41) + 90 + (cur.row/7.0);
+            int pixelCol = (cur.col * 41) + 30 + ceil(cur.col/2.0);
+
+            // Highlight the matching squares
+            rectangle(hl, Rect(pixelCol, pixelRow, tempMatch.cols, tempMatch.rows), color, FILLED);
+        }
+
         return true;
-    } else if (x < 0 || x > 13 || y < 0 || y > 13) {
+    } else if (row < 0 || row > 13 || col < 0 || col > 13) {
         // Out of bounds
         return false;
-    } else if (word.at(index) != board[x][y]) {
+    } else if (word.at(index) != board[col][row]) {
         // No matching letter in this direction
         return false;
     } else {
+        // Match found at location
+        gridLocation position;
+        position.row = row;
+        position.col = col;
+        previousLetterMatches.push_back(position);
+
+        // Check if entire string can be found starting at current location
         bool found = false;
 
-        char temp = board[x][y];
-        board[x][y] = '*';
+        char temp = board[col][row];
+        board[col][row] = '*';
 
-        if (dfs(x-1, y-1, index+1, word, previousLetterMatches) ||
-                dfs(x-1, y, index+1, word, previousLetterMatches) ||
-                dfs(x-1, y+1, index+1, word, previousLetterMatches) ||
-                dfs(x, y-1, index+1, word, previousLetterMatches) ||
-                dfs(x, y+1, index+1, word, previousLetterMatches) ||
-                dfs(x+1, y-1, index+1, word, previousLetterMatches) ||
-                dfs(x+1, y, index+1, word, previousLetterMatches) ||
-                dfs(x+1, y+1, index+1, word, previousLetterMatches)) {
-            found = true;
+        // Determine valid movement directions based on prior move
+        if (move == upLeft) {
+            if (dfs(row-1, col-1, index+1, word, previousLetterMatches, upLeft)) {
+                found = true;
+            }
+        } else if (move == up) {
+            if (dfs(row-1, col, index+1, word, previousLetterMatches, up)) {
+                found = true;
+            }
+        } else if (move == upRight) {
+            if (dfs(row-1, col+1, index+1, word, previousLetterMatches, upRight)) {
+                found = true;
+            }
+        } else if (move == leftMove) {
+            if (dfs(row, col-1, index+1, word, previousLetterMatches, leftMove)) {
+                found = true;
+            }
+        } else if (move == rightMove) {
+            if (dfs(row, col+1, index+1, word, previousLetterMatches, rightMove)) {
+                found = true;
+            }
+        } else if (move == downLeft) {
+            if (dfs(row+1, col-1, index+1, word, previousLetterMatches, downLeft)) {
+                found = true;
+            }
+        } else if (move == down) {
+            if (dfs(row+1, col, index+1, word, previousLetterMatches, down)) {
+                found = true;
+            }
+        } else if (move == downRight) {
+            if (dfs(row+1, col+1, index+1, word, previousLetterMatches, downRight)) {
+                found = true;
+            }
+        } else {
+            if (dfs(row-1, col-1, index+1, word, previousLetterMatches, upLeft) ||
+                    dfs(row-1, col, index+1, word, previousLetterMatches, up) ||
+                    dfs(row-1, col+1, index+1, word, previousLetterMatches, upRight) ||
+                    dfs(row, col-1, index+1, word, previousLetterMatches, leftMove) ||
+                    dfs(row, col+1, index+1, word, previousLetterMatches, rightMove) ||
+                    dfs(row+1, col-1, index+1, word, previousLetterMatches, downLeft) ||
+                    dfs(row+1, col, index+1, word, previousLetterMatches, down) ||
+                    dfs(row+1, col+1, index+1, word, previousLetterMatches, downRight)) {
+                found = true;
+            }
         }
 
-        board[x][y] = temp;
+        if (!found) {
+            previousLetterMatches.pop_back();
+        }
+
+        board[col][row] = temp;
         return found;
     }
 }
