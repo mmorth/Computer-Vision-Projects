@@ -51,7 +51,7 @@
                               <p class="tableblock">
                                  <span class="image">
                                     <!-- MAKE CHANGES HERE: Part 1 MATLAB Handle -->
-                                    <img src="output/Part_1/placeholder.jpg" alt="Handle" width="100%">
+                                    <img src="output/Part_1/p1_matlab_result.jpg" alt="Handle" width="100%">
                                     <!-- END CHANGES -->
                                  </span>
                               </p>
@@ -64,7 +64,45 @@
                      <div class="content monospaced">
                         <!-- MAKE CHANGES HERE: Part 1 MATLAB code -->
                         <pre>
-% Insert your code here
+                           % Read image
+                           src = imread('C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_1\\p1_board.jpg');
+                           
+                           src = rgb2gray(src);
+                           
+                           % Threshold and apply close operation
+                           border = src;
+                           border(border<250) = 0;
+                           
+                           se = strel('square', 11);
+                           border = imclose(border, se);
+                           
+                           border = cat(3, border, border, border);
+                           
+                           % Apply threshold to convert the black and white spots on board to black and white
+                           src(src>225) = 255;
+                           src(src<=225) = 0;
+                           src = cat(3, src, src, src);
+                           
+                           r = src(:,:,1); % Red channel
+                           g = src(:,:,2); % Green channel
+                           b = src(:,:,3); % Blue channel
+                           
+                           % Convert all white pixels to green and all black pixels to red
+                           r(r==255) = 1;
+                           g(g==255) = 255;
+                           b(b==255) = 1;
+                           
+                           r(r==0) = 255;
+                           g(g==0) = 1;
+                           b(b==0) = 1;
+                           
+                           src = cat(3, r, g, b);
+                           
+                           % Restore border and display result
+                           src = src + border;
+                           
+                           imshow(src);
+                           imwrite(src,'p1_matlab_result.jpg');
 											</pre>
                         <!-- END CHANGES -->
                      </div>
@@ -87,7 +125,7 @@
                               <p class="tableblock">
                                  <span class="image">
                                     <!-- MAKE CHANGES HERE: Part 1 OpenCV Handle -->
-                                    <img src="output/Part_1/placeholder.jpg" alt="Handle" width="100%">
+                                    <img src="output/Part_1/p1_opencv_result.png" alt="Handle" width="100%">
                                     <!-- END CHANGES -->
                                  </span>
                               </p>
@@ -100,7 +138,62 @@
                      <div class="content monospaced">
                         <!-- MAKE CHANGES HERE: Part 1 OpenCV code -->
                         <pre>
-// Insert your code here
+                           #include <iostream>
+
+                              #include <opencv2/opencv.hpp>
+                              #include <opencv2/imgproc/imgproc.hpp>
+                              #include <opencv2/highgui/highgui.hpp>
+                              #include <opencv2/imgcodecs/imgcodecs.hpp>
+                              
+                              using namespace std;
+                              using namespace cv;
+                              
+                              int main()
+                              {
+                                  char keyPress;
+                                  cout << "p1_opencv\n";
+                              
+                                  // Read image
+                                  Mat src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_1\\p1_board.jpg", IMREAD_GRAYSCALE);
+                                  Mat border = src.clone();
+                              
+                                  // Threshold and apply close operation to remove all pixels that are not part of the border
+                                  threshold(border, border, 248, 255, THRESH_BINARY);
+                              
+                                  int elementValue = 5;
+                                  Mat element = getStructuringElement( MORPH_RECT, Size( 2*elementValue + 1, 2*elementValue+1 ), Point( elementValue, elementValue ) );
+                                  morphologyEx( border, border, MORPH_CLOSE, element );
+                              
+                                  cvtColor(border, border, COLOR_GRAY2BGR);
+                              
+                                  // Apply threshold to convert the black and white spots on board to black and white
+                                  threshold(src, src, 225, 255, THRESH_BINARY);
+                                  cvtColor(src, src, COLOR_GRAY2BGR);
+                              
+                                  // Convert all white pixels to green and all black pixels to red
+                                  Mat mask;
+                                  inRange(src, Scalar(255, 255, 255), Scalar(255, 255, 255), mask);
+                                  src.setTo(Scalar(0, 255, 0), mask);
+                                  inRange(src, Scalar(0, 0, 0), Scalar(0, 0, 0), mask);
+                                  src.setTo(Scalar(0, 0, 255), mask);
+                              
+                                  // Restore border and display reslt
+                                  src = src + border;
+                              
+                                  imshow("Input", src);
+                              
+                                  while(1)
+                                  {
+                                      keyPress = waitKey();
+                                      // Press q key to close window
+                                      if (keyPress == 'q')
+                                      {
+                                          destroyAllWindows();
+                                          break;
+                                      }
+                                  }
+                                  return 0;
+                              }
 											</pre>
                         <!-- END CHANGES -->
                      </div>

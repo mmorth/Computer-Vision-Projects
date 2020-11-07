@@ -10,24 +10,30 @@ border(border<250) = 0;
 se = strel('square', 11);
 border = imclose(border, se);
 
-map = hsv(256);
-border = ind2rgb(border, map);
+border = cat(3, border, border, border);
 
 % Apply threshold to convert the black and white spots on board to black and white
 src(src>225) = 255;
-src = ind2rgb(src, map);
+src(src<=225) = 0;
+src = cat(3, src, src, src);
+
+r = src(:,:,1); % Red channel
+g = src(:,:,2); % Green channel
+b = src(:,:,3); % Blue channel
 
 % Convert all white pixels to green and all black pixels to red
-src(src==255, 1) = 0;
-src(src==255, 2) = 0;
-src(src==255, 3) = 255;
+r(r==255) = 1;
+g(g==255) = 255;
+b(b==255) = 1;
 
-src(src==0, 1) = 0;
-src(src==0, 2) = 255;
-src(src==0, 3) = 0;
+r(r==0) = 255;
+g(g==0) = 1;
+b(b==0) = 1;
+
+src = cat(3, r, g, b);
 
 % Restore border and display result
 src = src + border;
 
 imshow(src);
-imwrite(src,'p1_matlab_result.png');
+imwrite(src,'p1_matlab_result.jpg');
