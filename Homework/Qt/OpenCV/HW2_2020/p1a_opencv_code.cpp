@@ -77,6 +77,8 @@
 //    // Store the grid for processing
 //    Mat grid = horiz + vert;
 
+//    imshow("grid", grid);
+
 //    Mat resb;
 //    grid.convertTo(resb, CV_8U, 255);
 
