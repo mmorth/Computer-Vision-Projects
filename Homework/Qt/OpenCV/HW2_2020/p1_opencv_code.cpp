@@ -15,17 +15,14 @@
 //    char keyPress;
 //    cout << "p1_opencv\n";
 //    // Read image
-//    Mat src1 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_2\\p2_board_1.jpg", IMREAD_GRAYSCALE);
-//    Mat src2 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_2\\p2_board_2.jpg", IMREAD_GRAYSCALE);
-//    Mat src3 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_2\\p2_board_3.jpg", IMREAD_GRAYSCALE);
+//    Mat src1 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Part_1\\p1_board.jpg", IMREAD_GRAYSCALE);
 //    Mat dst1 = src1.clone();
-//    Mat dst2 = src2.clone();
-//    Mat dst3 = src3.clone();
+
+//    // Create constant border for grid detectioon
+//    copyMakeBorder(src1, src1, 1, 1, 1, 1, BORDER_CONSTANT, Scalar(255));
 
 //    // Run function to display location overlay
 //    displayBoardGridOverlay(src1, dst1, "Results 1");
-//    displayBoardGridOverlay(src2, dst2, "Results 2");
-//    displayBoardGridOverlay(src3, dst3, "Results 3");
 
 //    while(1)
 //    {
@@ -116,16 +113,16 @@
 //    int row = 8;
 
 //    // Display text
-//    int lastX = -128;
+//    int lastX = -64;
 //    for (uint i=0; i<contours.size(); ++i)
 //    {
 //        // Display text for each bounding box in grid
 //        if (contourArea(contours[i]) > 2500) {
 //            Rect bound = boundingRect(contours[i]);
-//            if (abs(bound.x - lastX) > 108) {
+//            if (abs(bound.x - lastX) > 50) {
 //                std::string s(1, col);
 //                string text = s + std::to_string(row);
-//                putText(dst, text, Point(bound.x+25, bound.y+90), FONT_HERSHEY_TRIPLEX, 2, Scalar(0, 0, 255), 10);
+//                putText(dst, text, Point(bound.x+10, bound.y+35), FONT_HERSHEY_TRIPLEX, 1, Scalar(0, 0, 255), 3);
 //                col++;
 
 //                if (col == 'I') {
