@@ -15,9 +15,9 @@
 //    char keyPress;
 //    cout << "p1_opencv\n";
 //    // Read image
-//    Mat src1 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_3a\\p3a_board_1.jpg", IMREAD_GRAYSCALE);
-//    Mat src2 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_3a\\p3a_board_2.jpg", IMREAD_GRAYSCALE);
-//    Mat src3 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_3a\\p3a_board_3.jpg", IMREAD_GRAYSCALE);
+//    Mat src1 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_3c\\p3c_board_1.jpg", IMREAD_GRAYSCALE);
+//    Mat src2 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_3c\\p3c_board_2.jpg", IMREAD_GRAYSCALE);
+//    Mat src3 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Part_3c\\p3c_board_3.jpg", IMREAD_GRAYSCALE);
 
 //    // Load the knight chess piece templates
 //    Mat bkd = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2018\\HW2\\input\\Chess_Piece_Templates\\blackKnightDark.jpg", IMREAD_GRAYSCALE);
@@ -49,6 +49,14 @@
 //    cvtColor(src1, dst1, COLOR_GRAY2BGR);
 //    cvtColor(src2, dst2, COLOR_GRAY2BGR);
 //    cvtColor(src3, dst3, COLOR_GRAY2BGR);
+
+//    // Apply median blur to reduce the noise in the images
+//    medianBlur(src1, src1, 3);
+//    medianBlur(src2, src2, 3);
+//    medianBlur(src3, src3, 3);
+//    for (int i = 0; i < numPieceTemplates; i++) {
+//        medianBlur(pieceTemplates[i], pieceTemplates[i], 3);
+//    }
 
 //    for (int i = 0; i < numPieceTemplates; i++) {
 //        processPieceMatch(src1, dst1, pieceTemplates[i]);

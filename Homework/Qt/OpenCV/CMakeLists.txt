@@ -17,6 +17,13 @@ find_package( OpenCV REQUIRED )
 add_executable(OpenCV
   main.cpp
 
+  HW2_2018/p1_opencv_code.cpp
+  HW2_2018/p2_opencv_code.cpp
+  HW2_2018/p3a_opencv_code.cpp
+  HW2_2018/p3b_opencv_code.cpp
+  HW2_2018/p3c_opencv_code.cpp
+  HW2_2018/chess_piece_template_finder.cpp
+
   HW2_2019/p1_opencv_code.cpp
   HW2_2019/p2_opencv_code.cpp
   HW2_2019/p3_opencv_code.cpp
@@ -28,14 +35,10 @@ add_executable(OpenCV
   HW2_2019/p9_opencv_code.cpp
   HW2_2019/p10_opencv_code.cpp
 
-  HW2_2018/p1_opencv_code.cpp
-  HW2_2018/p2_opencv_code.cpp
-  HW2_2018/p3a_opencv_code.cpp
-  HW2_2018/p3b_opencv_code.cpp
-  HW2_2018/chess_piece_template_finder.cpp
-
   HW2_2020/p1a_opencv_code.cpp
   HW2_2020/p1b_opencv_code.cpp
+  HW2_2020/p2a_opencv_code.cpp
+  HW2_2020/chess_piece_template_finder.cpp
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
