@@ -22,6 +22,7 @@ int main()
     Mat dst2 = src2.clone();
     Mat dst3 = src3.clone();
 
+    // Run function to display location overlay
     displayBoardGridOverlay(src1, dst1, "Results 1");
     displayBoardGridOverlay(src2, dst2, "Results 2");
     displayBoardGridOverlay(src3, dst3, "Results 3");
@@ -57,16 +58,21 @@ void displayBoardGridOverlay(Mat src, Mat dst, string title) {
     src = src + border;
 
     // Apply Canny edge detection to display clear lines
-    Canny(src, src, 50, 50);
+    Canny(src, src, 100, 100);
+
+    imshow("inter src", src);
+
+    Mat se = getStructuringElement( MORPH_RECT, Size( 3, 3 ), Point( 1, 1 ));
+    dilate(src, src, se);
 
     // Connect disconnected lines from prior morph operation
-    Mat se = getStructuringElement( MORPH_RECT, Size( 3, 3 ), Point( 1, 1 ));
+    se = getStructuringElement( MORPH_RECT, Size( 3, 3 ), Point( 1, 1 ));
     morphologyEx( src, src, MORPH_CLOSE, element );
 
     // Pull the vertical and horizontal lines from the image
     Mat vert;
     Mat horiz;
-    int e = 522;
+    int e = 100;
     se = getStructuringElement( MORPH_RECT, Size( 2*e + 1, 1 ), Point( e, 0 ) );
     morphologyEx( src, horiz, MORPH_OPEN, se );
 
@@ -76,6 +82,8 @@ void displayBoardGridOverlay(Mat src, Mat dst, string title) {
     // Store the grid for processing
     Mat grid = horiz + vert;
 
+    imshow("Grid", grid);
+
     Mat resb;
     grid.convertTo(resb, CV_8U, 255);
 
@@ -84,14 +92,19 @@ void displayBoardGridOverlay(Mat src, Mat dst, string title) {
     findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
 
     // Contour sorter source: https://answers.opencv.org/question/31515/sorting-contours-from-left-to-right-and-top-to-bottom/
+    // The countour sorter from this source was modified for application to this problem
     struct contour_sorter // 'less' for contours
     {
         bool operator ()( const vector<Point>& a, const vector<Point> & b )
         {
             Rect ra(boundingRect(a));
             Rect rb(boundingRect(b));
-            // scale factor for y should be larger than img.width
-            return ( (ra.x + 1000*ra.y) < (rb.x + 1000*rb.y) );
+            // Sort contours from left to right, up to down on the grid
+            if (abs(ra.y-rb.y) < 5) {
+                return ra.x < rb.x;
+            } else {
+                return ( (ra.x + 1000*ra.y) < (rb.x + 1000*rb.y) );
+            }
         }
     };
 
@@ -103,19 +116,23 @@ void displayBoardGridOverlay(Mat src, Mat dst, string title) {
     int row = 8;
 
     // Display text
+    int lastX = -128;
     for (uint i=0; i<contours.size(); ++i)
     {
         // Display text for each bounding box in grid
-        if (contourArea(contours[i]) > 1000) {
-            std::string s(1, col);
-            string text = s + std::to_string(row);
+        if (contourArea(contours[i]) > 2500) {
             Rect bound = boundingRect(contours[i]);
-            putText(dst, text, Point(bound.x+25, bound.y+90), FONT_HERSHEY_TRIPLEX, 2, Scalar(0, 0, 255), 10);
-            col++;
+            if (abs(bound.x - lastX) > 108) {
+                std::string s(1, col);
+                string text = s + std::to_string(row);
+                putText(dst, text, Point(bound.x+25, bound.y+90), FONT_HERSHEY_TRIPLEX, 2, Scalar(0, 0, 255), 10);
+                col++;
 
-            if (col == 'I') {
-                col = 'A';
-                row--;
+                if (col == 'I') {
+                    col = 'A';
+                    row--;
+                }
+                lastX = bound.x;
             }
         }
     }
