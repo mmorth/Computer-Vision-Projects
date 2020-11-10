@@ -8,16 +8,12 @@
 //using namespace std;
 //using namespace cv;
 
-//bool board1[8][8];
-//bool board2[8][8];
-//bool board3[8][8];
-
-//void processPieceMatch(Mat src, Mat temp, int board);
+//void processPieceMatch(Mat src, Mat dst, Mat temp, Mat replacementTemp, double thresh);
 
 //int main()
 //{
 //    char keyPress;
-//    cout << "p1_opencv\n";
+//    cout << "p2c_opencv\n";
 //    // Read image
 //    Mat src1 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Part_2\\p2_board_1.jpg", IMREAD_GRAYSCALE);
 //    Mat src2 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Part_2\\p2_board_2.jpg", IMREAD_GRAYSCALE);
@@ -29,39 +25,25 @@
 //    Mat wpd = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whitePawnDark.jpg", IMREAD_GRAYSCALE);
 //    Mat wpl = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whitePawnLight.jpg", IMREAD_GRAYSCALE);
 
-//    Mat pieceTemplates[] = {bpd, bpl, wpd, wpl};
-//    int numPieceTemplates = 4;
+//    Mat dst1 = src1.clone();
+//    Mat dst2 = src2.clone();
+//    Mat dst3 = src3.clone();
 
-//    Mat dst1;
-//    Mat dst2;
-//    Mat dst3;
-//    cvtColor(src1, dst1, COLOR_GRAY2BGR);
-//    cvtColor(src2, dst2, COLOR_GRAY2BGR);
-//    cvtColor(src3, dst3, COLOR_GRAY2BGR);
+//    // Detect pawn positions and flip colors
+//    processPieceMatch(src1, dst1, wpd, bpd, 0.95);
+//    processPieceMatch(src1, dst1, wpl, bpl, 0.95);
+//    processPieceMatch(src1, dst1, bpd, wpd, 0.999);
+//    processPieceMatch(src1, dst1, bpl, wpl, 0.9998);
 
-//    for (int i = 0; i < 4; i++) {
-//        processPieceMatch(src1, pieceTemplates[i], 1);
-//        processPieceMatch(src2, pieceTemplates[i], 2);
-//        processPieceMatch(src3, pieceTemplates[i], 3);
-//    }
+//    processPieceMatch(src2, dst2, wpd, bpd, 0.95);
+//    processPieceMatch(src2, dst2, wpl, bpl, 0.95);
+//    processPieceMatch(src2, dst2, bpd, wpd, 0.999);
+//    processPieceMatch(src2, dst2, bpl, wpl, 0.9998);
 
-//    // Loop through the board and put the overlay where there is a pawn
-//    int index1 = 1;
-//    int index2 = 1;
-//    int index3 = 1;
-//    for (int i = 0; i < 8; i++) {
-//        for (int j = 0; j < 8; j++) {
-//            if (board1[j][i]) {
-//                putText(dst1, std::to_string(index1++), Point(j*60+10, i*60+35), FONT_HERSHEY_TRIPLEX, 1, Scalar(0, 0, 255), 3);
-//            }
-//            if (board2[j][i]) {
-//                putText(dst2, std::to_string(index2++), Point(j*60+10, i*60+35), FONT_HERSHEY_TRIPLEX, 1, Scalar(0, 0, 255), 3);
-//            }
-//            if (board3[j][i]) {
-//                putText(dst3, std::to_string(index3++), Point(j*60+10, i*60+35), FONT_HERSHEY_TRIPLEX, 1, Scalar(0, 0, 255), 3);
-//            }
-//        }
-//    }
+//    processPieceMatch(src3, dst3, wpd, bpd, 0.95);
+//    processPieceMatch(src3, dst3, wpl, bpl, 0.95);
+//    processPieceMatch(src3, dst3, bpd, wpd, 0.999);
+//    processPieceMatch(src3, dst3, bpl, wpl, 0.9998);
 
 //    // Display results
 //    imshow("Board 1 Results", dst1);
@@ -83,13 +65,12 @@
 
 //// Source: https://stackoverflow.com/questions/32041063/multiple-template-matching-only-detects-one-match/32095085#32095085
 //// This code is based on the solution at this link
-//void processPieceMatch(Mat src, Mat temp, int board) {
+//void processPieceMatch(Mat src, Mat dst, Mat temp, Mat replacementTemp, double thresh) {
 //    // Match the A template on the grid
 //    Mat1f result;
 //    matchTemplate(src, temp, result, TM_CCOEFF_NORMED);
 
 //    // Replace all pixels with a value less than 0.95 with 0, so they are not processed as a match (confidence threshold)
-//    double thresh = 0.95;
 //    threshold(result, result, thresh, 1., THRESH_BINARY);
 
 //    // Convert result to CV_8U to support finding contours
@@ -112,13 +93,8 @@
 //        double max_val;
 //        minMaxLoc(result, NULL, &max_val, NULL, &max_point, mask);
 
-//        // Signal that a pawn was found at the current location
-//        if (board == 1) {
-//            board1[max_point.x/60][max_point.y/60] = true;
-//        } else if (board == 2) {
-//            board2[max_point.x/60][max_point.y/60] = true;
-//        } else {
-//            board3[max_point.x/60][max_point.y/60] = true;
-//        }
+//        // Replace the pixels at this pawn with the pixels for the flipped color
+//        Rect roi(max_point.x, max_point.y, 59, 59);
+//        replacementTemp.copyTo(dst(roi));
 //    }
 //}
