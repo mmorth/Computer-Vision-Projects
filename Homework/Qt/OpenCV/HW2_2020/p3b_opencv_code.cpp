@@ -10,7 +10,7 @@
 
 //void processPieceMatch(Mat src, Mat hl, Mat temp, Mat replacementTemp);
 //void processColorChange(Mat src);
-//void colorRooks(Mat temp, Mat hlTemp);
+//void colorPieces(Mat temp, Mat hlTemp, Scalar color);
 
 //int main()
 //{
@@ -27,8 +27,18 @@
 //    Mat wrd = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whiteRookDark.jpg", IMREAD_GRAYSCALE);
 //    Mat wrl = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whiteRookLight.jpg", IMREAD_GRAYSCALE);
 
-//    Mat pieceTemplates[] = {brd, brl, wrd, wrl};
-//    int numPieceTemplates = 4;
+//    Mat bbd = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\blackBishopDark.jpg", IMREAD_GRAYSCALE);
+//    Mat bbl = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\blackBishopLight.jpg", IMREAD_GRAYSCALE);
+//    Mat wbd = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whiteBishopDark.jpg", IMREAD_GRAYSCALE);
+//    Mat wbl = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whiteBishopLight.jpg", IMREAD_GRAYSCALE);
+
+//    Mat bqd = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\blackQueenDark.jpg", IMREAD_GRAYSCALE);
+//    Mat bql = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\blackQueenLight.jpg", IMREAD_GRAYSCALE);
+//    Mat wqd = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whiteQueenDark.jpg", IMREAD_GRAYSCALE);
+//    Mat wql = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whiteQueenLight.jpg", IMREAD_GRAYSCALE);
+
+//    Mat pieceTemplates[] = {brd,brl,wrd,wrl,bbd,bbl,wbd,wbl,bqd,bql,wqd,wql};
+//    int numPieceTemplates = 12;
 
 //    Mat dst1;
 //    Mat dst2;
@@ -42,18 +52,35 @@
 //    Mat brlc = brl.clone();
 //    Mat wrdc = wrd.clone();
 //    Mat wrlc = wrl.clone();
+//    Mat bbdc = bbd.clone();
+//    Mat bblc = bbl.clone();
+//    Mat wbdc = wbd.clone();
+//    Mat wblc = wbl.clone();
+//    Mat bqdc = bqd.clone();
+//    Mat bqlc = bql.clone();
+//    Mat wqdc = wqd.clone();
+//    Mat wqlc = wql.clone();
 //    cvtColor(brdc, brdc, COLOR_GRAY2BGR);
 //    cvtColor(brlc, brlc, COLOR_GRAY2BGR);
 //    cvtColor(wrdc, wrdc, COLOR_GRAY2BGR);
 //    cvtColor(wrlc, wrlc, COLOR_GRAY2BGR);
-//    Mat pieceTemplatesReplacements[] = {brdc, brlc, wrdc, wrlc};
+//    cvtColor(bbdc, bbdc, COLOR_GRAY2BGR);
+//    cvtColor(bblc, bblc, COLOR_GRAY2BGR);
+//    cvtColor(wbdc, wbdc, COLOR_GRAY2BGR);
+//    cvtColor(wblc, wblc, COLOR_GRAY2BGR);
+//    cvtColor(bqdc, bqdc, COLOR_GRAY2BGR);
+//    cvtColor(bqlc, bqlc, COLOR_GRAY2BGR);
+//    cvtColor(wqdc, wqdc, COLOR_GRAY2BGR);
+//    cvtColor(wqlc, wqlc, COLOR_GRAY2BGR);
+//    Mat pieceTemplatesReplacements[] = {brdc,brlc,wrdc,wrlc,bbdc,bblc,wbdc,wblc,bqdc,bqlc,wqdc,wqlc};
 
-//    // TODO: Create a function to change the color of the pieces (0 and 255 to red)
-//    for (int i = 0; i < 4; i++) {
-//        colorRooks(pieceTemplates[i], pieceTemplatesReplacements[i]);
+//    // Fill in chess pieces
+//    Scalar colors[] = {Scalar(0, 0, 255), Scalar(0, 128, 255), Scalar(255, 255, 0)};
+//    for (int i = 0; i < numPieceTemplates; i++) {
+//        colorPieces(pieceTemplates[i], pieceTemplatesReplacements[i], colors[i/4]);
 //    }
 
-//    for (int i = 0; i < 4; i++) {
+//    for (int i = 0; i < numPieceTemplates; i++) {
 //        processPieceMatch(src1, dst1, pieceTemplates[i], pieceTemplatesReplacements[i]);
 //        processPieceMatch(src2, dst2, pieceTemplates[i], pieceTemplatesReplacements[i]);
 //        processPieceMatch(src3, dst3, pieceTemplates[i], pieceTemplatesReplacements[i]);
@@ -115,7 +142,7 @@
 //}
 
 //// Highlights the rooks
-//void colorRooks(Mat temp, Mat hlTemp) {
+//void colorPieces(Mat temp, Mat hlTemp, Scalar color) {
 //    Mat resb;
 //    Mat oTemp = temp.clone();
 //    threshold(oTemp, oTemp, 246, 255, THRESH_BINARY);
@@ -128,6 +155,6 @@
 //    // Fill in the chess pieces
 //    for (uint i=0; i<contours.size(); ++i)
 //    {
-//        drawContours(hlTemp, contours, i, Scalar(0, 0, 255), FILLED);
+//        drawContours(hlTemp, contours, i, color, FILLED);
 //    }
 //}
