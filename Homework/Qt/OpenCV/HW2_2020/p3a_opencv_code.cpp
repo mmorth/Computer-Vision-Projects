@@ -47,6 +47,24 @@ int main()
     cvtColor(wrlc, wrlc, COLOR_GRAY2BGR);
     Mat pieceTemplatesReplacements[] = {brdc, brlc, wrdc, wrlc};
 
+    // Convert result to CV_8U to support finding contours
+    Mat resb;
+    threshold(wrd, wrd, 190, 255, THRESH_BINARY);
+    wrd.convertTo(resb, CV_8U, 255);
+
+    imshow("brd", wrd);
+
+    // Find the contours of the grayscale match result
+    vector<vector<Point>> contours;
+    findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+
+    // Process each matching A
+    for (uint i=0; i<contours.size(); ++i)
+    {
+        drawContours(wrdc, contours, i, Scalar(0, 0, 255), FILLED);
+    }
+
+    imshow("Filled", wrdc);
     // TODO: Create a function to change the color of the pieces (0 and 255 to red)
 //    for (int i = 0; i < 4; i++) {
 //        processColorChange(pieceTemplatesReplacements[i]);
@@ -57,16 +75,16 @@ int main()
     // Change the background back to 160 for dark or 240 for light backgrounds
     // Replace the roi on the original image
 
-    for (int i = 0; i < 4; i++) {
-        processPieceMatch(src1, dst1, pieceTemplates[i], pieceTemplatesReplacements[i]);
-        processPieceMatch(src2, dst2, pieceTemplates[i], pieceTemplatesReplacements[i]);
-        processPieceMatch(src3, dst3, pieceTemplates[i], pieceTemplatesReplacements[i]);
-    }
+//    for (int i = 0; i < 4; i++) {
+//        processPieceMatch(src1, dst1, pieceTemplates[i], pieceTemplatesReplacements[i]);
+//        processPieceMatch(src2, dst2, pieceTemplates[i], pieceTemplatesReplacements[i]);
+//        processPieceMatch(src3, dst3, pieceTemplates[i], pieceTemplatesReplacements[i]);
+//    }
 
     // Display results
-    imshow("Board 1 Results", dst1);
-    imshow("Board 2 Results", dst2);
-    imshow("Board 3 Results", dst3);
+//    imshow("Board 1 Results", dst1);
+//    imshow("Board 2 Results", dst2);
+//    imshow("Board 3 Results", dst3);
 
     while(1)
     {
@@ -113,9 +131,9 @@ void processPieceMatch(Mat src, Mat dst, Mat temp, Mat replacementTemp) {
         minMaxLoc(result, NULL, &max_val, NULL, &max_point, mask);
 
         // Draw the font in different colors
-        Rect roi(max_point.x, max_point.y, 59, 59);
-        replacementTemp.copyTo(dst(roi));
-//        rectangle(hl, Rect(max_point.x, max_point.y, temp.cols, temp.rows), Scalar(0, 0, 255), 5);
+//        Rect roi(max_point.x, max_point.y, 59, 59);
+//        replacementTemp.copyTo(dst(roi));
+        rectangle(dst, Rect(max_point.x, max_point.y, temp.cols, temp.rows), Scalar(0, 0, 255), 5, FILLED);
     }
 }
 
