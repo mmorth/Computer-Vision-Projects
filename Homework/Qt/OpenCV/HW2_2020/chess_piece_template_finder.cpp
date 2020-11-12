@@ -27,35 +27,35 @@
 //    imshow("src4", src4);
 
 //    // Create a template image for all chess pieces, colors, and board positions (24 in total, 6 pieces and 4 templates for each piece)
-//    createChessPieceTemplate(src1, 241, 61, "blackPawnDark.jpg");
-//    createChessPieceTemplate(src1, 181, 61, "blackPawnLight.jpg");
-//    createChessPieceTemplate(src1, 181, 361, "whitePawnDark.jpg");
-//    createChessPieceTemplate(src1, 241, 361, "whitePawnLight.jpg");
+//    createChessPieceTemplate(src1, 240, 60, "blackPawnDark.jpg");
+//    createChessPieceTemplate(src1, 180, 60, "blackPawnLight.jpg");
+//    createChessPieceTemplate(src1, 180, 360, "whitePawnDark.jpg");
+//    createChessPieceTemplate(src1, 240, 360, "whitePawnLight.jpg");
 
-//    createChessPieceTemplate(src1, 421, 1, "blackRookDark.jpg");
-//    createChessPieceTemplate(src1, 1, 1, "blackRookLight.jpg");
-//    createChessPieceTemplate(src1, 1, 421, "whiteRookDark.jpg");
-//    createChessPieceTemplate(src1, 421, 421, "whiteRookLight.jpg");
+//    createChessPieceTemplate(src1, 420, 0, "blackRookDark.jpg");
+//    createChessPieceTemplate(src1, 0, 0, "blackRookLight.jpg");
+//    createChessPieceTemplate(src1, 0, 420, "whiteRookDark.jpg");
+//    createChessPieceTemplate(src1, 420, 420, "whiteRookLight.jpg");
 
-//    createChessPieceTemplate(src1, 301, 1, "blackBishopDark.jpg");
-//    createChessPieceTemplate(src1, 121, 1, "blackBishopLight.jpg");
-//    createChessPieceTemplate(src1, 121, 421, "whiteBishopDark.jpg");
-//    createChessPieceTemplate(src1, 301, 421, "whiteBishopLight.jpg");
+//    createChessPieceTemplate(src1, 300, 0, "blackBishopDark.jpg");
+//    createChessPieceTemplate(src1, 120, 0, "blackBishopLight.jpg");
+//    createChessPieceTemplate(src1, 120, 420, "whiteBishopDark.jpg");
+//    createChessPieceTemplate(src1, 300, 420, "whiteBishopLight.jpg");
 
-//    createChessPieceTemplate(src1, 61, 1, "blackKnightDark.jpg");
-//    createChessPieceTemplate(src1, 361, 1, "blackKnightLight.jpg");
-//    createChessPieceTemplate(src1, 61, 421, "whiteKnightDark.jpg");
-//    createChessPieceTemplate(src1, 361, 421, "whiteKnightLight.jpg");
+//    createChessPieceTemplate(src1, 60, 0, "blackKnightDark.jpg");
+//    createChessPieceTemplate(src1, 360, 0, "blackKnightLight.jpg");
+//    createChessPieceTemplate(src1, 60, 420, "whiteKnightDark.jpg");
+//    createChessPieceTemplate(src1, 360, 420, "whiteKnightLight.jpg");
 
-//    createChessPieceTemplate(src4, 421, 1, "blackQueenDark.jpg");
-//    createChessPieceTemplate(src3, 241, 121, "blackQueenLight.jpg");
-//    createChessPieceTemplate(src1, 241, 421, "whiteQueenDark.jpg");
-//    createChessPieceTemplate(src3, 181, 301, "whiteQueenLight.jpg");
+//    createChessPieceTemplate(src4, 420, 0, "blackQueenDark.jpg");
+//    createChessPieceTemplate(src3, 240, 120, "blackQueenLight.jpg");
+//    createChessPieceTemplate(src1, 240, 420, "whiteQueenDark.jpg");
+//    createChessPieceTemplate(src3, 180, 300, "whiteQueenLight.jpg");
 
-//    createChessPieceTemplate(src2, 241, 61, "blackKingDark.jpg");
-//    createChessPieceTemplate(src1, 181, 1, "blackKingLight.jpg");
-//    createChessPieceTemplate(src2, 421, 121, "whiteKingDark.jpg");
-//    createChessPieceTemplate(src1, 181, 421, "whiteKingLight.jpg");
+//    createChessPieceTemplate(src2, 240, 60, "blackKingDark.jpg");
+//    createChessPieceTemplate(src1, 180, 0, "blackKingLight.jpg");
+//    createChessPieceTemplate(src2, 420, 120, "whiteKingDark.jpg");
+//    createChessPieceTemplate(src1, 180, 420, "whiteKingLight.jpg");
 
 //    // Run function to display location overlay
 ////    imshow("Result", src2);
@@ -75,7 +75,7 @@
 
 //// This function creates a template for the the specified paramters and saves the resulting image
 //void createChessPieceTemplate(Mat src, int topLeftX, int topLeftY, string fileName) {
-//    Rect roi(topLeftX, topLeftY, 59, 59);
+//    Rect roi(topLeftX, topLeftY, 60, 60);
 //    Mat temp = src(roi);
 
 //    imwrite(fileName, temp);

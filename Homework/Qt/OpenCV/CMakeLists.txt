@@ -43,6 +43,9 @@ add_executable(OpenCV
   HW2_2020/p3a_opencv_code.cpp
   HW2_2020/p3b_opencv_code.cpp
   HW2_2020/p4a_opencv_code.cpp
+  HW2_2020/p4b_opencv_code.cpp
+  HW2_2020/p5a_opencv_code.cpp
+  HW2_2020/p5b_opencv_code.cpp
   HW2_2020/chess_piece_template_finder.cpp
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
