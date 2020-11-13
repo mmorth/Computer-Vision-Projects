@@ -100,10 +100,10 @@
 
 //        // Replace the pixels at this pawn with the pixels for the flipped color
 //        if (isBlack && max_point.y >= 420) {
-//            Rect roi(max_point.x, max_point.y, 59, 59);
+//            Rect roi(max_point.x, max_point.y, 60, 60);
 //            replacementTemp.copyTo(dst(roi));
 //        } else if (!isBlack and max_point.y < 60) {
-//            Rect roi(max_point.x, max_point.y, 59, 59);
+//            Rect roi(max_point.x, max_point.y, 60, 60);
 //            replacementTemp.copyTo(dst(roi));
 //        }
 //    }
