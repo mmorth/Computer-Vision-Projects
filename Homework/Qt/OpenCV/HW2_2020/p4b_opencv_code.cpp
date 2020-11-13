@@ -47,7 +47,7 @@ int main()
     Mat dst3 = src3.clone();
 
     // Apply median blur to reduce the noise in the images
-    int b = 5;
+    int b = 21;
     medianBlur(src1, src1, b);
     medianBlur(src2, src2, b);
     medianBlur(src3, src3, b);
@@ -65,20 +65,20 @@ int main()
     bitwise_not(wpl, wpl);
 
     // Detect pawn positions and flip colors
-    processPieceMatch(src1, dst1, wpl, wql, 0.95, false, 1);
-    processPieceMatch(src1, dst1, wpd, wqd, 0.95, false, 1);
-    processPieceMatch(src1, dst1, bpd, bqd, 0.95, true, 1);
-    processPieceMatch(src1, dst1, bpl, bql, 0.95, true, 1);
+    processPieceMatch(src1, dst1, wpl, wql, 0.9, false, 1);
+    processPieceMatch(src1, dst1, wpd, wqd, 0.9, false, 1);
+    processPieceMatch(src1, dst1, bpd, bqd, 0.955, true, 1);
+    processPieceMatch(src1, dst1, bpl, bql, 0.99, true, 1);
 
-//    processPieceMatch(src2, dst2, wpd, wqd, 0.98, false, 2);
-//    processPieceMatch(src2, dst2, wpl, wql, 0.98, false, 2);
-//    processPieceMatch(src2, dst2, bpd, bqd, 0.99, true, 2);
-//    processPieceMatch(src2, dst2, bpl, bql, 0.99, true, 2);
+    processPieceMatch(src2, dst2, wpd, wqd, 0.98, false, 2);
+    processPieceMatch(src2, dst2, wpl, wql, 0.98, false, 2);
+    processPieceMatch(src2, dst2, bpd, bqd, 0.99, true, 2);
+    processPieceMatch(src2, dst2, bpl, bql, 0.99, true, 2);
 
-//    processPieceMatch(src3, dst3, wpd, wqd, 0.98, false, 3);
-//    processPieceMatch(src3, dst3, wpl, wql, 0.99, false, 3);
-//    processPieceMatch(src3, dst3, bpd, bqd, 0.99, true, 3);
-//    processPieceMatch(src3, dst3, bpl, bql, 0.99, true, 3);
+    processPieceMatch(src3, dst3, wpd, wqd, 0.98, false, 3);
+    processPieceMatch(src3, dst3, wpl, wql, 0.99, false, 3);
+    processPieceMatch(src3, dst3, bpd, bqd, 0.99, true, 3);
+    processPieceMatch(src3, dst3, bpl, bql, 0.99, true, 3);
 
     // Replace top and bottom pawn pieces
     for (int col = 0; col < 8; col++) {
@@ -118,6 +118,9 @@ void processPieceMatch(Mat src, Mat dst, Mat temp, Mat replacementTemp, double t
 
     // Replace all pixels with a value less than 0.95 with 0, so they are not processed as a match (confidence threshold)
     threshold(result, result, thresh, 1., THRESH_BINARY);
+//    result.setTo(0, result<0.8);
+
+    imshow("Result", result);
 
     // Convert result to CV_8U to support finding contours
     Mat resb;
@@ -143,15 +146,18 @@ void processPieceMatch(Mat src, Mat dst, Mat temp, Mat replacementTemp, double t
         if (board == 1 && max_val > board1[max_point.y/60][max_point.x/60].value) {
             piece p;
             p.name = isBlack ? "Black Pawn" : "White Pawn";
-            if (p.name == "Black Pawn") {
-                printf("board1[%d][%d] = %s\n", max_point.x, max_point.y, p.name.c_str());
-            }
-            Rect roi(max_point.x, max_point.y, 59, 59);
+            Rect roi(max_point.x, max_point.y, 60, 60);
             p.roi = roi;
             p.temp = temp;
             p.replacementTemp = replacementTemp;
             p.value = max_val;
-            board1[max_point.y/60][max_point.x/60] = p;
+            if (isBlack) {
+                board1[max_point.y/60][max_point.x/60] = p;
+                printf("board1[%d][%d] = %s; value = %.4lf\n", max_point.y/60, max_point.x/60, p.name.c_str(), p.value);
+            } else {
+                board1[max_point.y/60][max_point.x/60] = p;
+                printf("board1[%d][%d] = %s; value = %.4lf\n", max_point.y/60, max_point.x/60, p.name.c_str(), p.value);
+            }
         } else if (board == 2 && max_val > board2[max_point.y/60][max_point.x/60].value) {
             if (isBlack) {
                 Rect roi(max_point.x, max_point.y, 60, 60);
@@ -162,10 +168,10 @@ void processPieceMatch(Mat src, Mat dst, Mat temp, Mat replacementTemp, double t
             }
         } else if (board == 3 && max_val > board3[max_point.y/60][max_point.x/60].value) {
             if (isBlack) {
-                Rect roi(max_point.x, max_point.y, 59, 59);
+                Rect roi(max_point.x, max_point.y, 60, 60);
                 replacementTemp.copyTo(dst(roi));
             } else if (!isBlack) {
-                Rect roi(max_point.x, max_point.y, 59, 59);
+                Rect roi(max_point.x, max_point.y, 60, 60);
                 replacementTemp.copyTo(dst(roi));
             }
         }
