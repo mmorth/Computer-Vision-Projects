@@ -2,6 +2,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/matlab,python,c,c++,qt,qtcreator,cmake,opencv
 # Edit at https://www.toptal.com/developers/gitignore?templates=matlab,python,c,c++,qt,qtcreator,cmake,opencv
 
+### Videos ###
+*.mp4
+*.avi
+
 ### C ###
 # Prerequisites
 *.d
