@@ -32,6 +32,7 @@ matchBlackPawnFeaturesAndDraw(src3, bpl);
 matchWhitePawnFeaturesAndDraw(src3, wpd);
 matchWhitePawnFeaturesAndDraw(src3, wpl);
 
+% Find the black pawn locations and draw a bounding box around them
 function matchBlackPawnFeaturesAndDraw(src, temp)
     points1 = detectHarrisFeatures(src);
     points2 = detectHarrisFeatures(temp);
@@ -64,6 +65,7 @@ function matchBlackPawnFeaturesAndDraw(src, temp)
     end
 end
 
+% Find the white pawn locations and draw a bounding box around them
 function matchWhitePawnFeaturesAndDraw(src, temp)
     points1 = detectHarrisFeatures(src);
     points2 = detectHarrisFeatures(temp);
