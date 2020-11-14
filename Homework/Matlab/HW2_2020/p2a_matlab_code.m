@@ -11,19 +11,57 @@ bpl = imread('C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2
 wpd = imread('C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whitePawnDark.jpg');
 wpl = imread('C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2020\\HW2\\input\\Chess_Piece_Templates\\whitePawnLight.jpg');
 
-% Convert destinations to color
+% Drawn the pawns on board 1
+figure, imshow(src1);
+matchBlackPawnFeaturesAndDraw(src1, bpd);
+matchWhitePawnFeaturesAndDraw(src1, wpd);
+matchWhitePawnFeaturesAndDraw(src1, wpl);
 
+% Drawn the pawns on board 2
+figure, imshow(src2);
+matchBlackPawnFeaturesAndDraw(src2, bpd);
+matchWhitePawnFeaturesAndDraw(src2, wpd);
+matchWhitePawnFeaturesAndDraw(src2, wpl);
 
-% Match the template on the grid
-% tMatcher = vision.TemplateMatcher('Metric', 'Sum of squared differences');
-% location = tMatcher(src1, bpd)
+% Drawn the pawns on board 3
+figure, imshow(src3);
+matchBlackPawnFeaturesAndDraw(src3, bpd);
+matchWhitePawnFeaturesAndDraw(src3, wpd);
+matchWhitePawnFeaturesAndDraw(src3, wpl);
 
-% Find the highest value matches and draw a bounding box around them
-imshow(src1);
-hold on;
-rectangle('Position', [location(1)-29, location(2)-29, 60, 60], 'EdgeColor', 'r', 'LineWidth', 3);
+function matchBlackPawnFeaturesAndDraw(src, temp)
+    points1 = detectHarrisFeatures(src);
+    points2 = detectHarrisFeatures(temp);
 
-% Display results
-% figure, imshow(src1);
-% figure, imshow(src2);
-% figure, imshow(src3);
+    [features1,valid_points1] = extractFeatures(src,points1);
+    [features2,valid_points2] = extractFeatures(temp,points2);
+
+    indexPairs = matchFeatures(features1, features2);
+
+    matchedPoints1 = valid_points1(indexPairs(:,1),:);
+    matchedPoints2 = valid_points2(indexPairs(:,2),:);
+
+    hold on;
+    for i = 1:2:size(matchedPoints1,1)
+        rectangle('Position', [matchedPoints1.Location(i,1)-22, matchedPoints1.Location(i,2)-32, 59, 59], 'EdgeColor', 'r', 'LineWidth', 3);
+    end
+    figure; showMatchedFeatures(src,temp,matchedPoints1,matchedPoints2);
+end
+
+function matchWhitePawnFeaturesAndDraw(src, temp)
+    points1 = detectHarrisFeatures(src);
+    points2 = detectHarrisFeatures(temp);
+
+    [features1,valid_points1] = extractFeatures(src,points1);
+    [features2,valid_points2] = extractFeatures(temp,points2);
+
+    indexPairs = matchFeatures(features1, features2);
+
+    matchedPoints1 = valid_points1(indexPairs(:,1),:);
+    matchedPoints2 = valid_points2(indexPairs(:,2),:);
+
+    for i = 1:4:size(matchedPoints1,1)
+        rectangle('Position', [matchedPoints1.Location(i,1)-21, matchedPoints1.Location(i,2)-25, 59, 59], 'EdgeColor', 'r', 'LineWidth', 3);
+    end
+    figure; showMatchedFeatures(src,temp,matchedPoints1,matchedPoints2);
+end
