@@ -73,4 +73,3 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
 
     printf("Video processing complete for %s!\n", outputVideoName.c_str());
 }
-
