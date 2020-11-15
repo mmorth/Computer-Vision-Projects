@@ -15,10 +15,10 @@ int main()
     cout << "p1a_opencv_code\n";
 
     // Read input videos
-    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1a\\L1_clip1_12s.m4v");
-    processVideo(cap1, "L1_clip1_12s.m4v", "p1a_output1.avi");
-    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1a\\L1_clip2_15s.m4v");
-    processVideo(cap2, "L2_clip1_15s.m4v", "p1a_output2.avi");
+//    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1a\\L1_clip1_12s.m4v");
+//    processVideo(cap1, "L1_clip1_12s.m4v", "p1a_output1.avi");
+    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1b\\L2_clip2_16s.m4v");
+    processVideo(cap2, "L2_clip1_16s.m4v", "p1a_output2.avi");
 
     return 0;
 }
@@ -40,7 +40,7 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
 
     // Create a video writer and process the input video frame by frame
     printf("Processing video %s...\n", inputVideoName.c_str());
-    VideoWriter video(outputVideoName,VideoWriter::fourcc('M','J','P','G'),60, Size(frame_width,frame_height), false);
+    VideoWriter video(outputVideoName,VideoWriter::fourcc('M','J','P','G'),60, Size(frame_width,frame_height));
     while(1)
     {
       // Ready in a frame at a time
@@ -51,11 +51,10 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
       if (frame.empty())
         break;
 
-      // Convert the frame to grayscale
-      cvtColor(frame, frame, COLOR_BGR2GRAY);
+      imshow("frame", frame);
 
       // Write the frame into the output video file
-      video.write(frame);
+//      video.write(frame);
 
       // Press  ESC on keyboard to  exit
       char c = (char)waitKey(1);
@@ -72,4 +71,3 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
 
     printf("Video processing complete for %s!\n", outputVideoName.c_str());
 }
-

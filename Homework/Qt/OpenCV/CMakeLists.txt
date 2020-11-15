@@ -48,6 +48,11 @@ add_executable(OpenCV
   HW2_2020/p5b_opencv_code.cpp
   HW2_2020/chess_piece_template_finder.cpp
 
+  HW3_2018/p1a_opencv_code.cpp
+
+  HW3_2019/p1a_opencv_code.cpp
+  HW3_2019/p1b_opencv_code.cpp
+
   HW3_2020/p1a_opencv_code.cpp
   HW3_2020/p1b_opencv_code.cpp
   HW3_2020/p1c_opencv_code.cpp
