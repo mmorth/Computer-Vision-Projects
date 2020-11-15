@@ -51,6 +51,8 @@ add_executable(OpenCV
   HW3_2020/p1a_opencv_code.cpp
   HW3_2020/p1b_opencv_code.cpp
   HW3_2020/p1c_opencv_code.cpp
+  HW3_2020/p2a_opencv_code.cpp
+  HW3_2020/create_mario_template.cpp
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
