@@ -8,8 +8,9 @@
 using namespace std;
 using namespace cv;
 
-int linesCleared1 = 0;
-int board1[5][10];
+bool bottomLineFull[5] = {false, false, false, false, false};
+int linesCleared = 0;
+int board[5][10];
 
 void updateBoardSquares(Mat frame);
 void processVideo(VideoCapture cap, string inputVideoName, string outputVideoName);
@@ -22,9 +23,10 @@ int main()
 
     // Read input videos
     VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_1c\\p1c_tetris_1.mp4");
-    processVideo(cap1, "p1c_tetris_1.mp4", "p1c_output1.avi");
+    processVideo(cap1, "p1c_tetris_1.mp4", "p1c_output1.mp4");
+    linesCleared = 0;
     VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_1c\\p1c_tetris_2.mp4");
-    processVideo(cap2, "p1c_tetris_2.mp4", "p1c_output2.avi");
+    processVideo(cap2, "p1c_tetris_2.mp4", "p1c_output2.mp4");
 
     while(1)
     {
@@ -56,7 +58,7 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
 
     // Create a video writer and process the input video frame by frame
     printf("Processing video %s...\n", inputVideoName.c_str());
-    VideoWriter video(outputVideoName,VideoWriter::fourcc('M','J','P','G'),60, Size(frame_width,frame_height));
+    VideoWriter video(outputVideoName,VideoWriter::fourcc('H','2','6','4'),60, Size(frame_width,frame_height));
     while(1)
     {
       // Ready in a frame at a time
@@ -68,7 +70,6 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
         break;
 
       updateBoardSquares(frame);
-      imshow("frame", frame);
 
       // Write the frame into the output video file
       video.write(frame);
@@ -94,24 +95,11 @@ void updateBoardSquares(Mat frame) {
     // Loop through the bottom 5 rows of the board
     for (int row = 0; row < 5; row++) {
         for (int col = 0; col < 10; col++) {
-            Vec3b color = frame.at<Vec3b>(1250-(60*row), 30+(col*60));
+            Vec3b color = frame.at<Vec3b>(1250-(60*row), 30+(col*64));
             if (color.val[0] < 5 && color.val[1] < 5 && color.val[2] < 5) {
-                board1[4-row][col] = 0;
+                board[4-row][col] = 0;
             } else {
-                board1[4-row][col] = 1;
-
-//                printf("color = (%d, %d, %d)\n", color.val[0], color.val[1], color.val[2]);
-
-//                for (int row = 0; row < 5 ; ++row)
-//                {
-//                    for (int col = 0; col < 10; ++col)
-//                    {
-//                        std::cout << board1[row][col] << ' ';
-//                    }
-//                    std::cout << std::endl;
-//                }
-
-//                printf("\n\n");
+                board[4-row][col] = 1;
             }
         }
     }
@@ -122,23 +110,26 @@ void updateBoardSquares(Mat frame) {
     for (int row = 0; row < 5 && rowOnes; row++) {
         rowOnes = false;
         for (int col = 0; col < 10; col++) {
-            if (board1[4-row][col] == 1) {
+            if (board[4-row][col] == 1) {
                 rowOnes = true;
                 continue;
             } else {
                 rowOnes = false;
+                bottomLineFull[4-row] = false;
                 break;
             }
         }
-        if (rowOnes) {
+        // Only increment the number of cleared rows is the new frame does not have a full bottom row (do not double count clears between multiple frames)
+        if (rowOnes && !bottomLineFull[4-row]) {
+            bottomLineFull[4-row] = true;
             increaseAmount++;
         }
     }
 
     // Increment the number of cleared lines by that amount
-    linesCleared1 += increaseAmount;
+    linesCleared += increaseAmount;
 
     // Display text on the frame
-    string text = "# lines cleared = " + std::to_string(linesCleared1);
+    string text = "# lines cleared = " + std::to_string(linesCleared);
     putText(frame, text, Point(10,50), FONT_HERSHEY_TRIPLEX, 1, Scalar(255, 255, 255), 3);
 }
