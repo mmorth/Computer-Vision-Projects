@@ -23,10 +23,10 @@
 ////    processTemplateMatching(env, smallFace);
 
 //    // Read input videos
-//    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_1.mp4");
-//    processVideo(cap1, "p2a_mario_1.mp4", "p2a_output1.avi");
-////    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_2.mp4");
-////    processVideo(cap2, "p2a_mario_2.mp4", "p2a_output2.avi");
+////    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_1.mp4");
+////    processVideo(cap1, "p2a_mario_1.mp4", "p2a_output1.avi");
+//    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_2.mp4");
+//    processVideo(cap2, "p2a_mario_2.mp4", "p2a_output2.avi");
 ////    VideoCapture cap3("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_3.mp4");
 ////    processVideo(cap3, "p2a_mario_3.mp4", "p2a_output3.avi");
 
