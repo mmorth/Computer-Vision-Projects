@@ -50,6 +50,12 @@ add_executable(OpenCV
 
   HW3_2018/p1a_opencv_code.cpp
   HW3_2018/p1b_opencv_code.cpp
+  HW3_2018/p2a_opencv_code.cpp
+  HW3_2018/p2b_opencv_code.cpp
+  HW3_2018/p3a_opencv_code.cpp
+  HW3_2018/p3b_opencv_code.cpp
+  HW3_2018/p4_opencv_code.cpp
+  HW3_2018/create_pacmman_template.cpp
 
   HW3_2019/p1a_opencv_code.cpp
   HW3_2019/p1b_opencv_code.cpp

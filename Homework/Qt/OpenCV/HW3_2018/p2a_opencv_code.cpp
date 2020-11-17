@@ -8,29 +8,20 @@
 //using namespace std;
 //using namespace cv;
 
+//int numPellets = 0;
+//void processPellet(Mat frame, Mat pellets);
 //void processVideo(VideoCapture cap, string inputVideoName, string outputVideoName);
 
 //int main()
 //{
 //    char keyPress;
-//    cout << "p1b_opencv_code\n";
-
-//    Mat frame = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part1a\\frame.png");
-//    imshow("frame", frame);
-
-////    Mat yellowMask;
-////    inRange(frame, Scalar(165, 165, 200), Scalar(205, 205, 255), yellowMask);
-////    frame.setTo(Scalar(0, 255, 0), yellowMask);
-
-//    // TODO: Need to find the bounding box of Pacman and only filter the colors in the bounding box region
-
-//    imshow("after", frame);
+//    cout << "p2a_opencv_code\n";
 
 //    // Read input videos
-////    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part1a\\input1a1.avi");
-////    processVideo(cap1, "input1a1.avi", "p1a_output1.avi");
-////    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part1a\\input1a2.avi");
-////    processVideo(cap2, "input1a2.avi", "p1a_output2.avi");
+//    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part2a\\input2a1.avi");
+//    processVideo(cap1, "input2a1.avi", "p2a_output1.avi");
+//    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part2a\\input2a2.avi");
+//    processVideo(cap2, "input2a2.avi", "p2a_output2.avi");
 
 //    while(1)
 //    {
@@ -73,9 +64,11 @@
 //      if (frame.empty())
 //        break;
 
-//      Mat blueMask;
-//      inRange(frame, Scalar(65, 0, 0), Scalar(195, 70, 70), blueMask);
-//      frame.setTo(Scalar(0, 255, 0), blueMask);
+//      Mat pelletMask;
+//      inRange(frame, Scalar(165, 165, 200), Scalar(205, 205, 255), pelletMask);
+
+//      processPellet(frame, pelletMask);
+//      imshow("frame", frame);
 
 //      // Write the frame into the output video file
 //      video.write(frame);
@@ -94,4 +87,33 @@
 //    destroyAllWindows();
 
 //    printf("Video processing complete for %s!\n", outputVideoName.c_str());
+//}
+
+//// Counts the number of pellets in the map
+//void processPellet(Mat frame, Mat pellets) {
+//    // Convert result to CV_8U to support finding contours
+//    Mat resb;
+//    pellets.convertTo(resb, CV_8U, 255);
+
+//    // Each contours corresponds to a pellet
+//    vector<vector<Point>> contours;
+//    findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+
+//    int numSquares = 0;
+//    for (int i = 0; i < contours.size(); i++) {
+//        if (contourArea(contours[i]) > 25) {
+//            numSquares++;
+//        }
+//    }
+
+//    // Handle situation where the pellets are in the off blink state
+//    if (numSquares == 0) {
+//        numSquares = numPellets;
+//    } else {
+//        numPellets = numSquares;
+//    }
+
+//    // Draw the number of pellets in the top right corner
+//    string text = "# Pellets = " + std::to_string(numSquares);
+//    putText(frame,  text, Point(150,10), FONT_HERSHEY_TRIPLEX, .25, Scalar(255, 255, 255), 1);
 //}
