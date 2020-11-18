@@ -8,6 +8,7 @@
 //using namespace std;
 //using namespace cv;
 
+//void colorPacmanGreen(Mat frame);
 //void processVideo(VideoCapture cap, string inputVideoName, string outputVideoName);
 
 //int main()
@@ -15,22 +16,11 @@
 //    char keyPress;
 //    cout << "p1b_opencv_code\n";
 
-//    Mat frame = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part1a\\frame.png");
-//    imshow("frame", frame);
-
-////    Mat yellowMask;
-////    inRange(frame, Scalar(165, 165, 200), Scalar(205, 205, 255), yellowMask);
-////    frame.setTo(Scalar(0, 255, 0), yellowMask);
-
-//    // TODO: Need to find the bounding box of Pacman and only filter the colors in the bounding box region
-
-//    imshow("after", frame);
-
 //    // Read input videos
-////    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part1a\\input1a1.avi");
-////    processVideo(cap1, "input1a1.avi", "p1a_output1.avi");
-////    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part1a\\input1a2.avi");
-////    processVideo(cap2, "input1a2.avi", "p1a_output2.avi");
+//    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part1b\\input1b1.avi");
+//    processVideo(cap1, "input1b1.avi", "p1b_output1.avi");
+//    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2018\\HW3\\input\\part1b\\input1b2.avi");
+//    processVideo(cap2, "input1b2.avi", "p1b_output2.avi");
 
 //    while(1)
 //    {
@@ -73,9 +63,8 @@
 //      if (frame.empty())
 //        break;
 
-//      Mat blueMask;
-//      inRange(frame, Scalar(65, 0, 0), Scalar(195, 70, 70), blueMask);
-//      frame.setTo(Scalar(0, 255, 0), blueMask);
+//      // Apply green color to Pacman in the frame
+//      colorPacmanGreen(frame);
 
 //      // Write the frame into the output video file
 //      video.write(frame);
@@ -94,4 +83,26 @@
 //    destroyAllWindows();
 
 //    printf("Video processing complete for %s!\n", outputVideoName.c_str());
+//}
+
+//// Colors Pacman green
+//void colorPacmanGreen(Mat frame) {
+//    // Create the mask to isolate the Pacman colors
+//    Mat yellowMask;
+//    inRange(frame, Scalar(0, 200, 200), Scalar(210, 255, 255), yellowMask);
+
+//    // Convert result to CV_8U to support finding contours
+//    Mat resb;
+//    yellowMask.convertTo(resb, CV_8U, 255);
+
+//    // Find the contours that could correspond to Pacman
+//    vector<vector<Point>> contours;
+//    findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+
+//    // Only draw the contours that are large enough (e.g. remove the noise of smaller objects with similar colors to Pacman)
+//    for (int i = 0; i < contours.size(); i++) {
+//        if (contourArea(contours[i]) > 25) {
+//            drawContours(frame, contours, i, Scalar(0, 255, 0), -1);
+//        }
+//    }
 //}
