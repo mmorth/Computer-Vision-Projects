@@ -10,8 +10,8 @@ using namespace cv;
 
 int score[] = {0, 0, 0, 0, 0};
 void processVideo(VideoCapture cap, string inputVideoName, string outputVideoName);
-void processTemplateMatching(Mat frame, Mat temp, double thresh);
-void printScoreInTopRight();
+void processTemplateMatching(Mat frame, Mat temp, int num);
+void printScoreInTopRight(Mat frame);
 
 int main()
 {
@@ -86,7 +86,7 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
       }
 
       // Print the score in the top right corner of the grid
-      printScoreInTopRight();
+      printScoreInTopRight(frame);
 
       // Write the frame into the output video file
       video.write(frame);
@@ -113,12 +113,14 @@ void processTemplateMatching(Mat frame, Mat temp, int number) {
     Mat src;
     cvtColor(frame, src, COLOR_BGR2GRAY);
 
+    cvtColor(temp, temp, COLOR_BGR2GRAY);
+
     // Match the A template on the grid
     Mat1f result;
     matchTemplate(src, temp, result, TM_CCOEFF_NORMED);
 
     // Replace all pixels with a value less than 0.95 with 0, so they are not processed as a match (confidence threshold)
-    double thresh = 0.95;
+    double thresh = 0.9;
     threshold(result, result, thresh, 1., THRESH_BINARY);
 
     // Convert result to CV_8U to support finding contours
@@ -141,11 +143,31 @@ void processTemplateMatching(Mat frame, Mat temp, int number) {
         double max_val;
         minMaxLoc(result, NULL, &max_val, NULL, &max_point, mask);
 
-        // Map the matched template to the right hand corner
-
+        // Store what value is detected at the current position
+        if (max_point.y > 8) {
+            if (max_point.x < 21) {
+                score[0] = number;
+            } else if (max_point.x < 29) {
+                score[1] = number;
+            } else if (max_point.x < 37) {
+                score[2] = number;
+            } else if (max_point.x < 45) {
+                score[3] = number;
+            } else if (max_point.x < 53) {
+                score[4] = number;
+            }
+        }
     }
 }
 
-void printScoreInTopRight() {
+// Reads score and displays the score in the top right corner
+void printScoreInTopRight(Mat frame) {
+    string textScore = "Score: ";
 
+    for (int i = 0; i < 5; i++) {
+        textScore += std::to_string(score[i]);
+        score[i] = 0;
+    }
+
+    putText(frame,  textScore, Point(160,10), FONT_HERSHEY_TRIPLEX, .25, Scalar(255, 255, 255), 1);
 }
