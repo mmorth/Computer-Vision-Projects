@@ -8,23 +8,31 @@
 using namespace std;
 using namespace cv;
 
-Mat createGridMask(Mat frame);
-void colorRedBricksOrange(Mat frame, Mat mask);
+int numContours = 0;
+int contourIndex = 0;
+std::vector<std::vector<cv::Point> > contourVec;
+
+void colorPacmanGreen(Mat frame, Mat path);
 void processVideo(VideoCapture cap, string inputVideoName, string outputVideoName);
 
 int main()
 {
     char keyPress;
-    cout << "p1b_opencv_code\n";
+    cout << "p1c_opencv_code\n";
 
 //    Mat frame = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1b\\frame484.png");
+
+//    Mat ballMask;
+//    inRange(frame, Scalar(195, 220, 0), Scalar(255, 255, 145), ballMask);
+
 //    imshow("frame", frame);
+//    imshow("ballMask", ballMask);
 
     // Read input videos
-    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1b\\L1_clip1_12s.m4v");
-    processVideo(cap1, "L1_clip1_12s.m4v", "p1b_output1.avi");
-    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1b\\L2_clip2_16s.m4v");
-    processVideo(cap2, "L2_clip1_16s.m4v", "p1b_output2.avi");
+    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1c\\L5_clip1_15s.m4v");
+    processVideo(cap1, "L5_clip1_15s.m4v", "p1c_output1.avi");
+    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2019\\HW3\\part_1c\\L5_clip2_12s.m4v");
+    processVideo(cap2, "L5_clip2_12s.m4v", "p1c_output2.avi");
 
     while(1)
     {
@@ -54,10 +62,13 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
     int frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
     int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
 
+    // Create a Mat that will store Pacman's path
+    Mat path(Size(frame_width, frame_height), 16);
+    path = Scalar(0,0,0);
+
     // Create a video writer and process the input video frame by frame
     printf("Processing video %s...\n", inputVideoName.c_str());
-    int frameNum = 0;
-    VideoWriter video(outputVideoName,VideoWriter::fourcc('M','J','P','G'),60, Size(frame_width,frame_height));
+    VideoWriter video(outputVideoName,VideoWriter::fourcc('M','J','P','G'),30, Size(frame_width,frame_height));
     while(1)
     {
       // Ready in a frame at a time
@@ -68,14 +79,12 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
       if (frame.empty())
         break;
 
-      // Color red bricks orange
-      Mat mask = createGridMask(frame);
-      colorRedBricksOrange(frame, mask);
-//      imwrite("frame" + std::to_string(frameNum++) + ".png", frame);
-//      imshow("frame", frame);
+      // Apply green color to Pacman in the frame
+      colorPacmanGreen(frame, path);
+      imshow("frame", frame);
 
       // Write the frame into the output video file
-      video.write(frame);
+//      video.write(frame);
 
       // Press  ESC on keyboard to  exit
       char c = (char)waitKey(1);
@@ -93,30 +102,15 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
     printf("Video processing complete for %s!\n", outputVideoName.c_str());
 }
 
-// Create a mask for the board to prevent matching of the Pacman representing the player's lives
-Mat createGridMask(Mat frame) {
-    Mat mask(Size(838, 990), 16);
-    mask = 0;
-    Rect roi(13, 97, 808, 609);
-    Mat temp = mask(roi);
-    temp = Scalar(255, 255, 255);
-    temp.copyTo(mask(roi));
-
-    Mat result;
-    bitwise_and(frame, mask, result);
-
-    return result;
-}
-
-// Colors the red bricks orange
-void colorRedBricksOrange(Mat frame, Mat mask) {
+// Colors Pacman green
+void colorPacmanGreen(Mat frame, Mat path) {
     // Create the mask to isolate the Pacman colors
-    Mat redMask;
-    inRange(mask, Scalar(0, 0, 40), Scalar(50, 40, 255), redMask);
+    Mat ballMask;
+    inRange(frame, Scalar(195, 220, 0), Scalar(255, 255, 145), ballMask);
 
     // Convert result to CV_8U to support finding contours
     Mat resb;
-    redMask.convertTo(resb, CV_8U, 255);
+    ballMask.convertTo(resb, CV_8U, 255);
 
     // Find the contours that could correspond to Pacman
     vector<vector<Point>> contours;
@@ -124,12 +118,26 @@ void colorRedBricksOrange(Mat frame, Mat mask) {
 
     // Only draw the contours that are large enough (e.g. remove the noise of smaller objects with similar colors to Pacman)
     for (int i = 0; i < contours.size(); i++) {
-        int area = contourArea(contours[i]);
-        Rect br = boundingRect(contours[i]);
-        // Match only the bricks and not the power ups
-//        printf("width = %d\n", br.width);
-        if (area > 100 && br.width < 58) {
-            drawContours(frame, contours, i, Scalar(4, 140, 243), -1);
+        if (contourArea(contours[i]) < 100) {
+            Rect br = boundingRect(contours[i]);
+            Vec3b color;
+            color.val[0] = 0;
+            color.val[1] = 0;
+            color.val[2] = 255;
+            Point curPoint = Point(br.x+br.width/2, br.y+br.height/2);
+
+            std::vector<cv::Point> contour;
+            contour.push_back(curPoint);
+            if (contourIndex == numContours) {
+                contourVec.push_back(contour);
+                contourIndex++;
+                numContours++;
+            } else {
+                contourVec.insert(contourVec.begin() + contourIndex, contour);
+                contourIndex++;
+            }
+            cv::drawContours(path,contourVec,0,color);
         }
     }
+    frame = frame + path;
 }

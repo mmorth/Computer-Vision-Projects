@@ -59,6 +59,7 @@ add_executable(OpenCV
 
   HW3_2019/p1a_opencv_code.cpp
   HW3_2019/p1b_opencv_code.cpp
+  HW3_2019/p1c_opencv_code.cpp
 
   HW3_2020/p1a_opencv_code.cpp
   HW3_2020/p1b_opencv_code.cpp
