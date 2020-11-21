@@ -1,2 +1,2 @@
-//insert your code in part_1d/p1d_code.cpp
-//edit the file extension and web template to match your programing language
+// Need to create a mask for each color brick
+// Use the count contour method and determine the pixel location of each columnm to display the count

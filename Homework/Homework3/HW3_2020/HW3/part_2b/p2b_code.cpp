@@ -1,2 +1,2 @@
-//insert your code in part_2b/p2b_code.cpp
-//edit the file extension and web template to match your programing language
+// Create a template match or a keypoint match for the frame immeditally after a coin collected from the block
+// Create a collision detection for a non-block coin and mario (needs to be accurate to what actually occurs in the event)

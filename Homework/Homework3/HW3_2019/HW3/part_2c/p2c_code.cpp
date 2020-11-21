@@ -1,2 +1,1 @@
-//insert your code in part_2c/p2c_code.cpp
-//edit the file extension and web template to match your programing language
+// Extend solution in last part to output to a text file for every frame

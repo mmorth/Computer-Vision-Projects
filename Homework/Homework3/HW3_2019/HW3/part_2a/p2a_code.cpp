@@ -1,2 +1,2 @@
-//insert your code in part_2a/p2a_code.cpp
-//edit the file extension and web template to match your programing language
+// Create a template for each digit
+// Draw the template matched digit a certain offset above the 7-segment display
