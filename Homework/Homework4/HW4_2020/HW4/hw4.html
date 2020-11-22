@@ -65,7 +65,17 @@
                   <div class="content monospaced">
                      <!-- MAKE CHANGES HERE: Part 1a code -->
                      <pre>
-// Insert your code here
+% Function that implements the slow discrete fourier transform (MATLAB)
+function r = mySDFT(x)
+	% Transpose the input vector to enable matrix multiplication
+	x = x.';
+	% Compute the DFT matrix to multiply against the input array to get the
+	% fourier transform
+	a = dftmtx(length(x));
+	% Matrix multiply the input with the DFT matrix to determine the DFT of
+	% the input vector
+	r = a*x;
+end
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
@@ -85,7 +95,17 @@
                   <div class="content monospaced">
                      <!-- MAKE CHANGES HERE: Part 1b code -->
                      <pre>
-// Insert your code here
+% A function that represents the slow inverse discrete foruier transform (MATLAB)
+function r = mySIDFT(x)
+	% Transpose the input vector to enable matrix multiplication
+	x = x.';
+	% Compute the inverse DFT matrix to multiply against the input array to get the
+	% fourier transform
+	a = conj(dftmtx(length(x)))/length(x);
+	% Matrix multiply the input with the DFT matrix to determine the DFT of
+	% the input vector
+	r = a*x;
+end
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
