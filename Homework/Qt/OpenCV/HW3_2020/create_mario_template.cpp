@@ -16,21 +16,34 @@
 //    char keyPress;
 //    cout << "p1_opencv\n";
 //    // Read image
-//    Mat marioSmallLeftEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallLeftEnv.png", IMREAD_GRAYSCALE);
-//    Mat marioSmallRightEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallRightEnv.png", IMREAD_GRAYSCALE);
-//    Mat marioSmallTurningLeftEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallTurningLeftEnv.png", IMREAD_GRAYSCALE);
-//    Mat marioSmallTurningRightEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallTurningRightEnv.png", IMREAD_GRAYSCALE);
+////    Mat marioSmallLeftEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallLeftEnv.png", IMREAD_GRAYSCALE);
+////    Mat marioSmallRightEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallRightEnv.png", IMREAD_GRAYSCALE);
+////    Mat marioSmallTurningLeftEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallTurningLeftEnv.png", IMREAD_GRAYSCALE);
+////    Mat marioSmallTurningRightEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallTurningRightEnv.png", IMREAD_GRAYSCALE);
 
-//    imshow("marioSmallLeftEnv", marioSmallLeftEnv);
-//    imshow("marioSmallRightEnv", marioSmallRightEnv);
-//    imshow("marioSmallTurningLeftEnv", marioSmallTurningLeftEnv);
-//    imshow("marioSmallTurningRightEnv", marioSmallTurningRightEnv);
+////    imshow("marioSmallLeftEnv", marioSmallLeftEnv);
+////    imshow("marioSmallRightEnv", marioSmallRightEnv);
+////    imshow("marioSmallTurningLeftEnv", marioSmallTurningLeftEnv);
+////    imshow("marioSmallTurningRightEnv", marioSmallTurningRightEnv);
 
-//    // Create a template image for all chess pieces, colors, and board positions (24 in total, 6 pieces and 4 templates for each piece)
-//    createMarioTemplate(marioSmallLeftEnv, 575, 769, "marioSmallLeftFace.png");
-//    createMarioTemplate(marioSmallRightEnv, 840, 769, "marioSmallRightFace.png");
-//    createMarioTemplate(marioSmallTurningLeftEnv, 843, 769, "marioSmallTurningLeftFace.png");
-//    createMarioTemplate(marioSmallTurningRightEnv, 841, 769, "marioSmallTurningRightFace.png");
+////    // Create a template image for all chess pieces, colors, and board positions (24 in total, 6 pieces and 4 templates for each piece)
+////    createMarioTemplate(marioSmallLeftEnv, 575, 769, "marioSmallLeftFace.png");
+////    createMarioTemplate(marioSmallRightEnv, 840, 769, "marioSmallRightFace.png");
+////    createMarioTemplate(marioSmallTurningLeftEnv, 843, 769, "marioSmallTurningLeftFace.png");
+////    createMarioTemplate(marioSmallTurningRightEnv, 841, 769, "marioSmallTurningRightFace.png");
+
+//    Mat filterFrame = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\frame1887.png");
+//    Mat mask;
+//    // Mask the blue background
+//    inRange(filterFrame, Scalar(245,134,86), Scalar(245,134,86), mask);
+//    filterFrame.setTo(Scalar(0, 0, 0), mask);
+//    // Mask the green hills
+//    inRange(filterFrame, Scalar(7,185,13), Scalar(7,185,13), mask);
+//    filterFrame.setTo(Scalar(0, 0, 0), mask);
+//    // Mask the green bushes
+//    inRange(filterFrame, Scalar(23,218,118), Scalar(29,224,125), mask);
+//    filterFrame.setTo(Scalar(0, 0, 0), mask);
+//    imshow("filterFrame", filterFrame);
 
 //    while(1)
 //    {

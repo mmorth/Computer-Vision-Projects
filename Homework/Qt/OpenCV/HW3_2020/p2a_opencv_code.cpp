@@ -1,182 +1,131 @@
-//#include <iostream>
-
 //#include <opencv2/opencv.hpp>
-//#include <opencv2/core.hpp>
-//#include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv2/highgui/highgui.hpp>
-//#include <opencv2/imgcodecs/imgcodecs.hpp>
-//#include <opencv2/features2d/features2d.hpp>
-//#include <opencv2/xfeatures2d.hpp>
+//#include <opencv2/tracking.hpp>
+//#include <opencv2/core/ocl.hpp>
 
-//using namespace std;
 //using namespace cv;
+//using namespace std;
 
-//void processVideo(VideoCapture cap, string inputVideoName, string outputVideoName);
-//void processTemplateMatching(Mat src, Mat temp, double thresh);
+//Mat createFilteredFrame(Mat frame);
+//void trackMario(VideoCapture video, Rect2d bbox, bool power, string fileName);
+
+//// Convert to string
+//#define SSTR( x ) static_cast< std::ostringstream & >( \
+//( std::ostringstream() << std::dec << x ) ).str()
 
 //int main()
 //{
-//    char keyPress;
-//    cout << "p2a_opencv_code\n";
+//    VideoCapture video1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_1.mp4");
+//    Rect2d bbox1(839, 764, 55, 70);
+//    trackMario(video1, bbox1, false, "p2a_output1.avi");
 
-//    Mat env = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallRightEnv.png", IMREAD_GRAYSCALE);
-//    Mat smallFace = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallRightFace.png", IMREAD_GRAYSCALE);
+//    VideoCapture video2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_2.mp4");
+//    Rect2d bbox2(36, 764, 55, 70);
+//    trackMario(video2, bbox2, false, "p2a_output2.avi");
 
-//    //-- Step 1: Detect the keypoints using SIFT Detector, compute the descriptors
-//    int minHessian = 400;
-//    Ptr<KAZE> detector = KAZE::create( minHessian );
-//    std::vector<KeyPoint> keypoints1, keypoints2;
-//    Mat descriptors1, descriptors2;
-//    detector->detectAndCompute( smallFace, noArray(), keypoints1, descriptors1 );
-//    detector->detectAndCompute( env, noArray(), keypoints2, descriptors2 );
-
-//    //-- Step 2: Matching descriptor vectors with a FLANN based matcher
-//    // Since SIFT is a floating-point descriptor NORM_L2 is used
-//    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
-//    std::vector< std::vector<DMatch> > knn_matches;
-//    matcher->knnMatch( descriptors2, descriptors1, knn_matches, 2 );
-//    //-- Filter matches using the Lowe's ratio test
-//    const float ratio_thresh = 100.0f;
-//    std::vector<DMatch> good_matches;
-//    for (size_t i = 0; i < knn_matches.size(); i++)
-//    {
-////        if (knn_matches[i][0].distance < ratio_thresh * knn_matches[i][1].distance)
-////        {
-//            good_matches.push_back(knn_matches[i][0]);
-////        }
-//    }
-//    //-- Draw matches
-//    Mat img_matches;
-//    drawMatches( env, keypoints2, smallFace, keypoints1, good_matches, img_matches, Scalar::all(-1),
-//                 Scalar::all(-1), std::vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS );
-//    //-- Show detected matches
-//    imshow("Good Matches", img_matches );
-
-////    //-- Step 1: Detect the keypoints using SURF Detector
-////    int minHessian = 400;
-////    Ptr<SIFT> detector = SIFT::create( minHessian );
-////    std::vector<KeyPoint> keypoints;
-////    detector->detect( smallFace, keypoints );
-////    //-- Draw keypoints
-////    Mat img_keypoints;
-////    drawKeypoints( smallFace, keypoints, img_keypoints );
-////    //-- Show detected (drawn) keypoints
-////    imshow("SURF Keypoints", img_keypoints );
-
-
-
-////    processTemplateMatching(env, smallFace);
-
-//    // Read input videos
-////    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_1.mp4");
-////    processVideo(cap1, "p2a_mario_1.mp4", "p2a_output1.avi");
-////    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_2.mp4");
-////    processVideo(cap2, "p2a_mario_2.mp4", "p2a_output2.avi");
-////    VideoCapture cap3("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_3.mp4");
-////    processVideo(cap3, "p2a_mario_3.mp4", "p2a_output3.avi");
-
-//    while(1)
-//    {
-//        keyPress = waitKey();
-//        // Press q key to close window
-//        if (keyPress == 'q')
-//        {
-//            destroyAllWindows();
-//            break;
-//        }
-//    }
-//    return 0;
+//    VideoCapture video3("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2a\\p2a_mario_3.mp4");
+//    Rect2d bbox3(130, 764, 55, 70);
+//    trackMario(video3, bbox3, true, "p2a_output3.avi");
 //}
 
-////// Processes the video by converting it to grayscale and writing it to the output
-////// Source: https://www.learnopencv.com/read-write-and-display-a-video-using-opencv-cpp-python/
-////// The code from the source was modified to support the functionality of this assignment
-////void processVideo(VideoCapture cap, string inputVideoName, string outputVideoName) {
-////    // Check if camera opened successfully
-////    if(!cap.isOpened())
-////    {
-////      cout << "Error opening video stream" << endl;
-////      return;
-////    }
+//// Source: https://www.learnopencv.com/object-tracking-using-opencv-cpp-python/
+//// The follow function's code was modified from the above source
+//// Tracks mario in the game
+//void trackMario(VideoCapture video, Rect2d bbox, bool power, string fileName) {
+//    // Create a CSRT tracker used to track the position of mario
+//    Ptr<Tracker> tracker = TrackerCSRT::create();
 
-////    // Default resolution of the frame is obtained.The default resolution is system dependent.
-////    int frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
-////    int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
+//    // Exit if video is not opened
+//    if(!video.isOpened())
+//    {
+//        cout << "Could not read video file" << endl;
+//        return;
+//    }
 
-////    Mat marioSmallLeftEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallLeftFace.png", IMREAD_GRAYSCALE);
-////    Mat marioSmallRightEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallRightFace.png", IMREAD_GRAYSCALE);
-////    Mat marioSmallTurningLeftEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallTurningLeftFace.png", IMREAD_GRAYSCALE);
-////    Mat marioSmallTurningRightEnv = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\marioSmallTurningRightFace.png", IMREAD_GRAYSCALE);
+//    // Default resolution of the frame is obtained.The default resolution is system dependent.
+//    int frame_width = video.get(CAP_PROP_FRAME_WIDTH);
+//    int frame_height = video.get(CAP_PROP_FRAME_HEIGHT);
 
-////    // Create a video writer and process the input video frame by frame
-////    int frameNum = 0;
-////    printf("Processing video %s...\n", inputVideoName.c_str());
-////    VideoWriter video(outputVideoName,VideoWriter::fourcc('M','J','P','G'),60, Size(frame_width,frame_height));
-////    while(1)
-////    {
-////      // Ready in a frame at a time
-////      Mat frame;
-////      cap >> frame;
+//    // Create the VideoWriter that will write the output to a mp4 file
+//    VideoWriter output(fileName,VideoWriter::fourcc('M','J','P','G'),60, Size(frame_width,frame_height));
 
-////      // If the frame is empty, break immediately
-////      if (frame.empty())
-////        break;
+//    // Read first frame
+//    Mat frame;
+//    bool ok = video.read(frame);
+//    Mat fc = createFilteredFrame(frame);
 
-//////      imwrite("frame" + std::to_string(frameNum++) + ".png", gray);
+//    // Uncomment the line below to select a different bounding box
+////     bbox = selectROI(frame, false);
+//    // Display bounding box.
+//    rectangle(frame, bbox, Scalar( 255, 255, 255 ), 2, 1 );
 
-////      processTemplateMatching(frame, marioSmallLeftEnv, 0.68);
-////      processTemplateMatching(frame, marioSmallRightEnv, 0.68);
-////      processTemplateMatching(frame, marioSmallTurningLeftEnv, 0.68);
-////      processTemplateMatching(frame, marioSmallTurningRightEnv, 0.68);
-//////      imshow("frame", frame);
+//    imshow("Tracking", frame);
+//    tracker->init(fc, bbox);
 
-////      // Write the frame into the output video file
-////      video.write(frame);
+//    int frameNum = 0;
+//    while(video.read(frame))
+//    {
+//        fc = createFilteredFrame(frame);
 
-////      // Press  ESC on keyboard to  exit
-////      char c = (char)waitKey(1);
-////      if( c == 27 )
-////        break;
-////    }
+//        // Start timer
+//        double timer = (double)getTickCount();
 
-////    // Clean up video capture and writer
-////    cap.release();
-////    video.release();
+//        // Update the tracking result
+//        bool ok = tracker->update(fc, bbox);
 
-////    // Closes all the windows
-////    destroyAllWindows();
+//        // Calculate Frames per second (FPS)
+//        float fps = getTickFrequency() / ((double)getTickCount() - timer);
 
-////    printf("Video processing complete for %s!\n", outputVideoName.c_str());
-////}
+//        if (ok)
+//        {
+//            // Tracking success : Draw the tracked object
+//            rectangle(frame, bbox, Scalar( 255, 255, 255 ), 2, 1 );
+//        }
+//        else
+//        {
+//            // Reinitialize the player's location after their tracking is lost
+//            if (power) {
+//                frameNum++;
+//                if (frameNum > 65) {
+//                    tracker->clear();
+//                    Rect2d bbox(840, 769, 52, 65);
+//                    tracker = TrackerCSRT::create();
+//                    tracker->init(fc, bbox);
+//                    rectangle(frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
+//                    frameNum = 0;
+//                }
+//            }
+//        }
 
-////// Source: https://stackoverflow.com/questions/32041063/multiple-template-matching-only-detects-one-match/32095085#32095085
-////// This code is based on the solution at this link
-////void processTemplateMatching(Mat frame, Mat temp, double thresh) {
-////    Mat src;
-////    cvtColor(frame, src, COLOR_BGR2GRAY);
+//        // Display frame.
+//        imshow("Tracking", frame);
+//        output.write(frame);
 
-////    // Match the A template on the grid
-////    Mat1f result;
-////    matchTemplate(src, temp, result, TM_CCOEFF_NORMED);
+//        // Exit if ESC pressed.
+//        int k = waitKey(1);
+//        if(k == 27)
+//        {
+//            break;
+//        }
 
-////    // Replace all pixels with a value less than 0.95 with 0, so they are not processed as a match (confidence threshold)
-////    threshold(result, result, thresh, 1., THRESH_BINARY);
+//    }
 
-////    // Convert result to CV_8U to support finding contours
-////    Mat resb;
-////    result.convertTo(resb, CV_8U, 255);
+//    // Close the VideoCapture and VideoWriter
+//    video.release();
+//    output.release();
+//}
 
-////    // Find the contours of the grayscale match result
-////    vector<vector<Point>> contours;
-////    findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
-
-////    // Find the maximum matching location
-////    Point max_point;
-////    double max_val;
-////    minMaxLoc(result, NULL, &max_val, NULL, &max_point, noArray());
-
-////    // Draw the font in different colors
-////    if (max_val > 0) {
-////        rectangle(frame, Rect(max_point.x-10, max_point.y, temp.cols+25, temp.rows+40), Scalar(0, 255, 255), 5);
-////    }
-////}
+//// Returns a frame with some of the background filtered out
+//Mat createFilteredFrame(Mat frame) {
+//    Mat mask;
+//    Mat fc = frame.clone();
+//    // Mask the blue background
+//    inRange(fc, Scalar(245,134,86), Scalar(245,134,86), mask);
+//    fc.setTo(Scalar(0, 0, 0), mask);
+//    // Mask the green hills
+//    inRange(fc, Scalar(7,185,13), Scalar(7,185,13), mask);
+//    fc.setTo(Scalar(0, 0, 0), mask);
+//    // Mask the green bushes
+//    inRange(fc, Scalar(23,218,118), Scalar(29,224,125), mask);
+//    fc.setTo(Scalar(0, 0, 0), mask);
+//    return fc;
+//}
