@@ -23,13 +23,33 @@
 //    Mat coinUndergroundMid = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\frame206.png");
 //    Mat coinUndergroundDark = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\mario_templates\\frame210.png");
 
-//    imshow("coinUnderground", coinUndergroundBright);
-//    imshow("coinTemp", coinTemp);
+//    Mat mask;
+//    Mat fc = coinTemp.clone();
+//    // Mask the blue background
+//    inRange(fc, Scalar(220,127,79), Scalar(255,140,95), mask);
+//    fc.setTo(Scalar(0, 0, 0), mask);
+//    // Mask the green hills
+//    inRange(fc, Scalar(0,100,0), Scalar(50,190,50), mask);
+//    fc.setTo(Scalar(0, 0, 0), mask);
+//    // Mask the green bushes
+//    inRange(fc, Scalar(0,120,0), Scalar(80,255,160), mask);
+//    fc.setTo(Scalar(0, 0, 0), mask);
+//    // Mask the colored outlines
+//    inRange(fc, Scalar(140,60,30), Scalar(255,150,120), mask);
+//    fc.setTo(Scalar(0, 0, 0), mask);
+//    // Mask the dark outlines
+//    inRange(fc, Scalar(0,0,0), Scalar(100,100,100), mask);
+//    fc.setTo(Scalar(0, 0, 0), mask);
 
-//    createCoinTemplate(coinTemp, 817, 416, "coinCollectedTemp.png");
-//    createUndergroundCoinTemplate(coinUndergroundBright, 262, 358, "coinUndergroundBright.png");
-//    createUndergroundCoinTemplate(coinUndergroundMid, 262, 358, "coinUndergroundMid.png");
-//    createUndergroundCoinTemplate(coinUndergroundDark, 262, 358, "coinUndergroundDark.png");
+//    imshow("fc", fc);
+
+////    imshow("coinUnderground", coinUndergroundBright);
+////    imshow("coinTemp", coinTemp);
+
+////    createCoinTemplate(coinTemp, 817, 416, "coinCollectedTemp.png");
+////    createUndergroundCoinTemplate(coinUndergroundBright, 262, 358, "coinUndergroundBright.png");
+////    createUndergroundCoinTemplate(coinUndergroundMid, 262, 358, "coinUndergroundMid.png");
+////    createUndergroundCoinTemplate(coinUndergroundDark, 262, 358, "coinUndergroundDark.png");
 
 //    while(1)
 //    {
