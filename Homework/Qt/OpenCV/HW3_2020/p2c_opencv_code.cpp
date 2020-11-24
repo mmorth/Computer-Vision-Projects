@@ -36,10 +36,10 @@
 //    cout << "p2b_opencv_code\n";
 
 //    // Read input videos
-////    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2c\\p2c_mario_1.mp4");
-////    processVideo(cap1, "p2c_mario_1.mp4", "p2c_output1.avi");
-////    numCoins = 0;
-////    numFire = 0;
+//    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2c\\p2c_mario_1.mp4");
+//    processVideo(cap1, "p2c_mario_1.mp4", "p2c_output1.avi");
+//    numCoins = 0;
+//    numFire = 0;
 
 //    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2020\\HW3\\part_2c\\p2c_mario_2.mp4");
 //    processVideo(cap2, "p2c_mario_2.mp4", "p2c_output2.avi");
