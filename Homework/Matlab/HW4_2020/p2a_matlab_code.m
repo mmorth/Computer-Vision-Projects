@@ -1,3 +1,5 @@
+% Source: https://www.mathworks.com/matlabcentral/answers/67283-need-fft-code-for-matlab-not-built-in
+
 x = [0, 0.7071, 1, 0.7071, 0, -0.7071, -1, -0.7071];
 
 result = myFFT(x.')
