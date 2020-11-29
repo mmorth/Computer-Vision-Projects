@@ -522,7 +522,7 @@ For better visualization, you may want to discard negative values of logarithms 
            						<td class="col1">
            							<span class="image">
            								<!-- MAKE CHANGES HERE: Part 5 Spectrogram -->
-           								<img src="output/Part_4/placeholder1.jpg" alt="Spectrogram1" width="100%">
+           								<img src="output/Part_5/mcAnimalMono.jpg" alt="Spectrogram1" width="100%">
            								<!-- END CHANGES -->
                                        </span>
            						</td>
@@ -537,7 +537,7 @@ For better visualization, you may want to discard negative values of logarithms 
            						<td class="col1">
            							<span class="image">
            								<!-- MAKE CHANGES HERE: Part 5 Spectrogram -->
-           								<img src="output/Part_4/placeholder2.jpg" alt="Spectrogram2" width="100%">
+           								<img src="output/Part_5/mcPistonMono.jpg" alt="Spectrogram2" width="100%">
            								<!-- END CHANGES -->
                                        </span>
            						</td>
@@ -552,7 +552,7 @@ For better visualization, you may want to discard negative values of logarithms 
            						<td class="col1">
            							<span class="image">
            								<!-- MAKE CHANGES HERE: Part 5 Spectrogram -->
-           								<img src="output/Part_4/placeholder3.jpg" alt="Spectrogram3" width="100%">
+           								<img src="output/Part_5/mcWaterMono.jpg" alt="Spectrogram3" width="100%">
            								<!-- END CHANGES -->
                                        </span>
            						</td>
@@ -564,7 +564,17 @@ For better visualization, you may want to discard negative values of logarithms 
                   <div class="content monospaced">
                      <!-- MAKE CHANGES HERE: Part 5 code -->
                      <pre>
-// Insert your code here.
+drawSpectrogram('MC_animal_mono.wav');
+drawSpectrogram('MC_piston_mono.wav');
+drawSpectrogram('MC_water_mono.wav');
+
+function drawSpectrogram(fileName)
+	[Y,fs]=audioread(fileName); % read the WAV file
+
+	figure; spectrogram(Y(:,1), 512, 256, 512, fs, 'yaxis'); 
+	title(strcat(strcat('Spectrogram for =', fileName)));
+end
+
 
 // Are your spectrograms from Part 4 different or similar from Part 5? If they are different, then why?
 					 </pre>
