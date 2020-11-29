@@ -1,32 +1,13 @@
-% Read audio file
-[v, Fs] = audioread('areacode1.wav');
+drawSpectrogram('ball_bounce_brick_mono.wav');
+drawSpectrogram('ball_bounce_paddle_mono.wav');
+drawSpectrogram('paddle_widening_mono.wav');
 
-% r = spectrogram(v, 512, 256, 512, fs, 'yaxis'); 
+function drawSpectrogram(fileName)
+    [Y,fs]=audioread(fileName); % read the WAV file
 
-% 1) Split the input vector into small overlapping segments
-cs=22050;
-sh=410;
-segments = v(bsxfun(@plus,(1:cs),(0:sh:length(v)-cs)'));
+    Y = fft(Y);
+    Y = ifft(Y);
 
-% 2) Apply the Hamming window function to each segment
-% hw = hamming(22050);
-% segments = segments*hw;
-win = dsp.Window;
-for i = 1:size(segments, 1) 
-   segments(i,:) = win(segments(i,:));
+    figure; spectrogram(Y(:,1), 512, 256, 512, fs, 'yaxis'); 
+    title(strcat(strcat('Spectrogram for =', fileName)));
 end
-
-% 3) Compute the FFTs of the resulting vectors
-for i = 1:size(segments, 1) 
-   segments(i,:) = fft(segments(i,:));
-end
-
-% 4) Discard the redundant frequency bins for the negative frequencies from these vectors (because the input is real
-
-
-% 5) Compute the logarithms of the magnitudes of the frequency bins
-for i = 1:size(segments, 1) 
-   segments(i,:) = log(norm(segments(i,:)));
-end
-
-plot(segments');

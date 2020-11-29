@@ -269,7 +269,7 @@ In case you are curious, those audio snippets came from the game that was used i
 						<td class="col1">
 							<span class="image">
 								<!-- MAKE CHANGES HERE: Part 4 Spectrogram -->
-								<img src="output/Part_4/placeholder1.jpg" alt="Spectrogram1" width="100%">
+								<img src="output/Part_4/ballBounceBrickMono.jpg" alt="Spectrogram1" width="100%">
 								<!-- END CHANGES -->
                             </span>
 						</td>
@@ -284,7 +284,7 @@ In case you are curious, those audio snippets came from the game that was used i
 						<td class="col1">
 							<span class="image">
 								<!-- MAKE CHANGES HERE: Part 4 Spectrogram -->
-								<img src="output/Part_4/placeholder2.jpg" alt="Spectrogram2" width="100%">
+								<img src="output/Part_4/ballBouncePaddleMono.jpg" alt="Spectrogram2" width="100%">
 								<!-- END CHANGES -->
                             </span>
 						</td>
@@ -299,7 +299,7 @@ In case you are curious, those audio snippets came from the game that was used i
 						<td class="col1">
 							<span class="image">
 								<!-- MAKE CHANGES HERE: Part 4 Spectrogram -->
-								<img src="output/Part_4/placeholder3.jpg" alt="Spectrogram3" width="100%">
+								<img src="output/Part_4/paddleWideningMono.jpg" alt="Spectrogram3" width="100%">
 								<!-- END CHANGES -->
                             </span>
 						</td>
@@ -311,7 +311,19 @@ In case you are curious, those audio snippets came from the game that was used i
                   <div class="content monospaced">
                      <!-- MAKE CHANGES HERE: Part 4 code -->
                      <pre>
-// Insert your code here
+drawSpectrogram('ball_bounce_brick_mono.wav');
+drawSpectrogram('ball_bounce_paddle_mono.wav');
+drawSpectrogram('paddle_widening_mono.wav');
+
+function drawSpectrogram(fileName)
+	[Y,fs]=audioread(fileName); % read the WAV file
+
+	Y = fft(Y);
+	Y = ifft(Y);
+
+	figure; spectrogram(Y(:,1), 512, 256, 512, fs, 'yaxis'); 
+	title(strcat(strcat('Spectrogram for =', fileName)));
+end
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
