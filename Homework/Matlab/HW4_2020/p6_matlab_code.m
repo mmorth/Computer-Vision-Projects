@@ -1,18 +1,27 @@
-% [Y,fs]=audioread('NoMusic_1_Audio.mp3'); % read the WAV file
-[Y,fs]=audioread('areacode1.wav'); % read the WAV file
+[Y,fs]=audioread('NoMusic_1_Audio.mp3'); % read the WAV file
 
 % figure; spectrogram(Y(:,2), 512, 256, 512, fs, 'yaxis'); 
 % title(strcat(strcat('Spectrogram for =', fileName)));
-[s,f,t,p] = spectrogram(Y, 512, 256, 512, fs, 'yaxis'); 
+spectrogram(Y(:,2), 512, 256, 512, fs, 'yaxis');
+colormap bone;
+[s,f,t,p] = spectrogram(Y(:,2), 512, 256, 512, fs, 'yaxis'); 
 
-% for i = 1:size(s, 1) 
-%    s(i,:) = log(abs(s(i,:)));
-% end
+% f1 = f > 1000 & f < 9500;
+% t1 = t > 0.0;
+% 
+% p = p(f1,t1);
+% 
+% m1 = medfreq(p,f(f1));
+% 
+% hold on
+% plot(t(t1),m1/1000,'linewidth',4)
+% hold off
 
-figure; plot(s);
-% figure; surf(t,f,10*log10(abs(p)),'EdgeColor','none');
+% p = 10*log10(abs(p));
+
+% figure; plot(s);
+% figure; surf(t,f,log(abs(s)),'EdgeColor','none');
 % axis xy; axis tight; colormap(jet); view(0,90);
-% figure; plot(t,s+18);
 
 % drawSpectrogram('NoMusic_1_Audio.mp3');
 % drawSpectrogram('NoMusic_2_Audio.mp3');

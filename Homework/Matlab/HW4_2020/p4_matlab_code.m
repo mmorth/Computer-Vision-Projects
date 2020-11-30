@@ -7,34 +7,28 @@
 cs=512;
 sh=256;
 segments = v(bsxfun(@plus,(1:cs),(0:sh:length(v)-cs)'));
+% segments = buffer(v,cs,sh,'nodelay')';
 
 % 2) Apply the Hamming window function to each segment
-% hw = hamming(512);
-% segments = segments.*hw;
-win = dsp.Window;
-for i = 1:size(segments, 1) 
-   segments(i,:) = win(segments(i,:));
-end
+hw = hamming(size(segments,2))';
+hw = repmat(hw, size(segments,1), 1);
+segments = segments.*hw;
 
 % 3) Compute the FFTs of the resulting vectors
-for i = 1:size(segments, 1) 
-   segments(i,:) = fft(segments(i,:));
-end
+segments = fft(segments,cs,2);
 
 % 4) Discard the redundant frequency bins for the negative frequencies from these vectors (because the input is real
 
 
 % 5) Compute the logarithms of the magnitudes of the frequency bins
-% for i = 1:size(segments, 1) 
-%    segments(i,:) = log(abs(segments(i,:)));
-% end
-
-t = 1:360;
-f = 1:512;
-f = f';
+inc = (length(v) ./ Fs) ./ size(segments, 1);
+tm = 0:inc:(inc*(size(segments,1)-1));
+inc = (Fs ./ 2) ./ size(segments,2);
+fm = 0:inc:(inc*(size(segments,2)-1));
+fm = fm';
 segments = segments';
 
 figure; plot(segments);
 
-% surf(t,f,10*log10(abs(segments)),'EdgeColor','none');
-% axis xy; axis tight; colormap(jet); view(0,90);
+figure; surf(tm,fm,log(abs(segments)),'EdgeColor','none');
+axis xy; axis tight; colormap(jet); view(0,90);
