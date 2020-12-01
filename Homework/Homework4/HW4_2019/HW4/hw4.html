@@ -355,14 +355,14 @@ end
 					<tr class="row1">
 						<td class="col0">
 							<audio class="media" controls="controls">
-								<source src="input/Part_5/sound1.wav" type="audio/wav" />
-								<a href="input/Part_5/sound1.wav" class="media mediafile mf_wav" title="sound1">sound1</a>
+								<source src="input/Part_5/PokemonBattleMusic.wav" type="audio/wav" />
+								<a href="input/Part_5/PokemonBattleMusic.wav" class="media mediafile mf_wav" title="sound1">sound1</a>
 							</audio>
 						</td>
 						<td class="col1">
 							<span class="image">
 								<!-- MAKE CHANGES HERE: Part 5 Spectrogram -->
-								<img src="output/Part_5/placeholder1.jpg" alt="Spectrogram1" width="100%">
+								<img src="output/Part_5/PokemonBattleMusic.jpg" alt="Spectrogram1" width="100%">
 								<!-- END CHANGES -->
                             </span>
 						</td>
@@ -370,14 +370,14 @@ end
 					<tr class="row2">
 						<td class="col0">
 							<audio class="media" controls="controls">
-								<source src="input/Part_5/sound2.wav" type="audio/wav" />
-								<a href="input/Part_5/sound2.wav" class="media mediafile mf_wav" title="sound2">sound2</a>
+								<source src="input/Part_5/PokemonHealingSounds.wav" type="audio/wav" />
+								<a href="input/Part_5/PokemonHealingSounds.wav" class="media mediafile mf_wav" title="sound2">sound2</a>
 							</audio>
 						</td>
 						<td class="col1">
 							<span class="image">
 								<!-- MAKE CHANGES HERE: Part 5 Spectrogram -->
-								<img src="output/Part_5/placeholder2.jpg" alt="Spectrogram2" width="100%">
+								<img src="output/Part_5/PokemonHealingSounds.jpg" alt="Spectrogram2" width="100%">
 								<!-- END CHANGES -->
                             </span>
 						</td>
@@ -385,14 +385,14 @@ end
 					<tr class="row3">
 						<td class="col0">
 							<audio class="media" controls="controls">
-								<source src="input/Part_5/sound3.wav" type="audio/wav" />
-								<a href="input/Part_5/sound3.wav" class="media mediafile mf_wav" title="sound3">sound3</a>
+								<source src="input/Part_5/PokemonMusicWall.wav" type="audio/wav" />
+								<a href="input/Part_5/PokemonMusicWall.wav" class="media mediafile mf_wav" title="sound3">sound3</a>
 							</audio>
 						</td>
 						<td class="col1">
 							<span class="image">
 								<!-- MAKE CHANGES HERE: Part 5 Spectrogram -->
-								<img src="output/Part_5/placeholder3.jpg" alt="Spectrogram3" width="100%">
+								<img src="output/Part_5/PokemonMusicWall.jpg" alt="Spectrogram3" width="100%">
 								<!-- END CHANGES -->
                             </span>
 						</td>
@@ -404,7 +404,40 @@ end
                   <div class="content monospaced">
                      <!-- MAKE CHANGES HERE: Part 5 code -->
                      <pre>
-// Insert your code here
+// Code the records and stores the audio
+% Configure the Matlab audio recorder
+Fs = 44100;
+numBits = 24;
+numChannels = 1;
+
+% Record the game audio
+recObj = audiorecorder(Fs, numBits, numChannels);
+disp('Start Recording...');
+recordblocking(recObj,5);
+disp('End of Recording');
+
+% Save the resulting game audio to a file
+audiowrite('PokemonMusic.wav', getaudiodata(recObj), Fs);
+
+// Code that processes the audio and creates the spectrogram
+% Call function to draw spectrogram for all audio files
+drawSpectrogram('PokemonBattleMusic.wav');
+drawSpectrogram('PokemonHealingSounds.wav');
+drawSpectrogram('PokemonMusicWall.wav');
+
+% Function that draws the spectrogram of input audio file
+function drawSpectrogram(fileName)
+    % Read the audio
+    [Y,fs]=audioread(fileName); % read the WAV file
+
+    % FFT and inverse FFT (can be changed to updated spectrogram format)
+    Y = fft(Y);
+    Y = ifft(Y);
+
+    % Display the resulting spectrogram
+    figure; spectrogram(Y(:,1), 512, 256, 512, fs, 'yaxis'); 
+    title(strcat(strcat('Spectrogram for =', fileName)));
+end
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
