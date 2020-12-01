@@ -7,4 +7,5 @@ function drawSpectrogram(fileName)
 
     figure; spectrogram(Y(:,1), 512, 256, 512, fs, 'yaxis'); 
     title(strcat(strcat('Spectrogram for =', fileName)));
+    axis xy; axis tight; colormap(jet); view(0,90);
 end
