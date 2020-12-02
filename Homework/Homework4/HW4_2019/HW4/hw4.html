@@ -132,7 +132,30 @@ end
                   <div class="content monospaced">
                      <!-- MAKE CHANGES HERE: Part 2a code -->
                      <pre>
-// Insert your code here
+% Recursive function that computes the Fast Fourier Transform in O(nlogn)
+% time
+function F = myFFT(f)
+	% Check for the base case
+	n = length(f);
+	if n == 1
+		F = f;
+		return;
+	end
+	
+	% Split the signal up into even and odd elements for faster computing
+	fEven = f(1:2:n);
+	fOdd = f(2:2:n);
+	
+	FEven = myFFT(fEven);
+	FOdd = myFFT(fOdd);
+	
+	% Apply the vectorized wn constants from the DFT matrix
+	wn = exp(2*pi*1i.*[0:1:(n/2)-1]/n);
+	FOdd = FOdd.*wn;
+	
+	% Store the final result
+	F = [FEven+FOdd FEven-FOdd];
+end
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
@@ -153,7 +176,30 @@ end
                   <div class="content monospaced">
                      <!-- MAKE CHANGES HERE: Part 2b code -->
                      <pre>
-// Insert your code here
+% Recursive function that computes the Fast Fourier Transform in O(nlogn)
+% time
+function F = myIFFT(f)
+	% Check for the base case
+	n = length(f);
+	if n == 1
+		F = f;
+		return;
+	end
+	
+	% Split the signal up into even and odd elements for faster computing
+	fEven = f(1:2:n);
+	fOdd = f(2:2:n);
+	
+	FEven = myIFFT(fEven);
+	FOdd = myIFFT(fOdd);
+	
+	% Apply the vectorized wn constants from the DFT matrix
+	wn = exp(-2*pi*1i.*[0:1:(n/2)-1]/n);
+	FOdd = FOdd.*wn;
+	
+	% Store the final result
+	F = [FEven+FOdd FEven-FOdd];
+end
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
@@ -190,6 +236,9 @@ end
                      <!-- MAKE CHANGES HERE: Part 3a results -->
                      <pre>
 // Insert your resulting vector here
+myFFTResult =
+
+   0.0000 + 0.0000i   0.0000 + 4.0000i   0.0000 + 0.0000i   0.0000 - 0.0000i   0.0000 + 0.0000i  -0.0000 + 0.0000i   0.0000 + 0.0000i  -0.0000 - 4.0000i
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
@@ -205,8 +254,12 @@ end
                      <!-- MAKE CHANGES HERE: Part 1c results -->
                      <pre>
 // Insert your new resulting vector here
+matlabFFTResult =
 
-// Insert any comments here 
+   0.0000 + 0.0000i   0.0000 - 4.0000i   0.0000 + 0.0000i   0.0000 + 0.0000i   0.0000 + 0.0000i   0.0000 - 0.0000i   0.0000 + 0.0000i   0.0000 + 4.0000i
+
+   // Insert any comments here 
+There were only slight differences based on rouding
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
@@ -235,6 +288,9 @@ end
                      <!-- MAKE CHANGES HERE: Part 3b results -->
                      <pre>
 // Insert your resulting vector here
+myFFTResult =
+
+         0   -5.6569   -8.0000   -5.6569         0    5.6569    8.0000    5.6569
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
@@ -251,8 +307,12 @@ end
                      <!-- MAKE CHANGES HERE: Part 3b results -->
                      <pre>
 // Insert your new resulting vector here
+matlabFFTResult =
 
-// Insert any comments here 
+		 0   -5.6569   -8.0000   -5.6569         0    5.6569    8.0000    5.6569
+		 
+// Insert any comments here
+Both my and the build-in Matlab solution returned the same result
 					 </pre>
                      <!-- END CHANGES -->
                   </div>
