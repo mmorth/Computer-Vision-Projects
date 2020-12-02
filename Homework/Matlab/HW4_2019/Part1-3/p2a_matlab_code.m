@@ -7,11 +7,13 @@ function F = myFFT(f)
     n = length(f);
     
     if n == 1
-        F = f(1);
+        F = f;
         return;
     end
+
+    wn = exp(2*pi*1i/n);
+    w = 1;
     
-    F = zeros(1, n);
     fEven = f(2:2:end);
     fOdd = f(1:2:end);
     
@@ -21,9 +23,8 @@ function F = myFFT(f)
     n2 = floor(n/2);
     
     for i = 1:n2
-        twiddle = exp(-2*1i*pi*double(i)./n);
-        oddTerm = FOdd(i) .* twiddle;
-        F(i) = FEven(i) + oddTerm;
-        F(i+n2) = FEven(i) - oddTerm;
+        F(i) = FEven(i) + w*FOdd(i);
+        F(i+n2) = FEven(i) - w*FOdd(i);
+        w = w*wn;
     end
 end
