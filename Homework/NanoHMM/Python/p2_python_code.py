@@ -10,23 +10,26 @@ def forwardAlgorithm(A, B, p, O):
     T = len(O)
 
     # 1) Initialization of alpha values
-    alpha = [[]]
+    alpha = []
     for i in range(0, numStates):
-        alpha[0].append(p[i] * B[i][O[i]])
+        alpha.append([])
+
+    for i in range(0, numStates):
+        alpha[i].append(p[i] * B[i][O[i]])
 
     # 2) Induction step
     for t in range(0, T-1):
         alpha.append([])
         for j in range(0, numStates):
-            alpha[t+1].append(0)
+            alpha[j].append(0)
             for i in range(0, numStates):
-                alpha[t+1][j] += alpha[t][i] * A[i][j]
-            alpha[t+1][j] *= B[j][O[t+1]]
+                alpha[j][t+1] += alpha[i][t] * A[i][j]
+            alpha[j][t+1] *= B[j][O[t+1]]
 
     # 3) Termination
     prob = 0;
     for i in range(0, numStates):
-        prob += alpha[T-1][i]
+        prob += alpha[i][T-1]
 
     return alpha, prob
 

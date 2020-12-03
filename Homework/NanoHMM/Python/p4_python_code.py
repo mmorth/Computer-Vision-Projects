@@ -11,18 +11,19 @@ def backwardAlgorithm(A, B, p, O):
 
     # 1) Initialization of beta values
     beta = []
-    for i in range(0, len(O)):
+    for i in range(0, numStates):
         beta.append([])
+        for j in range(0, T):
+            beta[i].append(0)
 
     for i in range(0, numStates):
-        beta[T-1].append(1)
+        beta[i][T-1] = 1
 
     # 2) Induction step
     for t in range(T-2, -1, -1):
         for i in range(0, numStates):
-            beta[t].append(0)
             for j in range(0, numStates):
-                beta[t][i] += A[i][j] * B[j][O[t+1]] * beta[t+1][j]
+                beta[i][t] += A[i][j] * B[j][O[t+1]] * beta[j][t+1]
 
     return beta
 
