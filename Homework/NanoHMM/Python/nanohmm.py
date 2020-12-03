@@ -123,6 +123,7 @@ class forward_t(object):
                     alpha[i][t] *= c[t]  # renormalize the alphas
                 logL -= safelog2(c[t])
 
+        print(str(alpha))
         return logL
 
 

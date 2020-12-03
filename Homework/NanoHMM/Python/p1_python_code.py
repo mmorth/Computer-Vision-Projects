@@ -40,11 +40,11 @@ O = [0, 1, 0, 2, 0, 1, 0]
 result = slowForwardAlgorithm(A, B, p, O)
 print(result)
 
-# lambda_ = nanohmm.hmm_t(A, B, pi)
-#
-#
-# print("Forward:")
-# O = [0, 1, 0, 2, 0, 1, 0]
-# f = nanohmm.forward_t(lambda_)
-# LL = nanohmm.forward(f, O)
-# print(LL)
+lambda_ = nanohmm.hmm_t(A, B, p)
+
+
+print("Forward:")
+O = [0, 1, 0, 2, 0, 1, 0]
+f = nanohmm.forward_t(lambda_)
+LL = nanohmm.forward(f, O)
+print(LL)
