@@ -475,12 +475,13 @@ O5 = (2,2,0,1,1,0,1)
          <div class="title">Result</div>
          <div class="content monospaced">
             <pre>
-    t=1   t=2   t=3   t=4   t=5   t=6   t=7
-O1  L=?   L=?
-O2  L=?   L=?
-O3  L=?   ...
-O4  L=?
-O5  L=?
+// Note: The HTML formatting may be messed up based on your browser size. Please look at the HTML code for the correct formatting
+t=1							      t=2						      t=3						      t=4							   t=5						      t=6							     t=7
+O1	L=1.9804932540839734e-06	L=4.137675122091958e-06	   L=8.666775100191128e-06	   L=1.7772485000417278e-05	L=7.695841798041598e-05	   L=0.00015939806561279996	  L=0.0006833869593599999
+O2	L=2.6689264838183473e-06	L=5.563204456100657e-06	   L=1.1870736152002554e-05	L=4.812460602163198e-05	   L=0.0002673589223423999	   L=0.0005490406440959997	     L=0.0011935666175999994
+O3	L=1.7460947698172562e-07	L=8.658993281708853e-07	   L=1.5622998259138562e-06	L=7.490478617395201e-06	   L=1.783447289856e-05	      L=0.0	                       L=0.00018577575935999999
+O4	L=3.5297319894195885e-06	L=1.4722782809712226e-05	L=3.141539584540671e-05	   L=7.271375871836157e-05	   L=0.00015238696460287995	L=0.0006438321397759998	     L=0.0013537384447999997
+O5	L=0.0	                     L=0.0	                     L=0.0	                     L=0.0	                     L=0.0	                     L=0.0	                       L=0.0
   </pre>
          </div>
       </div>
@@ -488,7 +489,100 @@ O5  L=?
                <div class="title">Code</div>
                <div class="content monospaced">
                   <pre>
-// Insert your code here.
+import numpy as np
+
+
+# This function implements the forward algorithm
+def forwardAlgorithm(A, B, p, O):
+      # Store useful variables for easier readability
+      numStates = len(A)
+      T = len(O)
+
+      # 1) Initialization of alpha values
+      alpha = []
+      for i in range(0, numStates):
+         alpha.append([])
+
+      for i in range(0, numStates):
+         alpha[i].append(p[i] * B[i][O[i]])
+
+      # 2) Induction step
+      for t in range(0, T-1):
+         for j in range(0, numStates):
+            alpha[j].append(0)
+            for i in range(0, numStates):
+                  alpha[j][t+1] += alpha[i][t] * A[i][j]
+            alpha[j][t+1] *= B[j][O[t+1]]
+
+      # 3) Termination
+      prob = 0;
+      for i in range(0, numStates):
+         prob += alpha[i][T-1]
+
+      return alpha, prob
+
+
+# This function implements the backward algorithm
+def backwardAlgorithm(A, B, O):
+      # Store useful variables for easier readability
+      numStates = len(A)
+      T = len(O)
+
+      # 1) Initialization of beta values
+      beta = []
+      for i in range(0, numStates):
+         beta.append([])
+         for j in range(0, T):
+            beta[i].append(0)
+
+      for i in range(0, numStates):
+         beta[i][T-1] = 1
+
+      # 2) Induction step
+      for t in range(T-2, -1, -1):
+         for i in range(0, numStates):
+            for j in range(0, numStates):
+                  beta[i][t] += A[i][j] * B[j][O[t+1]] * beta[j][t+1]
+
+      return beta
+
+
+# Compute the Likelihood for each time segment for Part 7
+O1 = [1, 0, 0, 0, 1, 0, 1]
+O2 = [0, 0, 0, 1, 1, 2, 0]
+O3 = [1, 1, 0, 1, 0, 1, 2]
+O4 = [0, 1, 0, 2, 0, 1, 0]
+O5 = [2, 2, 0, 1, 1, 0, 1]
+A = [[0.6, 0.4],
+      [1, 0]]
+B = [[0.7, 0.3, 0],
+      [0.1, 0.1, 0.8]]
+p = [0.7, 0.3]
+print("\tt=1\t\t\t\t\t\t\tt=2\t\t\t\t\t\tt=3\t\t\t\t\t\tt=4\t\t\t\t\t\t\tt=5\t\t\t\t\t\tt=6\t\t\t\t\t\t\tt=7")
+alpha, prob = forwardAlgorithm(A, B, p, O1)
+beta = backwardAlgorithm(A, B, O1)
+likelihood = np.array(alpha).transpose().dot(np.array(beta))[len(O1)-1]
+print("O1\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}".format(likelihood[0], likelihood[1], likelihood[2], likelihood[3], likelihood[4], likelihood[5], likelihood[6]))
+
+alpha, prob = forwardAlgorithm(A, B, p, O2)
+beta = backwardAlgorithm(A, B, O2)
+likelihood = np.array(alpha).transpose().dot(np.array(beta))[len(O2)-1]
+print("O2\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}".format(likelihood[0], likelihood[1], likelihood[2], likelihood[3], likelihood[4], likelihood[5], likelihood[6]))
+
+alpha, prob = forwardAlgorithm(A, B, p, O3)
+beta = backwardAlgorithm(A, B, O3)
+likelihood = np.array(alpha).transpose().dot(np.array(beta))[len(O3)-1]
+print("O3\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}".format(likelihood[0], likelihood[1], likelihood[2], likelihood[3], likelihood[4], likelihood[5], likelihood[6]))
+
+alpha, prob = forwardAlgorithm(A, B, p, O4)
+beta = backwardAlgorithm(A, B, O4)
+likelihood = np.array(alpha).transpose().dot(np.array(beta))[len(O4)-1]
+print("O4\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}".format(likelihood[0], likelihood[1], likelihood[2], likelihood[3], likelihood[4], likelihood[5], likelihood[6]))
+
+alpha, prob = forwardAlgorithm(A, B, p, O5)
+beta = backwardAlgorithm(A, B, O5)
+likelihood = np.array(alpha).transpose().dot(np.array(beta))[len(O5)-1]
+print("O5\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}\tL={}".format(likelihood[0], likelihood[1], likelihood[2], likelihood[3], likelihood[4], likelihood[5], likelihood[6]))                     
         </pre>
                </div>
             </div>
@@ -548,12 +642,13 @@ pi =  [1.0, 0.0]
          <div class="title">Result</div>
          <div class="content monospaced">
             <pre>
-    HMM1  HMM2  HMM3  HMM4  HMM5
-O1  L=?   *L=?  ...
-O2  *L=?   L=?  ...
-O3  L=?   ...
-O4  L=?
-O5  L=?
+// Note: The HTML formatting may be messed up based on your browser size. Please look at the HTML code for the correct formatting
+   HMM1			      HMM2			      HMM3			   HMM4			               HMM5
+O1	L=0.0				L=0.0				   L=0.0				L=0.01139308498944			*L=0.10546875				
+O2	L=0.0				L=0.0				   L=0.0				*L=0.0039637063065600005	L=0.0				
+O3	L=0.0				*L=0.01562034375	L=0.0				L=0.0				            L=0.0				
+O4	L=0.0				L=0.0				   *L=0.148104		L=0.0				            L=0.0				
+O5	*L=0.00864		L=0.0				   L=0.0				L=0.0				            L=0.0	
   </pre>
          </div>
       </div>
@@ -561,7 +656,107 @@ O5  L=?
        <div class="title">Code</div>
            <div class="content monospaced">
     <pre>
-// Insert your code here.
+import numpy as np
+
+
+# This function implements the forward algorithm
+def forwardAlgorithm(A, B, p, O):
+      # Store useful variables for easier readability
+      numStates = len(A)
+      T = len(O)
+
+      # 1) Initialization of alpha values
+      alpha = []
+      for i in range(0, numStates):
+         alpha.append([])
+
+      for i in range(0, numStates):
+         alpha[i].append(p[i] * B[i][O[i]])
+
+      # 2) Induction step
+      for t in range(0, T-1):
+         for j in range(0, numStates):
+            alpha[j].append(0)
+            for i in range(0, numStates):
+                  alpha[j][t+1] += alpha[i][t] * A[i][j]
+            alpha[j][t+1] *= B[j][O[t+1]]
+
+      # 3) Termination
+      prob = 0;
+      for i in range(0, numStates):
+         prob += alpha[i][T-1]
+
+      return alpha, prob
+
+
+# Compute the likelihood for each sequence
+O1 = [1, 0, 0, 0, 1, 0, 1]
+O2 = [0, 0, 0, 1, 1, 2, 0]
+O3 = [1, 1, 0, 1, 0, 1, 2]
+O4 = [0, 1, 0, 2, 0, 1, 0]
+O5 = [2, 2, 0, 1, 1, 0, 1]
+Os = [O1, O2, O3, O4, O5]
+s1 = []
+s2 = []
+s3 = []
+s4 = []
+s5 = []
+seqs = [s1, s2, s3, s4, s5]
+
+# HMM 1:
+A = [[1.0, 0.0], [0.5, 0.5]]
+B = [[0.4, 0.6, 0.0], [0.0, 0.0, 1.0]]
+p = [0.0, 1.0]
+for i in range(0, len(Os)):
+      alpha, prob = forwardAlgorithm(A, B, p, Os[i])
+      seqs[i].append(prob)
+
+# HMM 2:
+A = [[0.25, 0.75], [1.0, 0.0]]
+B = [[0, 1.0, 0], [0.66, 0.0, 0.34]]
+p = [1.0, 0.0]
+for i in range(0, len(Os)):
+      alpha, prob = forwardAlgorithm(A, B, p, Os[i])
+      seqs[i].append(prob)
+
+# HMM 3:
+A = [[0.0, 1.0], [1.0, 0.0]]
+B = [[1.0, 0.0, 0.0], [0.0, 0.66, 0.34]]
+p = [1.0, 0.0]
+for i in range(0, len(Os)):
+      alpha, prob = forwardAlgorithm(A, B, p, Os[i])
+      seqs[i].append(prob)
+
+# HMM 4:
+A = [[1, 0], [0.44, 0.56]]
+B = [[0.36, 0.42, 0.22], [1.0, 0, 0]]
+p = [0, 1.0]
+for i in range(0, len(Os)):
+      alpha, prob = forwardAlgorithm(A, B, p, Os[i])
+      seqs[i].append(prob)
+
+# HMM 5:
+A = [[0.0, 1.0], [1.0, 0.0]]
+B = [[0.25, 0.75, 0.0], [1.0, 0.0, 0.0]]
+p = [1.0, 0.0]
+for i in range(0, len(Os)):
+      alpha, prob = forwardAlgorithm(A, B, p, Os[i])
+      seqs[i].append(prob)
+
+# Determine max of each sequence
+maxIndices = []
+for seq in seqs:
+      maxIndices.append(np.argmax(np.array(seq)))
+
+# Print results
+print("\tHMM1\t\t\tHMM2\t\t\tHMM3\t\t\tHMM4\t\t\tHMM5")
+for i in range(0, len(seqs)):
+      row = "O" + str(i+1) + "\t"
+      for j in range(0, len(seqs[i])):
+         if j == maxIndices[i]:
+            row += "*"
+         row += "L=" + str(seqs[i][j]) + "\t\t\t\t"
+      print(row)      
 </pre>
     </div>
     </div>
@@ -667,12 +862,13 @@ pi =  [0.0, 1.0, 0.0, 0.0, 0.0]
          <div class="title">Result</div>
          <div class="content monospaced">
             <pre>
-     HMM1     HMM2     HMM3     HMM4     HMM5
-O1   logL=?  *logL=?   ...
-O2  *logL=?   logL=?   ...
-O3   logL=?   ...
-O4   logL=?
-O5   logL=?
+// Note: The HTML formatting may be messed up based on your browser size. Please look at the HTML code for the correct formatting
+   HMM1			               HMM2			               HMM3			               HMM4			               HMM5
+O1	*logL=-28.46471914737028	logL=-inf				      logL=-inf				      logL=-inf				   logL=-inf				
+O2	logL=-inf				      *logL=-28.632927903652742	logL=-inf				      logL=-inf				      logL=-inf				
+O3	logL=-inf				      logL=-inf				      *logL=-30.97288040871276	logL=-inf				      logL=-inf				
+O4	logL=-inf				      logL=-inf				      logL=-inf				      *logL=-34.74407171447881	logL=-inf				
+O5	logL=-inf				      logL=-inf				      logL=-inf				      logL=-inf				      *logL=-12.00042998719346	
   </pre>
          </div>
       </div>
@@ -680,7 +876,127 @@ O5   logL=?
              <div class="title">Code</div>
                  <div class="content monospaced">
           <pre>
-// Insert your code here.
+import nanohmm
+import numpy as np
+
+# Display observation sequences
+O1 = [4, 2, 5, 1, 5, 1, 5, 3, 2, 3, 2, 0, 1, 0, 0, 4, 4, 3, 0, 1]
+O2 = [3, 2, 3, 3, 5, 5, 5, 5, 1, 0, 1, 4, 2, 4, 3, 0, 5, 3, 1, 0]
+O3 = [4, 3, 0, 3, 4, 0, 1, 0, 2, 0, 5, 3, 2, 0, 0, 5, 5, 3, 5, 4]
+O4 = [3, 4, 2, 0, 5, 4, 4, 3, 1, 5, 3, 3, 2, 3, 0, 4, 2, 5, 2, 4]
+O5 = [2, 0, 5, 4, 4, 2, 0, 5, 5, 4, 4, 2, 0, 5, 4, 4, 5, 5, 5, 5]
+Os = [O1, O2, O3, O4, O5]
+s1 = []
+s2 = []
+s3 = []
+s4 = []
+s5 = []
+seqs = [s1, s2, s3, s4, s5]
+
+# HMM 1:
+A = [[0.33, 0, 0, 0.67, 0],
+      [0.67, 0, 0.33, 0, 0],
+      [0, 1.0, 0.0, 0, 0],
+      [0, 0, 0, 0.25, 0.75],
+      [0.0, 0.0, 0.6, 0, 0.4]]
+B = [[0.67, 0, 0, 0, 0, 0.33],
+      [0.0, 1.0, 0, 0, 0, 0],
+      [0.5, 0, 0, 0, 0, 0.5],
+      [0, 0, 0, 0.25, 0.75, 0],
+      [0, 0.0, 0.6, 0.4, 0, 0.0]]
+pi = [0.0, 0.0, 0.0, 1.0, 0.0]
+for i in range(0, len(Os)):
+      lambda_ = nanohmm.hmm_t(A, B, pi)
+      f = nanohmm.forward_t(lambda_)
+      LL = nanohmm.forward(f, Os[i])
+      seqs[i].append(LL)
+
+# HMM 2:
+A = [[0.0, 0.0, 1.0, 0, 0.0],
+      [0.0, 0, 0.0, 0.0, 1.0],
+      [0.38, 0.0, 0.23, 0.38, 0.0],
+      [0.0, 0.31, 0.0, 0.69, 0],
+      [0.0, 0.75, 0.0, 0.25, 0.0]]
+B = [[0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+      [0.0, 0.6, 0.2, 0.2, 0.0, 0.0],
+      [0.0, 0.0, 0, 1.0, 0.0, 0],
+      [0, 0.0, 0, 0.22, 0.0, 0.78],
+      [0.6, 0.0, 0.0, 0.0, 0.4, 0.0]]
+pi = [0.0, 0.0, 1.0, 0.0, 0.0]
+for i in range(0, len(Os)):
+      lambda_ = nanohmm.hmm_t(A, B, pi)
+      f = nanohmm.forward_t(lambda_)
+      LL = nanohmm.forward(f, Os[i])
+      seqs[i].append(LL)
+
+# HMM 3:
+A = [[0, 0.0, 0.32, 0.18, 0.5],
+      [0.0, 0.0, 0.0, 1.0, 0.0],
+      [0, 0.0, 0, 0.0, 1.0],
+      [0, 0.64, 0, 0.0, 0.36],
+      [1.0, 0.0, 0, 0, 0]]
+B = [[0.0, 0.17, 0.33, 0.0, 0.0, 0.5],
+      [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+      [0.47, 0.0, 0.0, 0.0, 0.0, 0.53],
+      [0.27, 0.0, 0.0, 0.0, 0.73, 0.0],
+      [0.66, 0.0, 0.0, 0.33, 0.0, 0.0]]
+pi = [0.0, 0.0, 0.0, 1.0, 0.0]
+for i in range(0, len(Os)):
+      lambda_ = nanohmm.hmm_t(A, B, pi)
+      f = nanohmm.forward_t(lambda_)
+      LL = nanohmm.forward(f, Os[i])
+      seqs[i].append(LL)
+
+# HMM 4:
+A = [[0.0, 0.0, 1.0, 0, 0.0],
+      [0.0, 0, 0.62, 0, 0.38],
+      [0.0, 0.5, 0.0, 0.5, 0.0],
+      [0.0, 0.23, 0.0, 0.0, 0.77],
+      [0.0, 0, 0, 1.0, 0]]
+B = [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+      [0.0, 0.0, 0.62, 0, 0.38, 0.0],
+      [0, 0.0, 0.0, 0.0, 1, 0],
+      [0, 0.0, 0, 0.41, 0.18, 0.41],
+      [0.31, 0.16, 0.37, 0.16, 0, 0.0]]
+pi = [1.0, 0.0, 0.0, 0.0, 0]
+for i in range(0, len(Os)):
+      lambda_ = nanohmm.hmm_t(A, B, pi)
+      f = nanohmm.forward_t(lambda_)
+      LL = nanohmm.forward(f, Os[i])
+      seqs[i].append(LL)
+
+# HMM 5:
+A = [[0.5, 0.33, 0, 0.17, 0.0],
+      [0.0, 0.0, 0.0, 0.0, 1.0],
+      [0.75, 0.0, 0.25, 0.0, 0.0],
+      [0.0, 0.0, 0, 1.0, 0.0],
+      [0.0, 0.0, 1.0, 0.0, 0.0]]
+B = [[0.0, 0.0, 0.0, 0.0, 1.0, 0],
+      [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+      [0.0, 0.0, 0.0, 0.0, 0, 1.0],
+      [0.0, 0.0, 0.0, 0.0, 0, 1.0],
+      [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+pi = [0.0, 1.0, 0.0, 0.0, 0.0]
+for i in range(0, len(Os)):
+      lambda_ = nanohmm.hmm_t(A, B, pi)
+      f = nanohmm.forward_t(lambda_)
+      LL = nanohmm.forward(f, Os[i])
+      seqs[i].append(LL)
+
+# Determine max of each sequence
+maxIndices = []
+for seq in seqs:
+      maxIndices.append(np.argmax(np.array(seq)))
+
+# Print results
+print("\tHMM1\t\t\tHMM2\t\t\tHMM3\t\t\tHMM4\t\t\tHMM5")
+for i in range(0, len(seqs)):
+      row = "O" + str(i+1) + "\t"
+      for j in range(0, len(seqs[i])):
+         if j == maxIndices[i]:
+            row += "*"
+         row += "logL=" + str(seqs[i][j]) + "\t\t\t\t"
+      print(row)            
       </pre>
           </div>
           </div>
