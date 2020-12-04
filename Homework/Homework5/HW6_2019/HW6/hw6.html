@@ -65,7 +65,54 @@
                   <div class="title">Source</div>
                   <div class="content monospaced">
                      <pre>
-// Insert your code here
+# This function implements the slow forward algorithm
+def slowForwardAlgorithm(A, B, p, O):
+      # Store necessary variables
+      prob = 0
+      numStates = len(A)
+      pos = len(O)-1
+      stateSeq = [0]*len(O)
+
+      # Continue looping until all possible state sequences have been traversed
+      while pos >= 0:
+         curProb = p[stateSeq[0]] * B[stateSeq[0]][O[0]]
+         for i in range(1,len(stateSeq)):
+            curProb *= A[stateSeq[i-1]][stateSeq[i]] * B[stateSeq[i]][O[i]]
+         prob += curProb
+
+         if stateSeq[pos] < numStates-1:
+            stateSeq[pos] += 1
+         else:
+            while stateSeq[pos] == numStates-1 and pos >= 0:
+                  stateSeq[pos] = 0
+                  pos -= 1
+            if pos < 0:
+                  break
+            else:
+                  stateSeq[pos] += 1
+                  pos = len(O)-1
+
+      return prob
+
+
+# Compare the likelihood with my forward implementation (3A)
+A = [[0.66, 0.34], [1.0, 0.0]]
+B = [[0.5, 0.25, 0.25], [0.1, 0.1, 0.8]]
+p = [0.8, 0.2]
+O = [0, 1, 0, 2, 0, 1, 0]
+result = slowForwardAlgorithm(A, B, p, O)
+print(result)
+
+# Compare the likelihood with my forward implementation (3B)
+A = [[0.8, 0.1, 0.1],
+      [0.4, 0.2, 0.4],
+      [0, 0.3, 0.7]]
+B = [[0.66, 0.34, 0],
+      [0, 0, 1],
+      [0.5, 0.4, 0.1]]
+p = [0.6, 0, 0.4]
+prob = slowForwardAlgorithm(A, B, p, O)
+print("Likelihood = {}".format(prob))
 					 </pre>
                   </div>
                </div>
@@ -91,7 +138,80 @@
                   <div class="title">Source</div>
                   <div class="content monospaced">
                      <pre>
-// Insert your code here
+# This function implements the forward algorithm
+def forwardAlgorithm(A, B, p, O):
+   # Store useful variables for easier readability
+   numStates = len(A)
+   T = len(O)
+
+   # 1) Initialization of alpha values
+   alpha = []
+   for i in range(0, numStates):
+      alpha.append([])
+
+   for i in range(0, numStates):
+      alpha[i].append(p[i] * B[i][O[i]])
+
+   # 2) Induction step
+   for t in range(0, T-1):
+      for j in range(0, numStates):
+         alpha[j].append(0)
+         for i in range(0, numStates):
+               alpha[j][t+1] += alpha[i][t] * A[i][j]
+         alpha[j][t+1] *= B[j][O[t+1]]
+
+   # 3) Termination
+   prob = 0;
+   for i in range(0, numStates):
+      prob += alpha[i][T-1]
+
+   return alpha, prob
+
+
+# Print results for Part 3A
+A = [[0.66, 0.34], [1.0, 0.0]]
+B = [[0.5, 0.25, 0.25], [0.1, 0.1, 0.8]]
+p = [0.8, 0.2]
+O = [0, 1, 0, 2, 0, 1, 0]
+alpha, prob = forwardAlgorithm(A, B, p, O)
+print("Part 3A Results")
+print(str(alpha))
+print("Likelihood = {}".format(prob))
+
+# Print results for Part 3B
+A = [[0.8, 0.1, 0.1],
+   [0.4, 0.2, 0.4],
+   [0, 0.3, 0.7]]
+B = [[0.66, 0.34, 0],
+   [0, 0, 1],
+   [0.5, 0.4, 0.1]]
+p = [0.6, 0, 0.4]
+alpha, prob = forwardAlgorithm(A, B, p, O)
+print("Part 3B Results")
+print(str(alpha))
+print("Likelihood = {}".format(prob))
+
+# Print results for Part 6
+O1 = [1, 0, 0, 0, 1, 0, 1]
+O2 = [0, 0, 0, 1, 1, 2, 0]
+O3 = [1, 1, 0, 1, 0, 1, 2]
+O4 = [0, 1, 0, 2, 0, 1, 0]
+O5 = [2, 2, 0, 1, 1, 0, 1]
+A = [[0.6, 0.4],
+   [1, 0]]
+B = [[0.7, 0.3, 0],
+   [0.1, 0.1, 0.8]]
+pi = [0.7, 0.3]
+alpha, prob = forwardAlgorithm(A, B, p, O1)
+print("Likelihood for O1 = {}".format(prob))
+alpha, prob = forwardAlgorithm(A, B, p, O2)
+print("Likelihood for O2 = {}".format(prob))
+alpha, prob = forwardAlgorithm(A, B, p, O3)
+print("Likelihood for O3 = {}".format(prob))
+alpha, prob = forwardAlgorithm(A, B, p, O4)
+print("Likelihood for O4 = {}".format(prob))
+alpha, prob = forwardAlgorithm(A, B, p, O5)
+print("Likelihood for O5 = {}".format(prob))
 					 </pre>
                   </div>
                </div>
@@ -126,8 +246,9 @@ pi = [0.8, 0.2]
                    <div class="title">Result</div>
                    <div class="content monospaced">
                       <pre>
-// Insert the computed N-by-T array for the forward variable alpha here.
-            </pre>
+[[0.4, 0.07100000000000001, 0.030230000000000003, 0.00559145, 0.005956458500000001, 0.0010303429775000003, 0.00044127297707500016], 
+   [0.020000000000000004, 0.013600000000000001, 0.0024140000000000008, 0.008222560000000002, 0.00019010930000000004, 0.00020251958900000005, 3.503166123500001e-05]]
+                     </pre>
                    </div>
                 </div>
           <div class="paragraph">
@@ -147,8 +268,9 @@ pi = [0.6, 0, 0.4]
              <div class="title">Result</div>
              <div class="content monospaced">
                 <pre>
-// Insert the computed N-by-T array for the forward variable alpha here.
-      </pre>
+[[0.396, 0.10771200000000002, 0.05687193600000001, 0.0, 0.003919363430400001, 0.0010660668530688003, 0.0005628832984203267], 
+   [0, 0.0, 0.0, 0.0148460736, 0.0, 0.0, 0.0], [0.2, 0.07184, 0.0305296, 0.0027057913600000002, 0.003916241696, 0.001253322212096, 0.00049196611688704]]
+         </pre>
              </div>
           </div>
 </div>
@@ -171,7 +293,49 @@ pi = [0.6, 0, 0.4]
                          <div class="title">Source</div>
                          <div class="content monospaced">
                             <pre>
-// Insert your code here
+# This function implements the backward algorithm
+def backwardAlgorithm(A, B, O):
+   # Store useful variables for easier readability
+   numStates = len(A)
+   T = len(O)
+
+   # 1) Initialization of beta values
+   beta = []
+   for i in range(0, numStates):
+      beta.append([])
+      for j in range(0, T):
+         beta[i].append(0)
+
+   for i in range(0, numStates):
+      beta[i][T-1] = 1
+
+   # 2) Induction step
+   for t in range(T-2, -1, -1):
+      for i in range(0, numStates):
+         for j in range(0, numStates):
+               beta[i][t] += A[i][j] * B[j][O[t+1]] * beta[j][t+1]
+
+   return beta
+
+
+# Test part 5A
+A = [[0.66, 0.34], [1.0, 0.0]]
+B = [[0.5, 0.25, 0.25], [0.1, 0.1, 0.8]]
+O = [0, 1, 0, 2, 0, 1, 0]
+beta = backwardAlgorithm(A, B, O)
+print("Part 5A Beta Values:")
+print(str(beta))
+
+# Test part 5B
+A = [[0.8, 0.1, 0.1],
+   [0.4, 0.2, 0.4],
+   [0, 0.3, 0.7]]
+B = [[0.66, 0.34, 0],
+   [0, 0, 1],
+   [0.5, 0.4, 0.1]]
+beta = backwardAlgorithm(A, B, O)
+print("Part 5B Beta Values:")
+print(str(beta))                              
        					 </pre>
                          </div>
                       </div>
@@ -204,7 +368,8 @@ pi = [0.8, 0.2]
                  <div class="title">Result</div>
                  <div class="content monospaced">
                     <pre>
-// Insert the computed N-by-T array for the backward variable beta here.
+[[0.0011250862706500002, 0.005254026010000001, 0.015186587000000001, 0.028523800000000002, 0.07706, 0.364, 1], 
+   [0.0013135065025000003, 0.007593293500000001, 0.0071309500000000005, 0.03853, 0.091, 0.5, 1]]
           </pre>
                  </div>
               </div>
@@ -225,8 +390,9 @@ pi = [0.6, 0, 0.4]
            <div class="title">Result</div>
            <div class="content monospaced">
               <pre>
-// Insert the computed N-by-T array for the backward variable beta here.
-    </pre>
+[[0.0015827267529984006, 0.004694663427200001, 0.006823102400000002, 0.09530204800000003, 0.17121600000000003, 0.5780000000000001, 1], [0.0018615874292992004, 0.006169560473600001, 0.014332204800000003, 0.06480102400000001, 0.134608, 0.464, 1], 
+   [0.0021404481056, 0.007644457520000001, 0.021841307200000003, 0.0343, 0.09799999999999999, 0.35, 1]]
+         </pre>
            </div>
         </div>
 </div>
@@ -265,11 +431,11 @@ Hint: Compute this by adding the elements in the last column of the alpha array 
             <pre>
 // Insert the computed likelihood for each sequence here.
 
-Likelihood for O1 = ?
-Likelihood for O2 = ?
-Likelihood for O3 = ?
-Likelihood for O4 = ?
-Likelihood for O5 = ?
+Likelihood for O1 = 0.0004844856844799998
+Likelihood for O2 = 0.0009391592448
+Likelihood for O3 = 0.00013506766847999998
+Likelihood for O4 = 0.0010799330304
+Likelihood for O5 = 0.0
   </pre>
          </div>
       </div>

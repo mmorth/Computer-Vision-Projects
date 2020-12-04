@@ -1,10 +1,5 @@
-from __future__ import print_function
-
-import nanohmm
-
-
 # This function implements the backward algorithm
-def backwardAlgorithm(A, B, p, O):
+def backwardAlgorithm(A, B, O):
     # Store useful variables for easier readability
     numStates = len(A)
     T = len(O)
@@ -28,18 +23,21 @@ def backwardAlgorithm(A, B, p, O):
     return beta
 
 
+# Test part 5A
 A = [[0.66, 0.34], [1.0, 0.0]]
 B = [[0.5, 0.25, 0.25], [0.1, 0.1, 0.8]]
-p = [0.8, 0.2]
 O = [0, 1, 0, 2, 0, 1, 0]
-beta = backwardAlgorithm(A, B, p, O)
+beta = backwardAlgorithm(A, B, O)
+print("Part 5A Beta Values:")
 print(str(beta))
 
-# lambda_ = nanohmm.hmm_t(A, B, p)
-#
-#
-# print("Forward:")
-# O = [0, 1, 0, 2, 0, 1, 0]
-# f = nanohmm.forward_t(lambda_)
-# LL = nanohmm.forward(f, O)
-# print(LL)
+# Test part 5B
+A = [[0.8, 0.1, 0.1],
+     [0.4, 0.2, 0.4],
+     [0, 0.3, 0.7]]
+B = [[0.66, 0.34, 0],
+     [0, 0, 1],
+     [0.5, 0.4, 0.1]]
+beta = backwardAlgorithm(A, B, O)
+print("Part 5B Beta Values:")
+print(str(beta))

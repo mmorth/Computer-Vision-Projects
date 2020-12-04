@@ -1,8 +1,3 @@
-from __future__ import print_function
-
-import nanohmm
-
-
 # This function implements the slow forward algorithm
 def slowForwardAlgorithm(A, B, p, O):
     # Store necessary variables
@@ -33,6 +28,7 @@ def slowForwardAlgorithm(A, B, p, O):
     return prob
 
 
+# Compare the likelihood with my forward implementation (3A)
 A = [[0.66, 0.34], [1.0, 0.0]]
 B = [[0.5, 0.25, 0.25], [0.1, 0.1, 0.8]]
 p = [0.8, 0.2]
@@ -40,11 +36,13 @@ O = [0, 1, 0, 2, 0, 1, 0]
 result = slowForwardAlgorithm(A, B, p, O)
 print(result)
 
-lambda_ = nanohmm.hmm_t(A, B, p)
-
-
-print("Forward:")
-O = [0, 1, 0, 2, 0, 1, 0]
-f = nanohmm.forward_t(lambda_)
-LL = nanohmm.forward(f, O)
-print(LL)
+# Compare the likelihood with my forward implementation (3B)
+A = [[0.8, 0.1, 0.1],
+     [0.4, 0.2, 0.4],
+     [0, 0.3, 0.7]]
+B = [[0.66, 0.34, 0],
+     [0, 0, 1],
+     [0.5, 0.4, 0.1]]
+p = [0.6, 0, 0.4]
+prob = slowForwardAlgorithm(A, B, p, O)
+print("Likelihood = {}".format(prob))
