@@ -66,7 +66,7 @@ static void check_hmm_invariants(const hmm_t *h) {
 They sum up to %f. Terminating the program.", sum);
     exit(-1);
   }
-  
+
   for (i=0; i<N; ++i) {
     sum = 0;
     for (j=0; j<N; ++j)
@@ -87,25 +87,6 @@ They sum up to %f. Terminating the program.", i, sum);
   }
 }
 
-// print the parameters (A, B, and pi) of the HMM
-static void hmm_print(const hmm_t *h) {
-  unsigned int ix, jx;
-  for (ix=0; ix<h->N; ++ix) {
-    for (jx=0; jx<h->N; ++jx)
-      printf("A[%d][%d] = %.4f\t", ix, jx, h->A[ix][jx]);
-    printf("\n");
-  }
-  printf("\n");
-  for (ix=0; ix<h->N; ++ix) {
-    for (jx=0; jx<h->M; ++jx)
-      printf("B[%d][%d] = %.4f\t", ix, jx, h->B[ix][jx]);
-    printf("\n");
-  }
-  printf("\n");
-  for (ix=0; ix<h->N; ++ix)
-    printf("pi[%d]   = %.4f\t", ix, h->pi[ix]);
-  printf("\n");
-}
 
 // Train an HMM using the Baum-Welch algorithm and random restarts.
 // It is assumed that the memory for the HMM is already fully allocated.
@@ -174,11 +155,27 @@ static double train(hmm_t *h, const unsigned int T, const unsigned int *O,
     }
     check_hmm_invariants(h);
   }
-  
-  // Print the trained hmm
-  hmm_print(h);
-  
   return bestLL;
+}
+
+// print the parameters (A, B, and pi) of the HMM
+static void hmm_print(const hmm_t *h) {
+  unsigned int ix, jx;
+  for (ix=0; ix<h->N; ++ix) {
+    for (jx=0; jx<h->N; ++jx)
+      printf("A[%d][%d] = %.4f\t", ix, jx, h->A[ix][jx]);
+    printf("\n");
+  }
+  printf("\n");
+  for (ix=0; ix<h->N; ++ix) {
+    for (jx=0; jx<h->M; ++jx)
+      printf("B[%d][%d] = %.4f\t", ix, jx, h->B[ix][jx]);
+    printf("\n");
+  }
+  printf("\n");
+  for (ix=0; ix<h->N; ++ix)
+    printf("pi[%d]   = %.4f\t", ix, h->pi[ix]);
+  printf("\n");
 }
 
 
@@ -228,28 +225,47 @@ static void bw_example() {
 }
 
 // shows training with random restarts and recognition using the trained HMMs
-static void p10() {
-  printf("Training HMMs...\n");
-  const unsigned int example_O[5][20] = {{4,2,5,1,5,1,5,3,2,3,2,0,1,0,0,4,4,3,0,1},
-                                       {3,2,3,3,5,5,5,5,1,0,1,4,2,4,3,0,5,3,1,0},
-                                       {4,3,0,3,4,0,1,0,2,0,5,3,2,0,0,5,5,3,5,4},
-                                       {3,4,2,0,5,4,4,3,1,5,3,3,2,3,0,4,2,5,2,4},
-									   {2,0,5,4,4,2,0,5,5,4,4,2,0,5,4,4,5,5,5,5}};
-  const unsigned int T = 20;
+static void recognition_example() {
+  printf("Recognition example:\n");
+  const unsigned int example_O[][5] = {{0, 1, 2, 0, 1},            // the four training sequences
+                                       {2, 1, 0, 0, 2},
+                                       {2, 2, 2, 2, 2},
+                                       {1, 1, 1, 2, 2}};
+
+  const unsigned int O[][5] = {{0, 2, 1, 0, 1}, {1, 1, 2, 2, 2}};  // the two testing sequences
+  const unsigned int T = 5;
   const unsigned int ntrain = sizeof(example_O)/sizeof(example_O[0]);
-  const unsigned int M = 6, N = 4;
+  const unsigned int ntest  = sizeof(O)/sizeof(O[0]);
+  const unsigned int M = 3, N = 2;
   unsigned int train_ix, ix ,jx;
+  printf("Training HMMs...\n");
   hmm_t* h[ntrain];
   for (train_ix=0; train_ix<ntrain; ++train_ix) {
     h[train_ix] = malloc(hmm_block_size(N, M));
     hmm_init_block(h[train_ix], N, M);
 
-	printf("\nTrained HMM %d on sequence [", train_ix + 1);
-	for (jx=0; jx<T; ++jx)
+    train(h[train_ix], T, example_O[train_ix], 10, 50);  // 10 restarts, 50 iterations
+    printf("Trained HMM %d on sequence [", train_ix + 1);
+    for (jx=0; jx<T; ++jx)
       printf("%d%s", example_O[train_ix][jx], jx == T-1 ? "":" ");
-	printf("].\n");
-  
-    train(h[train_ix], T, example_O[train_ix], 10, 50);
+    printf("].\n");
+  }
+  printf("Recognizing sequences...\n");
+  unsigned int test_ix;
+  for (test_ix=0; test_ix<ntest; ++test_ix) {
+    unsigned int best_ix;
+    double best_LL = -HUGE_VAL;
+    for (ix=0; ix<ntrain; ++ix) {
+      const double LL = compute_LL(h[ix], T, O[test_ix]);
+      if (LL > best_LL) {
+        best_LL = LL;
+        best_ix = ix;
+      }
+    }
+    printf("The HMM with the highest log-likelihood (%g) for the sequence [", best_LL);
+    for (ix=0; ix<T; ++ix)
+      printf("%d%s", O[test_ix][ix], ix == T-1 ? "":" ");
+    printf("] is HMM number %d.\n", best_ix + 1);
   }
 
   for (train_ix=0; train_ix<ntrain; ++train_ix)
@@ -294,6 +310,50 @@ static void viterbi_example() {
 
 
 int main(int argc, const char* argv[]) {
-  p10();
+  const unsigned int N = 2;
+  const unsigned int M = 3;
+  char hmm_block[hmm_block_size(N, M)];
+  hmm_t *lambda = hmm_init_block(hmm_block, N, M);
+  double **A = lambda->A;
+  double **B = lambda->B;
+  double *pi = lambda->pi;
+  // State transition probability matrix.
+  A[0][0] = 0.5;  A[0][1] = 0.5;
+  A[1][0] = 0.0;  A[1][1] = 1.0;
+  // Observation probability matrix.
+  B[0][0] = 0.5;  B[0][1] = 0.5;  B[0][2] = 0.0;
+  B[1][0] = 0.5;  B[1][1] = 0.0;  B[1][2] = 0.5;
+  // Initial state distribution vector.
+  pi[0]   = 0.5;  pi[1]   = 0.5;
+  const unsigned int O[] = {0, 1, 0, 2};  // observation sequence
+  const unsigned int T = sizeof(O) / sizeof(O[0]);  // sequence length
+
+  char f_block[forward_block_size(N, T)];  // allocate on the stack
+  forward_t *f = forward_init_block(f_block, lambda, T, 0);  // initialize
+  double LL = forward(f, O, T);
+  printf("(forward) LL=%g\n", LL);
+
+  char fb_block[forwardbackward_block_size(N, T)];  // allocate on stack
+  forwardbackward_t *fb = forwardbackward_init_block(fb_block, lambda, T, 0);
+  LL = forwardbackward(fb, O, T);
+
+  printf("Forward-Backward\n");
+  printf("Normalized betas:\n");
+  unsigned int i, j;
+  for (i=0; i<N; ++i) {
+    for (j=0; j<T; ++j)
+      printf("beta[%d][%d] = %f\t", i, j, fb->beta[i][j]);
+    printf("\n");
+  }
+
+  printf("(forward-backward) LL=%g\n", LL);
+
+  viterbi_example();
+
+  srand(0); // make the randomized results reproducible
+  bw_example();
+  printf("\n\n");
+
+  recognition_example();
   return 0;
 }

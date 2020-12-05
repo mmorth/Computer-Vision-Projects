@@ -74,6 +74,10 @@ add_executable(OpenCV
   HW3_2020/p2c_opencv_code.cpp
   HW3_2020/p3_opencv_code.cpp
   HW3_2020/create_mario_template.cpp
+
+  HW5_2020/p10_training_nanohmm.c
+  HW5_2020/nanohmm.c
+  HW5_2020/nanohmm.h
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
