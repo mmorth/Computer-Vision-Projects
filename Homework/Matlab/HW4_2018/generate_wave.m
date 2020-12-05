@@ -1,59 +1,47 @@
 % TODO: Determine how to find these parameters without guess and check
-generateSignal(0.01875, 600, 115, 'extralife-generated.wav');
+generateSignal('extralife-generated.wav');
 
 % Function that generates a synthesized wave
-function generateSignal(time, lowf, lowscale, outputFileName)
-    % The time of one step of the signal up or down (length of a single
-    % segment)
-    % base frequency values
-    % low frequency is the top frequency value of the first segment
-    % low scale is the size of the up/down step
-
-    %initialize the sound samples array
-    soundarr=[];
-
+function generateSignal(outputFileName)
     %set the sample rate
     fs = 44100;
 
-    % Create time interval from 0 to time
-    t = 0 : 1/fs : time;
+    % Setup Pause Time
+    wave = 0;
+    pauseTime = 0 : 1/fs : 0.05;
+	pauseWave = sin(pauseTime);
+    wave = [wave pauseWave];
+    
+	pauseTime = 0 : 1/fs : 0.01;
+	pauseWave = sin(pauseTime);
+	
+	for i = 1 : 10
+		wave = [wave generateFrequencies(fs)];
+		wave = [wave pauseWave];
+	end
 
-    triangle = 0 : 1/fs : time;
-
-    % generate the triangle wave function
-    % for N=1:4
-    %     
-    %     triangle = triangle + wave;
-    % end
-
-    % generate 5 periods of the siren
-    for v = 1:18
-        %generate the up
-        for stair = 0:10
-            triangle = (2*lowf*(t-(1/lowf).*floor(t.*lowf + 1/2)).*(-1).^(floor(t*lowf + 1/2)));
-            lowf = lowf + lowscale;
-
-            %add this segment to the sound
-            soundarr = [soundarr, triangle];
-        end
-
-        %generate the down
-        for stair = 0:10
-            triangle = (2*lowf*(t-(1/lowf).*floor(t.*lowf + 1/2)).*(-1).^(floor(t*lowf + 1/2)));
-
-            lowf = lowf - lowscale;
-
-            soundarr = [soundarr, triangle];
-        end
-    end
-
-    %display the spectrogram
-    figure; spectrogram(soundarr,512,256,512,fs, 'yaxis');
+    figure; spectrogram(wave,512,256,512,fs, 'yaxis');
     title(strcat(strcat('Spectrogram for =', outputFileName)));
-
-    %play the sound
-    %sound(soundarr,fs);
-
+    
     %save the sound to file
-    audiowrite(outputFileName, soundarr, fs);
+    audiowrite(outputFileName, wave, fs);
+end
+
+function [soundarr] = generateFrequencies(fs)
+    % Create time interval from 0 to time
+	t = 0 : 1/fs : 0.19;
+
+    % Calculate corresponding row and column waves
+    % High = 10, low = 0.2
+    freqInterval = 375;
+    numLevels = 58;
+    soundarr = 0;
+    soundarr = soundarr + 2.*exp(-t*5).*sin(2 * pi * 10 * t);
+    amplitudes = [10 10 0.055 10 0.055 0.055 0.055 10 0.055 1 0.055 0.05 0.05 0.05 0.4 0 1 0.05 0.05 0.05 0.055 0.055 0.05 5 0.05 .05 .05 1 .05 .3 .4 0 .4 0.05 .05 .4 .05 .05 .05 3 .05 .05 .05 .05 .05 0.05 0.05 0 0.05 0.05 .05 .05 0.05 0.05 .05 1.5 .05 .05 .05 .4 .05 .05 0.05 0.05 0];
+    for i = 1:numLevels
+       soundarr = soundarr + amplitudes(i).*exp(-t*10).*sin(2 * pi * (i)*freqInterval * t); 
+    end
+	
+	% Calculate final wave
+	soundarr = soundarr / numLevels;
 end
