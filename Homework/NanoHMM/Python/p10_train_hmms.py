@@ -1,21 +1,6 @@
 import nanohmm
 
 
-def train(A, B, pi, T, O, numRestarts, numIters):
-    N = len(A)
-    M = len(B)
-    bestA = [[0]*N]*M
-    bestB = [[0]*N]*M
-    bestPi = [0]*N
-    bestLL = float('-inf')
-
-    while numRestarts > 0:
-        for ix in range(0, N):
-            pi[ix] = 
-        numRestarts -= 1
-
-
-
 O1 = [4, 2, 5, 1, 5, 1, 5, 3, 2, 3, 2, 0, 1, 0, 0, 4, 4, 3, 0, 1]
 O2 = [3, 2, 3, 3, 5, 5, 5, 5, 1, 0, 1, 4, 2, 4, 3, 0, 5, 3, 1, 0]
 O3 = [4, 3, 0, 3, 4, 0, 1, 0, 2, 0, 5, 3, 2, 0, 0, 5, 5, 3, 5, 4]
