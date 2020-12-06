@@ -1,23 +1,25 @@
-detectDigit('single-digit-1.wav');
-detectDigit('single-digit-2.wav');
-detectDigit('single-digit-3.wav');
-detectDigit('single-digit-4.wav');
-detectDigit('single-digit-5.wav');
-detectDigit('single-digit-6.wav');
-detectDigit('single-digit-7.wav');
-detectDigit('single-digit-8.wav');
-detectDigit('single-digit-9.wav');
-detectDigit('single-digit-10.wav');
-detectDigit('single-digit-11.wav');
-detectDigit('single-digit-12.wav');
+% Determine each audio file's dialed digits
+detectAreaCode('area-code-1.wav');
+detectAreaCode('area-code-2.wav');
+detectAreaCode('area-code-3.wav');
+detectAreaCode('area-code-4.wav');
+detectAreaCode('area-code-5.wav');
+detectAreaCode('area-code-6.wav');
+detectAreaCode('area-code-7.wav');
+detectAreaCode('area-code-8.wav');
+detectAreaCode('area-code-9.wav');
+detectAreaCode('area-code-10.wav');
 
-% Function that detects the dial digit using a spectrogram
-function detectDigit(audioFileName)
+
+% Function that detects an area code of an audio file using a spectrogram
+function detectAreaCode(fileName)
     % Read in the game audio file
-    [Y,fs]=audioread(audioFileName);
+    [Y,fs]=audioread(fileName);
 
     % Obtain the necessary spectrogram variables for processing
-    [s,f,t,p] = spectrogram(Y, 1024, 256, 1024, fs, 'yaxis'); 
+    %     figure; spectrogram(Y(:,1), 1024, 256, 1024, fs, 'yaxis'); 
+    %     title(strcat(strcat('Spectrogram for =', fileName)));
+    [s,f,t,p] = spectrogram(Y, 1024, 256, 1024, fs, 'yaxis');
 
     % Filter the spectral response to isolate the possible digit frequencies
     minFreq = 640;
@@ -27,10 +29,38 @@ function detectDigit(audioFileName)
     p = p(f1,t1);
     p(10*log10(abs(p)) < -27) = 0;
 
-    % Find the indices of non-zero filtered power that correspond to certain
-    % frequencies
-    k = find(p(:,1));
+    % Compute which digits are recognized at certain locations
+    result = "";
+    searchingFlag = true;
+    waitone = false;
+    % Search through all time instances
+    for i = 1:size(p(1,:), 2)
+        % Determine whether all values are zero in the ith time column
+        allZeros = 1 && all(p(:,i) == 0);
+        if allZeros
+            % Reset searching flag to true when all values are 0s (the next
+            % non-zero column will correspond to the next recognized digit)
+            searchingFlag = true;
+        elseif searchingFlag && ~allZeros
+            % Detect the next digit on a non-zero column
+            if waitone
+                k = find(p(:,i));
+                result = result + detectDigit(k, minFreq, maxFreq);
+                searchingFlag = false;
+                waitone = false;
+            else
+                waitone = true;
+            end
+        end
+    end
 
+    % Print the detected area code
+    text = sprintf("%s's area code = %s", fileName, result);
+    disp(text);
+end
+
+% Function that detects the dial digit using a spectrogram
+function result = detectDigit(k, minFreq, maxFreq)
     % Determine the upper and lower number digit value for classification
     lowerFreq = minFreq + 32*(k(1)-1);
     upperFreq = minFreq + 32*(k(2)-1);
@@ -58,15 +88,12 @@ function detectDigit(audioFileName)
     
     % Print results
     if lowerFreq == 4 && upperFreq ~= 2
-        result = sprintf("%s detectedDigit = ", audioFileName);
         if upperFreq == 1
-           result = result + "*";
+           result = "*";
         else
-            result = result + "#";
+            result = "#";
         end
     else
-        result = sprintf("%s detectedDigit = %d", audioFileName, digitLocations(lowerFreq, upperFreq));
+        result = num2str(digitLocations(lowerFreq, upperFreq));
     end
-    
-    disp(result);
 end

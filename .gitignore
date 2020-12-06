@@ -5,6 +5,8 @@
 ### Videos ###
 *.mp4
 *.avi
+*.wav
+*.mp3
 
 ### C ###
 # Prerequisites
