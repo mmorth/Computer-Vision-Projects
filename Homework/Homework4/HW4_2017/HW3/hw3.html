@@ -486,7 +486,7 @@ end
 							<a href="input/P3a/phone-number-2.wav" class="media mediafile mf_wav" title="phone-number-2">phone-number-2</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">724-547-3212</td>
 				</tr>
 				<tr class="row3">
 					<td class="col0">
@@ -495,7 +495,7 @@ end
 							<a href="input/P3a/phone-number-3.wav" class="media mediafile mf_wav" title="phone-number-3">phone-number-3</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">924-113-0472</td>
 				</tr>
 				<tr class="row4">
 					<td class="col0">
@@ -504,7 +504,7 @@ end
 							<a href="input/P3a/phone-number-4.wav" class="media mediafile mf_wav" title="phone-number-4">phone-number-4</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">890-328-8560</td>
 				</tr>
 				<tr class="row5">
 					<td class="col0">
@@ -513,7 +513,7 @@ end
 							<a href="input/P3a/phone-number-5.wav" class="media mediafile mf_wav" title="phone-number-5">phone-number-5</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">098-765-4321</td>
 				</tr>
 				<tr class="row6">
 					<td class="col0">
@@ -522,7 +522,7 @@ end
 							<a href="input/P3a/phone-number-6.wav" class="media mediafile mf_wav" title="phone-number-6">phone-number-6</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">230-845-9900</td>
 				</tr>
 				<tr class="row7">
 					<td class="col0">
@@ -531,7 +531,7 @@ end
 							<a href="input/P3a/phone-number-7.wav" class="media mediafile mf_wav" title="phone-number-7">phone-number-7</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">555-672-4076</td>
 				</tr>
 				<tr class="row8">
 					<td class="col0">
@@ -540,7 +540,7 @@ end
 							<a href="input/P3a/phone-number-8.wav" class="media mediafile mf_wav" title="phone-number-8">phone-number-8</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">390-210-5645</td>
 				</tr>
 				<tr class="row9">
 					<td class="col0">
@@ -549,7 +549,7 @@ end
 							<a href="input/P3a/phone-number-9.wav" class="media mediafile mf_wav" title="phone-number-9">phone-number-9</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">204-895-2103</td>
 				</tr>
 				<tr class="row10">
 					<td class="col0">
@@ -558,11 +558,117 @@ end
 							<a href="input/P3a/phone-number-10.wav" class="media mediafile mf_wav" title="phone-number-10">phone-number-10</a>
 						</audio>
 					</td>
-					<td class="col1"> Output of your program. </td>
+					<td class="col1">301-167-3333</td>
 				</tr>
 			</table>
 		</div>
-		<pre class="code">Put your code here</pre>
+		<pre class="code">
+			% Determine each audio file's dialed digits
+detectAreaCode('phone-number-1.wav');
+detectAreaCode('phone-number-2.wav');
+detectAreaCode('phone-number-3.wav');
+detectAreaCode('phone-number-4.wav');
+detectAreaCode('phone-number-5.wav');
+detectAreaCode('phone-number-6.wav');
+detectAreaCode('phone-number-7.wav');
+detectAreaCode('phone-number-8.wav');
+detectAreaCode('phone-number-9.wav');
+detectAreaCode('phone-number-10.wav');
+
+
+% Function that detects an area code of an audio file using a spectrogram
+function detectAreaCode(fileName)
+    % Read in the game audio file
+    [Y,fs]=audioread(fileName);
+
+    % Obtain the necessary spectrogram variables for processing
+    %     figure; spectrogram(Y(:,1), 1024, 256, 1024, fs, 'yaxis'); 
+    %     title(strcat(strcat('Spectrogram for =', fileName)));
+    [s,f,t,p] = spectrogram(Y, 1024, 256, 1024, fs, 'yaxis');
+
+    % Filter the spectral response to isolate the possible digit frequencies
+    minFreq = 640;
+    maxFreq = 1536;
+    f1 = (f >= minFreq & f <= maxFreq);
+    t1 = t > 0.0;
+    p = p(f1,t1);
+    p(10*log10(abs(p)) < -27) = 0;
+
+    % Compute which digits are recognized at certain locations
+    result = "";
+    searchingFlag = true;
+    waitone = false;
+    numDigits = 0;
+    % Search through all time instances
+    for i = 1:size(p(1,:), 2)
+        % Determine whether all values are zero in the ith time column
+        allZeros = 1 && all(p(:,i) == 0);
+        if allZeros
+            % Reset searching flag to true when all values are 0s (the next
+            % non-zero column will correspond to the next recognized digit)
+            searchingFlag = true;
+        elseif searchingFlag && ~allZeros
+            % Detect the next digit on a non-zero column
+            if waitone
+                k = find(p(:,i));
+                result = result + detectDigit(k, minFreq, maxFreq);
+                numDigits = numDigits + 1;
+                searchingFlag = false;
+                waitone = false;
+                
+                if numDigits == 3 || numDigits == 6
+                    result = result + "-";
+                end
+            else
+                waitone = true;
+            end
+        end
+    end
+
+    % Print the detected area code
+    text = sprintf("%s's area code = %s", fileName, result);
+    disp(text);
+end
+
+% Function that detects the dial digit using a spectrogram
+function result = detectDigit(k, minFreq, maxFreq)
+    % Determine the upper and lower number digit value for classification
+    lowerFreq = minFreq + 32*(k(1)-1);
+    upperFreq = minFreq + 32*(k(2)-1);
+    digitLocations = [1 2 3; 4 5 6; 7 8 9; 0 0 0];
+
+    % Find lower frequency bin
+    if lowerFreq >= 672 && lowerFreq <= 704
+        lowerFreq = 1;
+    elseif lowerFreq >= 768 && lowerFreq <= 800
+        lowerFreq = 2;
+    elseif lowerFreq >= 832 && lowerFreq <= 864
+        lowerFreq = 3;
+    else
+        lowerFreq = 4;
+    end
+
+    % Find upper frequency bin
+    if upperFreq >= 1184 && upperFreq <= 1216
+        upperFreq = 1;
+    elseif upperFreq >= 1312 && upperFreq <= 1344
+        upperFreq = 2;
+    else
+        upperFreq = 3;
+    end
+    
+    % Print results
+    if lowerFreq == 4 && upperFreq ~= 2
+        if upperFreq == 1
+           result = "*";
+        else
+            result = "#";
+        end
+    else
+        result = num2str(digitLocations(lowerFreq, upperFreq));
+    end
+end
+		</pre>
 		
 		<!-- PART 3b -->
 		<h2 class="sectionedit15" id="part_b_short_piano_melodies_with_chords">Part B. Phone Numbers with Random Duration/Pause</h2>
@@ -582,7 +688,7 @@ end
 								<a href="input/P3b/phone-number-1.wav" class="media mediafile mf_wav" title="phone-number-1">phone-number-1</a>
 							</audio>
 						</td>
-						<td class="col1"> Output of your program.</td>
+						<td class="col1">723-100-3992</td>
 					</tr>
 					<tr class="row2">
 						<td class="col0">
@@ -591,7 +697,7 @@ end
 								<a href="input/P3b/phone-number-2.wav" class="media mediafile mf_wav" title="phone-number-2">phone-number-2</a>
 							</audio>
 						</td>
-						<td class="col1"> Output of your program. </td>
+						<td class="col1">555-682-9000</td>
 					</tr>
 					<tr class="row3">
 						<td class="col0">
@@ -600,7 +706,7 @@ end
 								<a href="input/P3b/phone-number-3.wav" class="media mediafile mf_wav" title="phone-number-3">phone-number-3</a>
 							</audio>
 						</td>
-						<td class="col1"> Output of your program. </td>
+						<td class="col1">002-452-8910</td>
 					</tr>
 					<tr class="row4">
 						<td class="col0">
@@ -609,7 +715,7 @@ end
 								<a href="input/P3b/phone-number-4.wav" class="media mediafile mf_wav" title="phone-number-4">phone-number-4</a>
 							</audio>
 						</td>
-						<td class="col1"> Output of your program. </td>
+						<td class="col1">424-114-8566</td>
 					</tr>
 					<tr class="row5">
 						<td class="col0">
@@ -618,11 +724,112 @@ end
 								<a href="input/P3b/phone-number-5.wav" class="media mediafile mf_wav" title="phone-number-5">phone-number-5</a>
 							</audio>
 						</td>
-						<td class="col1"> Output of your program. </td>
+						<td class="col1">823-341-0944</td>
 					</tr>
 				</table>
 			</div>
-			<pre class="code">Put your code here</pre>
+			<pre class="code">
+				% Determine each audio file's dialed digits
+detectAreaCode('phone-number-1.wav');
+detectAreaCode('phone-number-2.wav');
+detectAreaCode('phone-number-3.wav');
+detectAreaCode('phone-number-4.wav');
+detectAreaCode('phone-number-5.wav');
+
+
+% Function that detects an area code of an audio file using a spectrogram
+function detectAreaCode(fileName)
+    % Read in the game audio file
+    [Y,fs]=audioread(fileName);
+
+    % Obtain the necessary spectrogram variables for processing
+    %     figure; spectrogram(Y(:,1), 1024, 256, 1024, fs, 'yaxis'); 
+    %     title(strcat(strcat('Spectrogram for =', fileName)));
+    [s,f,t,p] = spectrogram(Y, 1024, 256, 1024, fs, 'yaxis');
+
+    % Filter the spectral response to isolate the possible digit frequencies
+    minFreq = 640;
+    maxFreq = 1536;
+    f1 = (f >= minFreq & f <= maxFreq);
+    t1 = t > 0.0;
+    p = p(f1,t1);
+    p(10*log10(abs(p)) < -27) = 0;
+
+    % Compute which digits are recognized at certain locations
+    result = "";
+    searchingFlag = true;
+    waitone = false;
+    numDigits = 0;
+    % Search through all time instances
+    for i = 1:size(p(1,:), 2)
+        % Determine whether all values are zero in the ith time column
+        allZeros = 1 && all(p(:,i) == 0);
+        if allZeros
+            % Reset searching flag to true when all values are 0s (the next
+            % non-zero column will correspond to the next recognized digit)
+            searchingFlag = true;
+        elseif searchingFlag && ~allZeros
+            % Detect the next digit on a non-zero column
+            if waitone
+                k = find(p(:,i));
+                result = result + detectDigit(k, minFreq, maxFreq);
+                numDigits = numDigits + 1;
+                searchingFlag = false;
+                waitone = false;
+                
+                if numDigits == 3 || numDigits == 6
+                    result = result + "-";
+                end
+            else
+                waitone = true;
+            end
+        end
+    end
+
+    % Print the detected area code
+    text = sprintf("%s's area code = %s", fileName, result);
+    disp(text);
+end
+
+% Function that detects the dial digit using a spectrogram
+function result = detectDigit(k, minFreq, maxFreq)
+    % Determine the upper and lower number digit value for classification
+    lowerFreq = minFreq + 32*(k(1)-1);
+    upperFreq = minFreq + 32*(k(2)-1);
+    digitLocations = [1 2 3; 4 5 6; 7 8 9; 0 0 0];
+
+    % Find lower frequency bin
+    if lowerFreq >= 672 && lowerFreq <= 704
+        lowerFreq = 1;
+    elseif lowerFreq >= 768 && lowerFreq <= 800
+        lowerFreq = 2;
+    elseif lowerFreq >= 832 && lowerFreq <= 864
+        lowerFreq = 3;
+    else
+        lowerFreq = 4;
+    end
+
+    % Find upper frequency bin
+    if upperFreq >= 1184 && upperFreq <= 1216
+        upperFreq = 1;
+    elseif upperFreq >= 1312 && upperFreq <= 1344
+        upperFreq = 2;
+    else
+        upperFreq = 3;
+    end
+    
+    % Print results
+    if lowerFreq == 4 && upperFreq ~= 2
+        if upperFreq == 1
+           result = "*";
+        else
+            result = "#";
+        end
+    else
+        result = num2str(digitLocations(lowerFreq, upperFreq));
+    end
+end
+			</pre>
 		</div>
 		
 		<!-- PART 4 -->
