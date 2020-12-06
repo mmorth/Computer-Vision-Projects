@@ -31,8 +31,7 @@ function [soundarr] = generateFrequencies(fs)
     % Create time interval from 0 to time
 	t = 0 : 1/fs : 0.19;
 
-    % Calculate corresponding row and column waves
-    % High = 10, low = 0.2
+    % Compute the wave with the given frequency values and intensities
     freqInterval = 375;
     numLevels = 58;
     soundarr = 0;
