@@ -53,6 +53,8 @@ add_executable(OpenCV
   HW2_2020/chess_piece_template_finder.cpp
 
   HW3_2017/p1a_opencv_code.cpp
+  HW3_2017/p1b_opencv_code.cpp
+  HW3_2017/color_detector.cpp
 
   HW3_2018/p1a_opencv_code.cpp
   HW3_2018/p1b_opencv_code.cpp

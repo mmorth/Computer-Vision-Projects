@@ -15,11 +15,11 @@
 //    cout << "p1a_opencv_code\n";
 
 //    // Read input videos
-//    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2017\\template\\Where_is_the_ball\\part_a\\input1.mp4");
+//    VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2017\\template\\Where_is_the_ball\\part_b\\input1.mp4");
 //    processVideo(cap1, "input1.m4v", "output1.avi");
-////    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2017\\template\\Where_is_the_ball\\part_a\\input2.mp4");
+////    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2017\\template\\Where_is_the_ball\\part_b\\input2.mp4");
 ////    processVideo(cap2, "input2.m4v", "output2.avi");
-////    VideoCapture cap3("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2017\\template\\Where_is_the_ball\\part_a\\input3.mp4");
+////    VideoCapture cap3("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2017\\template\\Where_is_the_ball\\part_b\\input3.mp4");
 ////    processVideo(cap3, "input3.m4v", "output3.avi");
 
 //    return 0;
