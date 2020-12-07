@@ -17,6 +17,10 @@ find_package( OpenCV REQUIRED )
 add_executable(OpenCV
   main.cpp
 
+  HW2_2017/p1_matlab_code.cpp
+  HW2_2017/p2_opencv_code.cpp
+  HW2_2017/p3_opencv_code.cpp
+
   HW2_2018/p1_opencv_code.cpp
   HW2_2018/p2_opencv_code.cpp
   HW2_2018/p3a_opencv_code.cpp
@@ -47,6 +51,8 @@ add_executable(OpenCV
   HW2_2020/p5a_opencv_code.cpp
   HW2_2020/p5b_opencv_code.cpp
   HW2_2020/chess_piece_template_finder.cpp
+
+  HW3_2017/p1a_opencv_code.cpp
 
   HW3_2018/p1a_opencv_code.cpp
   HW3_2018/p1b_opencv_code.cpp

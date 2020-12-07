@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="generator" content="AsciiDoc 8.6.9">
+  <title>HCI/CprE/ComS 575: Homework #2</title>
+  <link rel="stylesheet" href="./riak.css" type="text/css">
+</head>
+<body class="article">
+  <div id="header">
+    <h1>HCI/CprE/ComS 575: Homework #2</h1>
+
+<!-- MAKE CHANGES HERE: Student information -->
+    <span id="author">Your Name</span><br>
+    <span id="email" class="monospaced">&lt;
+      <a href="mailto:Your Email">Your Email</a>&gt;</span><br>
+<!-- END CHANGES -->
+  </div>
+  
+  <div id="content">
+    <div id="preamble">
+      <div class="sectionbody">
+        <div class="paragraph">
+          <p>Supplementary images files for this homework are also posted on 
+            <a href="http://www.ece.iastate.edu/~alexs/classes/2017_Spring_575/HW/HW2/">the class website</a>.
+          </p>
+          <p>
+          Please replace the original input image 
+          if you choose to use an image of your own.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="sect1">
+      <h2 id="_part_1">Part 1</h2>
+        <div class="sectionbody">
+        <div class="paragraph"><p>Use basic morphological operations to produce two images: one containing only the disk and one containing only the handle.
+          Solve this problem using both MATLAB <strong>and</strong> OpenCV.</p>
+        </div>
+    <div class="sect2">
+      <h3 id="_matlab">Matlab</h3>
+        <table class="tableblock frame-all grid-all" style=" width:100%; ">
+          <col style="width:33%;">
+          <col style="width:33%;">
+          <col style="width:33%;">
+        <tbody>
+        <tr>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+          <img src="input/Part_1/pendulum.jpg" alt="Original" width="100%">
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 1 MATLAB Disk -->
+          <img src="output/Part_1/disk_matlab.jpg" alt="Disk" width="100%">
+<!-- END CHANGES -->
+
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 1 MATLAB Handle -->
+          <img src="output/Part_1/handle_matlab.jpg" alt="Handle" width="100%">
+<!-- END CHANGES -->
+
+          </span></p></td>
+          </tr>
+       </tbody>
+       </table>
+       <div class="listingblock">
+        <div class="title">Source</div>
+          <div class="content monospaced">
+
+<!-- MAKE CHANGES HERE: Part 1 MATLAB code -->
+<pre>
+% Read input image
+src = imread('C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2017\\input\\Part_1\\pendulum.jpg');
+
+% Threshold image
+src = rgb2gray(src);
+src(src<120) = 0;
+src(src>=120) = 255;
+
+% Apply close operation to isolate disk
+se = strel('disk', 12);
+disk = imclose(src, se);
+
+% Manipulate disk and src to create handle
+disk = imcomplement(disk);
+src = imcomplement(src);
+handle = src - disk;
+
+% Remove noise from subtraction
+se = strel('line', 5, 1);
+handle = imerode(handle, se);
+disk = imcomplement(disk);
+handle = imcomplement(handle);
+
+% Display results
+figure; imshow(disk);
+figure; imshow(handle);
+</pre>
+<!-- END CHANGES -->
+
+        </div>
+      </div>
+    </div>
+    
+    <div class="sect3">
+      <h3 id="_opencv">OpenCV</h3>
+      <table class="tableblock frame-all grid-all" style=" width:100%; ">
+        <col style="width:33%;">
+        <col style="width:33%;">
+        <col style="width:33%;">
+      <tbody>
+      <tr>
+      <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_1/pendulum.jpg" alt="Original" width="100%">
+      </span></p></td>
+      <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 1 OpenCV Disk -->
+      <img src="output/Part_1/disk_opencv.jpg" alt="Disk" width="100%">
+<!-- END CHANGES -->
+
+      </span></p></td>
+      <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 1 OpenCV Handle -->
+      <img src="output/Part_1/handle_opencv.jpg" alt="Handle" width="100%">
+<!-- END CHANGES -->
+
+      </span></p></td>
+      </tr>
+      </tbody>
+      </table>
+        <div class="listingblock">
+          <div class="title">Source</div>
+          <div class="content monospaced">
+
+<!-- MAKE CHANGES HERE: Part 1 OpenCV code -->
+<pre>
+#include <iostream>
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgcodecs/imgcodecs.hpp>
+
+using namespace std;
+using namespace cv;
+
+int main()
+{
+        // Read in the input image and create separate images for the handle and disk
+        Mat src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2017\\input\\Part_1\\pendulum.jpg", IMREAD_GRAYSCALE);
+        Mat disk = src.clone();
+        Mat handle = src.clone();
+
+        // Threshold the image to make it easier to work with
+        threshold(src, src, 120, 255, THRESH_BINARY);
+
+        // Apply closing operation to isolate the disk
+        int dilation_size = 12;
+        Mat element = getStructuringElement( MORPH_ELLIPSE,
+                        Size( 2*dilation_size + 1, 2*dilation_size+1 ),
+                        Point( dilation_size, dilation_size ) );
+        morphologyEx( src, disk, MORPH_CLOSE, element );
+
+        // Manipulate the original image to generate the handle
+        bitwise_not(disk, disk);
+        bitwise_not(src, src);
+        handle = src - disk;
+
+        // Remove extra noise from subtraction
+        int erosion_size = 1;
+        element = getStructuringElement( MORPH_RECT,
+                        Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                        Point( erosion_size, erosion_size ) );
+        erode( handle, handle, element );
+        bitwise_not(handle, handle);
+        bitwise_not(disk, disk);
+
+        // Display final results
+        imshow("disk", disk);
+        imshow("handle", handle);
+
+        waitKey(0);
+        return 0;
+}                
+</pre>
+<!-- END CHANGES -->
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sect1">
+    <h2 id="_part_2">Part 2</h2>
+    <div class="sectionbody">
+      <div class="paragraph">
+      <p>Write a program that can read the barcode from the image and print its 12 digits on the screen.
+If you can do any of last 3 images you&#8217;ll get some extra credit. Solve this and all subsequent problems using either MATLAB <strong>or</strong> OpenCV.</p>
+      </div>
+      <table class="tableblock frame-all grid-all" style=" width:100%; ">
+        <col style="width:20%;">
+        <col style="width:20%;">
+        <col style="width:20%;">
+        <col style="width:20%;">
+        <col style="width:20%;">
+      <tbody>
+        <tr>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+          <img src="input/Part_2/Barcode1.jpg" alt="input/Part_2/Barcode1.jpg" width="100%">
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+          <img src="input/Part_2/Barcode2.jpg" alt="input/Part_2/Barcode2.jpg" width="100%">
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+          <img src="input/Part_2/Barcode3.jpg" alt="input/Part_2/Barcode3.jpg" width="100%">
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+          <img src="input/Part_2/Barcode4.jpg" alt="input/Part_2/Barcode4.jpg" width="100%">
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+          <img src="input/Part_2/Barcode5.jpg" alt="input/Part_2/Barcode5.jpg" width="100%">
+          </span></p></td>
+        </tr>
+        <tr>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 2 image 1 -->
+          <img src="output/Part_2/placeholder.jpg" alt="output/Part_2/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 2 image 2 -->
+          <img src="output/Part_2/placeholder.jpg" alt="output/Part_2/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 2 image 3 -->
+          <img src="output/Part_2/placeholder.jpg" alt="output/Part_2/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 2 image 4 -->
+          <img src="output/Part_2/placeholder.jpg" alt="output/Part_2/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+          </span></p></td>
+          <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 2 image 5 -->
+          <img src="output/Part_2/placeholder.jpg" alt="output/Part_2/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+          </span></p></td>
+          </tr>
+        </tbody>
+        </table>
+        <div class="listingblock">
+          <div class="title">Source</div>
+          <div class="content monospaced">
+
+<!-- MAKE CHANGES HERE: Part 2 code -->
+<pre>
+// Insert your code here
+</pre>
+<!-- END CHANGES -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sect1">
+      <h2 id="_part_3">Part 3a</h2>
+        <div class="sectionbody">
+          <div class="paragraph">
+          <p>Write a program that finds all occurrences of the digit '5' in an image of a license plate.</p>
+          </div>
+        <table class="tableblock frame-all grid-all" style=" width:100%; ">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+        <tbody>
+        <tr>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license1.jpg" alt="input/Part_3/license1.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license2.jpg" alt="input/Part_3/license2.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license3.jpg" alt="input/Part_3/license3.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license4.jpg" alt="input/Part_3/license4.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license5.jpg" alt="input/Part_3/license5.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license6.jpg" alt="input/Part_3/license6.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license7.jpg" alt="input/Part_3/license7.jpg" width="100%">
+        </span></p></td>
+        </tr>
+        <tr>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 1 -->
+        <img src="output/Part_3a/placeholder.jpg" alt="output/Part_3a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 2 -->
+        <img src="output/Part_3a/placeholder.jpg" alt="output/Part_3a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 3 -->
+        <img src="output/Part_3a/placeholder.jpg" alt="output/Part_3a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 4 -->
+        <img src="output/Part_3a/placeholder.jpg" alt="output/Part_3a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 5 -->
+        <img src="output/Part_3a/placeholder.jpg" alt="output/Part_3a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 6 -->
+        <img src="output/Part_3a/placeholder.jpg" alt="output/Part_3a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 7 -->
+        <img src="output/Part_3a/placeholder.jpg" alt="output/Part_3a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        </tr>
+      </tbody>
+      </table>
+      
+        <div class="listingblock">
+          <div class="title">Source</div>
+          <div class="content monospaced">
+
+<!-- MAKE CHANGES HERE: Part 3a code -->
+<pre>
+// Insert your code here
+</pre>
+<!-- END CHANGES -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+        <div class="sect1">
+      <h2 id="_part_3b">Part 3b</h2>
+        <div class="sectionbody">
+          <div class="paragraph">
+          <p>Modify your program to find all digits 0-9.</p>
+          </div>
+        <table class="tableblock frame-all grid-all" style=" width:100%; ">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+          <col style="width:14%;">
+        <tbody>
+        <tr>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license1.jpg" alt="input/Part_3/license1.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license2.jpg" alt="input/Part_3/license2.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license3.jpg" alt="input/Part_3/license3.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license4.jpg" alt="input/Part_3/license4.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license5.jpg" alt="input/Part_3/license5.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license6.jpg" alt="input/Part_3/license6.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_3/license7.jpg" alt="input/Part_3/license7.jpg" width="100%">
+        </span></p></td>
+        </tr>
+        <tr>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 1 -->
+        <img src="output/Part_3b/placeholder.jpg" alt="output/Part_3b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 2 -->
+        <img src="output/Part_3b/placeholder.jpg" alt="output/Part_3b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 3 -->
+        <img src="output/Part_3b/placeholder.jpg" alt="output/Part_3b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 4 -->
+        <img src="output/Part_3b/placeholder.jpg" alt="output/Part_3b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 5 -->
+        <img src="output/Part_3b/placeholder.jpg" alt="output/Part_3b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 6 -->
+        <img src="output/Part_3b/placeholder.jpg" alt="output/Part_3b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 3 image 7 -->
+        <img src="output/Part_3b/placeholder.jpg" alt="output/Part_3b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        </tr>
+      </tbody>
+      </table>
+      
+        <div class="listingblock">
+          <div class="title">Source</div>
+          <div class="content monospaced">
+
+<!-- MAKE CHANGES HERE: Part 3b code -->
+<pre>
+// Insert your code here
+</pre>
+<!-- END CHANGES -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    <div class="sect1">
+      <h2 id="_part_4a">Part 4a Extra Credit</h2>
+      <div class="sectionbody">
+        <div class="paragraph"><p>Repeat Part 3a on real license plates (find only the digit 5).</p></div>
+      <table class="tableblock frame-all grid-all" style=" width:100%; ">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+      <tbody>
+      <tr>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license1.jpg" alt="input/Part_4/license1.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license2.jpg" alt="input/Part_4/license2.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license3.jpg" alt="input/Part_4/license3.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license4.jpg" alt="input/Part_4/license4.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license5.jpg" alt="input/Part_4/license5.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license6.jpg" alt="input/Part_4/license6.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license7.jpg" alt="input/Part_4/license7.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license8.jpg" alt="input/Part_4/license8.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license9.jpg" alt="input/Part_4/license9.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license10.jpg" alt="input/Part_4/license10.jpg" width="100%">
+        </span></p></td>
+      </tr>
+      <tr>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 1 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 2 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 3 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 4 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 5 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 6 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 7 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 8 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 9 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 10 -->
+        <img src="output/Part_4a/placeholder.jpg" alt="output/Part_4a/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        </tr>
+      </tbody>
+      </table>
+      <div class="listingblock">
+        <div class="title">Source</div>
+        <div class="content monospaced">
+
+
+<!-- MAKE CHANGES HERE: Part 4a code -->
+<pre>
+// Insert your code here
+</pre>
+<!-- END CHANGES -->
+
+         </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+  <div class="sect1">
+      <h2 id="_part_4b">Part 4b Extra Credit</h2>
+      <div class="sectionbody">
+        <div class="paragraph"><p>Repeat Part 3b on real license plates (find all digits).</p></div>
+      <table class="tableblock frame-all grid-all" style=" width:100%; ">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+        <col style="width:10%;">
+      <tbody>
+      <tr>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license1.jpg" alt="input/Part_4/license1.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license2.jpg" alt="input/Part_4/license2.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license3.jpg" alt="input/Part_4/license3.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license4.jpg" alt="input/Part_4/license4.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license5.jpg" alt="input/Part_4/license5.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license6.jpg" alt="input/Part_4/license6.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license7.jpg" alt="input/Part_4/license7.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license8.jpg" alt="input/Part_4/license8.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license9.jpg" alt="input/Part_4/license9.jpg" width="100%">
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+        <img src="input/Part_4/license10.jpg" alt="input/Part_4/license10.jpg" width="100%">
+        </span></p></td>
+      </tr>
+      <tr>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 1 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 2 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 3 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 4 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 5 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 6 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 7 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 8 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 9 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        <td class="tableblock halign-left valign-top" ><p class="tableblock"><span class="image">
+
+<!-- MAKE CHANGES HERE: Part 4 image 10 -->
+        <img src="output/Part_4b/placeholder.jpg" alt="output/Part_4b/placeholder.jpg" width="100%">
+<!-- END CHANGES -->
+
+        </span></p></td>
+        </tr>
+      </tbody>
+      </table>
+      <div class="listingblock">
+        <div class="title">Source</div>
+        <div class="content monospaced">
+
+
+<!-- MAKE CHANGES HERE: Part 4b code -->
+<pre>
+// Insert your code here
+</pre>
+<!-- END CHANGES -->
+
+         </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+  </div>
+
+
+
+
+  <div id="footer">
+    <div id="footer-text">
+      Last updated 2017-01-30
+    </div>
+  </div>
+</body>
+</html>
