@@ -1,0 +1,154 @@
+= HCI/CprE/ComS 575: Homework #3
+:author: Your Name
+:email: Your Email
+
+Video files are available on http://www.ece.iastate.edu/~alexs/classes/2016_Spring_575/HW/HW3/videos/[the class website] and a tutorial on how to output videos can be found http://opencv-srf.blogspot.com/2011/09/saving-images-videos_16.html[here].
+
+If convenient, please make the video output format either H.264 (\*.mp4) or Theora (\*.ogg).
+This will allow for the videos to be embedded below, which will make the grading process easier.
+If you are having troubles with H.264, try downloading https://github.com/cisco/openh264/releases[this DLL] and placing it in the folder with the binary.
+*Do not waste time on this.*
+If you are unable to get these formats working within a few minutes, you are free to pick a different format or to let OpenCV pick its default.
+
+.FOURCC codes
+[source, cpp]
+----
+CV_FOURCC('H','2','6','4'); // For H.264
+CV_FOURCC('T','H','E','O'); // For Theora
+----
+
+== Part 1: Traffic Monitoring ==
+Write a program that counts how many cars, buses, and pedestrians pass by.
+In your output videos put a bounding box around each of the objects as they are tracked.
+Also, for each frame display a text counter (e.g., 3/2/1 which stands for 3 buses, 2 cars, and 1 pedestrian).
+Your program must work with at least two of the provided sample videos.
+
+.Output
+++++
+<table width="100%">
+<tr>
+<td><video width="100%" controls>
+	<source src="1_Traffic_Monitoring/output1.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="1_Traffic_Monitoring/output2.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="1_Traffic_Monitoring/output3.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+</tr>
+</table>
+++++
+
+link:1_Traffic_Monitoring/main.cpp[Source File]
+
+== Part 2: Traffic Monitoring ==
+
+=== Part A ===
+For each input video generate a separate output video that shows only the buses in this video.
+You can use the initial frame of the video as the default background that can be displayed instead of frames in which no buses are detected.
+
+.Output
+++++
+<table width="100%">
+<tr>
+<td><video width="100%" controls>
+	<source src="2_Traffic_Monitoring/part_a/output1.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="2_Traffic_Monitoring/part_a/output2.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="2_Traffic_Monitoring/part_a/output3.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+</tr>
+</table>
+++++
+
+link:2_Traffic_Monitoring/part_a/main.cpp[Source File]
+
+=== Part B ===
+For each input video generate a separate output video that shows only the cars that went _from left to right_ in that video.
+
+.Output
+++++
+<table width="100%">
+<tr>
+<td><video width="100%" controls>
+	<source src="2_Traffic_Monitoring/part_b/output1.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="2_Traffic_Monitoring/part_b/output2.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="2_Traffic_Monitoring/part_b/output3.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+</tr>
+</table>
+++++
+
+link:2_Traffic_Monitoring/part_b/main.cpp[Source File]
+
+== Part 3: Where is the ball? ==
+
+=== Part A ===
+Write a program that tracks the position of the orange ball in the movies with two cups.
+Create an output video that shows the position of the ball even when it is under one of the cups.
+You can assume that once a ball is covered by a cup it will move in the same way as the cup.
+Your program must work with at least two of the sample movies.
+
+.Output
+++++
+<table width="100%">
+<tr>
+<td><video width="100%" controls>
+	<source src="3_Where_is_the_ball/part_a/output1.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="3_Where_is_the_ball/part_a/output2.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="3_Where_is_the_ball/part_a/output3.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+</tr>
+</table>
+++++
+
+link:3_Where_is_the_ball/part_a/main.cpp[Source File]
+
+=== Part B ===
+Do the same for the videos with three cups.
+
+.Output
+++++
+<table width="100%">
+<tr>
+<td><video width="100%" controls>
+	<source src="3_Where_is_the_ball/part_b/output1.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="3_Where_is_the_ball/part_b/output2.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+<td><video width="100%" controls>
+	<source src="3_Where_is_the_ball/part_b/output3.mp4" type="video/mp4">
+	Your browser does not support HTML5 video.
+</video></td>
+</tr>
+</table>
+++++
+
+link:3_Where_is_the_ball/part_b/main.cpp[Source File]

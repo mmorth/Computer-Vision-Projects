@@ -17,6 +17,8 @@ find_package( OpenCV REQUIRED )
 add_executable(OpenCV
   main.cpp
 
+  HW2_2013/p1_opencv_code.cpp
+
   HW2_2017/p1_matlab_code.cpp
   HW2_2017/p2_opencv_code.cpp
   HW2_2017/p3_opencv_code.cpp
