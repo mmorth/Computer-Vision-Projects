@@ -55,7 +55,7 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
     int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
 
     Ptr<BackgroundSubtractor> pBackSub;
-    pBackSub = createBackgroundSubtractorMOG2(500, 16, true);
+    pBackSub = createBackgroundSubtractorKNN();
     Mat fgMask;
 
     // Create a video writer and process the input video frame by frame
@@ -134,28 +134,35 @@ void detectVehicles(Mat frame, Mat mask, int frameNum) {
             existingObject = checkExistingObjects(br, frameNum);
         }
 
-        if (contourArea(contours[i]) > 1000 && br.y > 60 && br.x > 4 && br.x+br.width < frame.cols-4) {
+        // Ensure that the detected contour has the possibility of being a vehicle or person
+        if (contourArea(contours[i]) > 1000 && br.y > 50 && br.x > 1 && br.x+br.width < frame.cols-1) {
             // Check whether this object is below min distance threshold to classify as other object
             if (!existingObject) {
                 // If not, determine which new object is detected and add it to the list and increment the counter
                 // Also need to handle situation where the contour for one object is split in 2 for whatever reason
-                if (br.height > 70 && br.height < 90 && br.width > 250) {
+                bool classified = true;
+                if (br.height > 60 && br.height < 90 && br.width > 250) {
                     // Object is a bus
                     numBuses++;
-                } else if (br.width > 80 && br.height < 60) {
+                } else if (br.width > 80 && br.height < 60 && br.height > 30) {
                     // Object is a car
                     numCars++;
-                } else {
+                } else if (br.height > 30) {
                     // Object is a person
                     numPeople++;
                     numPeopleIncreased = true;
+                } else {
+                    // No classification found
+                    classified = false;
                 }
 
-                // Add object to vector
-                vehicle v;
-                v.br = br;
-                v.lastFrameSeen = frameNum;
-                objects.push_back(v);
+                if (classified) {
+                    // Add object to vector
+                    vehicle v;
+                    v.br = br;
+                    v.lastFrameSeen = frameNum;
+                    objects.push_back(v);
+                }
             }
 
             // Draw the bounding box around the vehicle
@@ -189,7 +196,7 @@ void detectVehicles(Mat frame, Mat mask, int frameNum) {
 bool checkExistingObjects(Rect br, int frameNum) {
     for (int i = 0; i < objects.size(); i++) {
         // Check if distance between objects is less than threshold of 10 pixels
-        if (abs(br.x-objects.at(i).br.x) < 20) {
+        if (abs(br.x-objects.at(i).br.x) < 30) {
             // Object has already been detected in prior frame, update information
             objects.at(i).lastFrameSeen = frameNum;
             objects.at(i).br = br;
