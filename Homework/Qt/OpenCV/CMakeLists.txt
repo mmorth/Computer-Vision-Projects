@@ -59,6 +59,8 @@ add_executable(OpenCV
   HW3_2017/p1a_opencv_code.cpp
   HW3_2017/p1b_opencv_code.cpp
   HW3_2017/p2_opencv_code.cpp
+  HW3_2017/p3_opencv_code.cpp
+  HW3_2017/image_inspector.cpp
   HW3_2017/color_detector.cpp
 
   HW3_2018/p1a_opencv_code.cpp
