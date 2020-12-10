@@ -10,6 +10,7 @@ using namespace cv;
 
 struct vehicle {
     Rect br;
+    Point centroid;
     int lastFrameSeen;
 };
 
@@ -160,6 +161,7 @@ void detectVehicles(Mat frame, Mat mask, int frameNum) {
                     // Add object to vector
                     vehicle v;
                     v.br = br;
+                    v.centroid = Point(br.x+br.width/2, br.y+br.height/2);
                     v.lastFrameSeen = frameNum;
                     objects.push_back(v);
                 }
@@ -194,9 +196,12 @@ void detectVehicles(Mat frame, Mat mask, int frameNum) {
 
 // Checks if the current object has already been identified in a prior frame
 bool checkExistingObjects(Rect br, int frameNum) {
+    Point centroid = Point(br.x+br.width, br.y+br.height);
     for (int i = 0; i < objects.size(); i++) {
         // Check if distance between objects is less than threshold of 10 pixels
-        if (abs(br.x-objects.at(i).br.x) < 30) {
+        double distance = cv::norm(centroid-objects.at(i).centroid);
+        printf("Distance = %.2lf\n", distance);
+        if (distance < 300) {
             // Object has already been detected in prior frame, update information
             objects.at(i).lastFrameSeen = frameNum;
             objects.at(i).br = br;
