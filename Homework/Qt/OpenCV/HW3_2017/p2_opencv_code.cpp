@@ -32,10 +32,10 @@ int main()
     // Read input videos
     VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\1_Traffic_Monitoring\\clip1.avi");
     processVideo(cap1, "clip1.avi", "output1.avi");
-//    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\1_Traffic_Monitoring\\clip2.avi");
-//    processVideo(cap2, "clip2.avi", "output2.avi");
-//    VideoCapture cap3("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\1_Traffic_Monitoring\\clip3.avi");
-//    processVideo(cap3, "clip3.avi", "output3.avi");
+    VideoCapture cap2("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\1_Traffic_Monitoring\\clip2.avi");
+    processVideo(cap2, "clip2.avi", "output2.avi");
+    VideoCapture cap3("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\1_Traffic_Monitoring\\clip3.avi");
+    processVideo(cap3, "clip3.avi", "output3.avi");
 
     return 0;
 }
@@ -175,6 +175,13 @@ void detectVehicles(Mat frame, Mat mask, int frameNum) {
         if (!numPeopleIncreased && br.y > 60 && br.x > 4 && br.x+br.width < frame.cols-4 && contourArea(contours[i]) > 500 && br.width < 50 && br.height > 50) {
             if (!checkExistingObjects(br, frameNum)) {
                 numPeople++;
+
+                // Add object to vector
+                vehicle v;
+                v.br = br;
+                v.centroid = Point(br.x+br.width/2, br.y+br.height/2);
+                v.lastFrameSeen = frameNum;
+                objects.push_back(v);
             }
 
             // Draw the bounding box around the vehicle
@@ -196,15 +203,16 @@ void detectVehicles(Mat frame, Mat mask, int frameNum) {
 
 // Checks if the current object has already been identified in a prior frame
 bool checkExistingObjects(Rect br, int frameNum) {
-    Point centroid = Point(br.x+br.width, br.y+br.height);
+    Point centroid = Point(br.x+br.width/2, br.y+br.height/2);
     for (int i = 0; i < objects.size(); i++) {
         // Check if distance between objects is less than threshold of 10 pixels
         double distance = cv::norm(centroid-objects.at(i).centroid);
         printf("Distance = %.2lf\n", distance);
-        if (distance < 300) {
+        if (distance < 35) {
             // Object has already been detected in prior frame, update information
             objects.at(i).lastFrameSeen = frameNum;
             objects.at(i).br = br;
+            objects.at(i).centroid = centroid;
             return true;
         }
     }
@@ -212,6 +220,10 @@ bool checkExistingObjects(Rect br, int frameNum) {
     // Object has not been counted in a previous frame
     return false;
 }
+
+// Try different centroid calculations
+    // Maybe we try one where we add the x and y centroid points
+    // Make something that is more readable than current implementation
 
 // Removes objects from the vector when they have not been seen for a while
 void removeOldObjects(int frameNum) {
