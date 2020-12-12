@@ -18,11 +18,13 @@
 //    Mat car = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\frames\\car.png");
 //    Mat person = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\frames\\person.png");
 //    Mat bike = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\frames\\bike.png");
+//    Mat personBus = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\frames\\frame1159.png");
 
 //    imshow("bus", bus);
 //    imshow("car", car);
 //    imshow("person", person);
 //    imshow("bike", bike);
+//    imshow("personBus", personBus);
 
 //    while(1)
 //    {

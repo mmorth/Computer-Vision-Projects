@@ -27,7 +27,7 @@ int numPeople = 0;
 
 int main()
 {
-    cout << "p1a_opencv_code\n";
+    cout << "p2_opencv_code\n";
 
     // Read input videos
     VideoCapture cap1("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework3\\HW3_2016\\1_Traffic_Monitoring\\clip1.avi");
@@ -77,8 +77,6 @@ void processVideo(VideoCapture cap, string inputVideoName, string outputVideoNam
       // Run the background subtraction model
       pBackSub->apply(frame, fgMask);
 
-      printf("numObjects = %d\n", objects.size());
-
       // Detect vechicles from the background subtraction mask
       detectVehicles(frame, fgMask, frameNum);
       imshow("frame", frame);
@@ -110,8 +108,8 @@ void detectVehicles(Mat frame, Mat mask, int frameNum) {
     threshold(mask, mask, 200, 255, THRESH_BINARY);
     int width = 1;
     Mat element = getStructuringElement( MORPH_RECT,
-                       Size( 2*width + 1, 2*width+1 ),
-                       Point( width, width ) );
+                       Size( 2*(width+1) + 1, 2*width+1 ),
+                       Point( width+1, width ) );
     dilate( mask, mask, element );
     imshow("mask", mask);
 
@@ -130,15 +128,10 @@ void detectVehicles(Mat frame, Mat mask, int frameNum) {
         // Check that the object is large enough and within the correct frame for classification
         bool numPeopleIncreased = false;
 
-        bool existingObject;
-        if (contourArea(contours[i]) > 1000) {
-            existingObject = checkExistingObjects(br, frameNum);
-        }
-
         // Ensure that the detected contour has the possibility of being a vehicle or person
-        if (contourArea(contours[i]) > 1000 && br.y > 50 && br.x > 1 && br.x+br.width < frame.cols-1) {
+        if (contourArea(contours[i]) > 1000 && br.y > 50 && br.x > 1 && br.x+br.width < frame.cols-1 || (br.width > 300 && br.y > 50)) {
             // Check whether this object is below min distance threshold to classify as other object
-            if (!existingObject) {
+            if (!checkExistingObjects(br, frameNum)) {
                 // If not, determine which new object is detected and add it to the list and increment the counter
                 // Also need to handle situation where the contour for one object is split in 2 for whatever reason
                 bool classified = true;
@@ -207,8 +200,8 @@ bool checkExistingObjects(Rect br, int frameNum) {
     for (int i = 0; i < objects.size(); i++) {
         // Check if distance between objects is less than threshold of 10 pixels
         double distance = cv::norm(centroid-objects.at(i).centroid);
-        printf("Distance = %.2lf\n", distance);
-        if (distance < 35) {
+//        printf("Distance = %.2lf\n", distance);
+        if (distance < 50) {
             // Object has already been detected in prior frame, update information
             objects.at(i).lastFrameSeen = frameNum;
             objects.at(i).br = br;
