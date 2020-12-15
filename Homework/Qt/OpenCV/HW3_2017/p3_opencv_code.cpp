@@ -68,8 +68,10 @@
 //      if (frame.empty())
 //        break;
 
-////      detectAndDisplay( frame );
-////      imshow("frame", frame);
+//      detectAndDisplay( frame );
+//      imshow("frame", frame);
+
+//      imwrite("frame" + std::to_string(frameNum++) + ".png", frame);
 
 //      // Write the frame into the output video file
 ////      video.write(frame);
