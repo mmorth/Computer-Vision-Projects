@@ -1,0 +1,30 @@
+Basketball Dribble
+	
+Background:
+	• Target Audience: Athletes or people wanting to improve their basketball dribbling skills
+	• Need: With COVID, sports practice needs to become more virtual, so this system will allow athletes to still improve their basketball skills while virtual
+	• Previous Approaches: Dribble Up
+	• Related Work: [FIND RESEARCH PAPERS]
+	• Previous Experience: Basketball experience and class
+
+Approach:
+	• Equipment: Basketball, camera, and laptop
+	• Algorithms/Data Structures:
+		○ Color filter tracking for basketball location
+		○ Deep learning face detection/tracking to ensure the player is keeping their eyes up while dribbling for it to count successful
+		○ Background subtraction to remove the background from the location where the dribbling is occurring
+		○ Contours to determine the location of the person, basketball, and target locations to determine successful dribble
+	• Dataflow/UI:
+		○ Input: frames captured by real-time camera
+		○ Processing: Compute the above algorithms on the frame
+		○ Output: A frame displayed that shows the location of the basketball, target locations, and person without the background
+		○ UI: Menu to select drill, difficult, amount, time
+		○ Once drill selected, count down occurs and video frame is shown
+	
+Evaluation Methodology:
+	• Testing: Test this in multiple environments, basketballs, and lighting conditions
+	• Success: When it can correctly function in 2 indoor, outdoor, and lighting conditions
+	• Test Conditions: 2 tests from each environment and lighting
+	• Test Subjects: Test the algorithm with different people standing in the frame
+	• Evaluate: Successful operation in many environments
+Improvement: Tweaking color tracking and other detectors for different conditions
