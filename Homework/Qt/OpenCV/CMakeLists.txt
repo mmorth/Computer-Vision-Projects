@@ -96,6 +96,8 @@ add_executable(OpenCV
   HW5_2020/p10_training_nanohmm.c
   HW5_2020/nanohmm.c
   HW5_2020/nanohmm.h
+
+  Final_Project/video_capture.cpp
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
