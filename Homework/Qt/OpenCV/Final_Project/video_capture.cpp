@@ -8,19 +8,32 @@
 using namespace std;
 using namespace cv;
 
-struct vehicle {
-    Rect br;
-    Point centroid;
-    int lastFrameSeen;
-};
-
-vector<vehicle> objects;
-
 void processVideo(VideoCapture cap);
+void findPersonAndDrawTargets(Mat frame, Mat mask);
+void detectFacePosition(Mat frame);
+void detectBasketballPosition(Mat frame, Mat mask);
+
+CascadeClassifier face_cascade;
+CascadeClassifier eyes_cascade;
+int numDribbles = 0;
 
 int main()
 {
-    cout << "p2_opencv_code\n";
+    cout << "final_project_code\n";
+
+    //-- 1. Load the cascades
+    String face_cascade_name = samples::findFile( "C:\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_alt.xml" );
+    String eyes_cascade_name = samples::findFile( "C:\\opencv\\sources\\data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml" );
+    if( !face_cascade.load( face_cascade_name ) )
+    {
+        cout << "--(!)Error loading face cascade\n";
+        return -1;
+    };
+    if( !eyes_cascade.load( eyes_cascade_name ) )
+    {
+        cout << "--(!)Error loading eyes cascade\n";
+        return -1;
+    };
 
     // Read input videos
     VideoCapture cap(1);
@@ -40,12 +53,8 @@ void processVideo(VideoCapture cap) {
       return;
     }
 
-    // Default resolution of the frame is obtained.The default resolution is system dependent.
-    int frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
-    int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
-
     Ptr<BackgroundSubtractor> pBackSub;
-    pBackSub = createBackgroundSubtractorKNN();
+    pBackSub = createBackgroundSubtractorKNN(100, 400.0, false);
     Mat fgMask;
 
     // Create a video writer and process the input video frame by frame
@@ -62,8 +71,12 @@ void processVideo(VideoCapture cap) {
       // Run the background subtraction model
       pBackSub->apply(frame, fgMask);
 
+      findPersonAndDrawTargets(frame, fgMask);
+      detectBasketballPosition(frame, fgMask);
+
       // Detect vechicles from the background subtraction mask
       imshow("frame", frame);
+      imshow("fgMask", fgMask);
 
       // Write the frame into the output video file
 //      video.write(frame);
@@ -79,4 +92,99 @@ void processVideo(VideoCapture cap) {
 
     // Closes all the windows
     destroyAllWindows();
+}
+
+// Detects the person in the frame and draws the target ball positions on the screen
+void findPersonAndDrawTargets(Mat frame, Mat mask) {
+    // Threshold to pull out the main part of the object
+    threshold(mask, mask, 200, 255, THRESH_BINARY);
+    int width = 5;
+    Mat element = getStructuringElement( MORPH_RECT,
+                       Size( 2*(width+1) + 1, 2*width+1 ),
+                       Point( width+1, width ) );
+    dilate( mask, mask, element );
+
+    // Create the countour for the person
+    medianBlur(mask, mask, 21);
+    width = 50;
+    element = getStructuringElement( MORPH_RECT,
+                           Size( 2*(width+1) + 1, 2*width+1 ),
+                           Point( width+1, width ) );
+  //  dilate( src, dilation_dst, element );
+    morphologyEx( mask, mask, MORPH_CLOSE, element );
+
+    // Convert result to CV_8U to support finding contours
+    Mat resb;
+    mask.convertTo(resb, CV_8U, 255);
+
+    // Find the contours of the grayscale match result
+    vector<vector<Point>> contours;
+    findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+
+    // Determine whether detected objects are a vehicle or not
+    for (int i = 0; i < contours.size(); i++) {
+        // Determine which type of object is detected
+        Rect br = boundingRect(contours[i]);
+
+        if (br.area() > 10000) {
+            // Draw the bounding box around the vehicle
+            rectangle(frame, br, Scalar(0, 255, 0), 5);
+            drawContours(mask, contours, i, Scalar(255, 255, 255), -1);
+        }
+    }
+
+//    detectFacePosition(frame);
+}
+
+// Detect's the user's face in the frame and ensures they are looking up when dribbling
+void detectFacePosition(Mat frame) {
+    Mat frame_gray;
+    cvtColor( frame, frame_gray, COLOR_BGR2GRAY );
+    equalizeHist( frame_gray, frame_gray );
+    //-- Detect faces
+    std::vector<Rect> faces;
+    face_cascade.detectMultiScale( frame_gray, faces );
+    for ( size_t i = 0; i < faces.size(); i++ )
+    {
+        Point center( faces[i].x + faces[i].width/2, faces[i].y + faces[i].height/2 );
+        ellipse( frame, center, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4 );
+        Mat faceROI = frame_gray( faces[i] );
+        //-- In each face, detect eyes
+        std::vector<Rect> eyes;
+        eyes_cascade.detectMultiScale( faceROI, eyes );
+        for ( size_t j = 0; j < eyes.size(); j++ )
+        {
+            Point eye_center( faces[i].x + eyes[j].x + eyes[j].width/2, faces[i].y + eyes[j].y + eyes[j].height/2 );
+            int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
+            circle( frame, eye_center, radius, Scalar( 255, 0, 0 ), 4 );
+        }
+    }
+}
+
+// Detects the basketball's position in the frame to see if it is in the target position
+void detectBasketballPosition(Mat frame, Mat mask) {
+    Mat ballMask, frameHSV;
+    // Convert from BGR to HSV colorspace
+    cvtColor(frame, frameHSV, COLOR_BGR2HSV);
+    // Detect the object based on HSV Range Values
+    inRange(frameHSV, Scalar(0, 66, 70), Scalar(12, 255, 255), ballMask);
+
+    // Convert result to CV_8U to support finding contours
+    Mat resb;
+    ballMask.convertTo(resb, CV_8U, 255);
+
+    // Find the contours of the grayscale match result
+    vector<vector<Point>> contours;
+    findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+
+    // Determine whether detected objects are a vehicle or not
+    for (int i = 0; i < contours.size(); i++) {
+        // Determine which type of object is detected
+        Rect br = boundingRect(contours[i]);
+
+        if (br.area() > 10000) {
+            // Draw the bounding box around the vehicle
+            rectangle(frame, br, Scalar(0, 0, 255), 5);
+        }
+    }
 }

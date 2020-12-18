@@ -98,6 +98,8 @@ add_executable(OpenCV
   HW5_2020/nanohmm.h
 
   Final_Project/video_capture.cpp
+  Final_Project/color_filter_finder.cpp
+  Final_Project/experiment.cpp
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
