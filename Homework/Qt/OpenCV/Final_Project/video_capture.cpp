@@ -9,7 +9,7 @@ using namespace std;
 using namespace cv;
 
 void processVideo(VideoCapture cap);
-void findPersonAndDrawTargets(Mat frame, Mat mask, HOGDescriptor hog);
+void findPersonAndDrawTargets(Mat frame, Mat mask);
 void detectFacePosition(Mat frame);
 void detectBasketballPosition(Mat frame, Mat mask);
 
@@ -54,7 +54,7 @@ void processVideo(VideoCapture cap) {
     }
 
     Ptr<BackgroundSubtractor> pBackSub;
-    pBackSub = createBackgroundSubtractorKNN(100, 400.0, false);
+    pBackSub = createBackgroundSubtractorKNN(100, 100.0, true);
     Mat fgMask;
 
     HOGDescriptor hog = HOGDescriptor();
@@ -74,7 +74,7 @@ void processVideo(VideoCapture cap) {
       // Run the background subtraction model
       pBackSub->apply(frame, fgMask);
 
-      findPersonAndDrawTargets(frame, fgMask, hog);
+      findPersonAndDrawTargets(frame, fgMask);
       detectBasketballPosition(frame, fgMask);
 
       // Detect vechicles from the background subtraction mask
@@ -98,32 +98,14 @@ void processVideo(VideoCapture cap) {
 }
 
 // Detects the person in the frame and draws the target ball positions on the screen
-void findPersonAndDrawTargets(Mat frame, Mat mask, HOGDescriptor hog) {
+void findPersonAndDrawTargets(Mat frame, Mat mask) {
+    threshold(mask, mask, 200, 255, THRESH_BINARY);
 
     int width = 10;
     Mat element = getStructuringElement( MORPH_RECT,
                        Size( 2*(0+1) + 1, 2*width+1 ),
                        Point( 0+1, width ) );
     dilate( mask, mask, element );
-
-    //    medianBlur(mask, mask, 3);
-//    // Threshold to pull out the main part of the object
-//    threshold(mask, mask, 200, 255, THRESH_BINARY);
-//    int width = 1;
-//    Mat element = getStructuringElement( MORPH_RECT,
-//                       Size( 2*(0+1) + 1, 2*width+1 ),
-//                       Point( 0+1, width ) );
-//    erode( mask, mask, element );
-//    dilate( mask, mask, element );
-
-//    // Create the countour for the person
-//    medianBlur(mask, mask, 21);
-//    width = 100;
-//    element = getStructuringElement( MORPH_RECT,
-//                           Size( 2*(width+1) + 1, 2*width+1 ),
-//                           Point( width+1, width ) );
-//  //  dilate( src, dilation_dst, element );
-//    morphologyEx( mask, mask, MORPH_CLOSE, element );
 
     // Convert result to CV_8U to support finding contours
     Mat resb;
@@ -138,14 +120,14 @@ void findPersonAndDrawTargets(Mat frame, Mat mask, HOGDescriptor hog) {
         // Determine which type of object is detected
         Rect br = boundingRect(contours[i]);
 
-        if (br.area() > 10000) {
+        if (br.area() > 50000) {
             // Draw the bounding box around the vehicle
             rectangle(frame, br, Scalar(0, 255, 0), 5);
             drawContours(mask, contours, i, Scalar(255, 255, 255), -1);
         }
     }
 
-    detectFacePosition(frame);
+//    detectFacePosition(frame);
 }
 
 // Detect's the user's face in the frame and ensures they are looking up when dribbling
@@ -194,9 +176,22 @@ void detectBasketballPosition(Mat frame, Mat mask) {
         // Determine which type of object is detected
         Rect br = boundingRect(contours[i]);
 
-        if (br.area() > 10000) {
+        if (br.area() > 5000) {
             // Draw the bounding box around the vehicle
             rectangle(frame, br, Scalar(0, 0, 255), 5);
         }
     }
 }
+
+// Have the user select the type of dribble drill, the number of reps or time
+// Find the location of the basketball and put a box around it
+    // Store the basketball's location
+// Find the location of the person and draw a box around them
+    // Create a target on each side of the detected person that is the size of the basketball
+    // Store the target's location
+// Detect whether the basketball intersects the target position
+    // If so, ensure that the intersection is a threshold distance away from the last detected intersection
+    // If so, increment the successful dribble counter
+// For face detection, increment the face down counter when the face is not detected on the screen
+    // Only increment this value every nth frame
+// Display the number of reps completed, number of head down situations, and time in each frame
