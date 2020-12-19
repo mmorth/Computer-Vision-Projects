@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -12,10 +13,22 @@ void processVideo(VideoCapture cap);
 void findPersonAndDrawTargets(Mat frame, Mat mask);
 void detectFacePosition(Mat frame);
 void detectBasketballPosition(Mat frame, Mat mask);
+void determineBallTargetIntersection();
+
+Rect personLocation;
+Rect basketballLocation;
+Rect leftTarget;
+Rect rightTarget;
+Point intersectionPoint;
+int maxNumReps;
+int numCompletedDribbles;
+int numLookDowns = 0;
+bool lastLeftTarget = false;
+int lastFrameFaceDetected = -10;
+int frameNum = 0;
 
 CascadeClassifier face_cascade;
 CascadeClassifier eyes_cascade;
-int numDribbles = 0;
 
 int main()
 {
@@ -60,12 +73,17 @@ void processVideo(VideoCapture cap) {
     HOGDescriptor hog = HOGDescriptor();
     hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
 
+    // Start the stopwatch
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Create a video writer and process the input video frame by frame
     while(1)
     {
       // Ready in a frame at a time
       Mat frame;
       cap >> frame;
+
+      frameNum++;
 
       // If the frame is empty, break immediately
       if (frame.empty())
@@ -76,13 +94,23 @@ void processVideo(VideoCapture cap) {
 
       findPersonAndDrawTargets(frame, fgMask);
       detectBasketballPosition(frame, fgMask);
-
-      // Detect vechicles from the background subtraction mask
-      imshow("frame", frame);
-      imshow("fgMask", fgMask);
+      determineBallTargetIntersection();
 
       // Write the frame into the output video file
 //      video.write(frame);
+
+      // Display the information on the screen
+      string text = "#Reps = " + std::to_string(numCompletedDribbles);
+      putText(frame, text, Point(10, 25), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 0, 0), 3);
+      text = "#Look Downs = " + std::to_string(numLookDowns);
+      putText(frame, text, Point(10, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 0, 0), 3);
+      auto finish = std::chrono::high_resolution_clock::now();
+      text = "Time: " + std::to_string((finish-start).count());
+      putText(frame, text, Point(10, 75), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 0, 0), 3);
+
+      // Detect vechicles from the background subtraction mask
+      imshow("fgMask", fgMask);
+      imshow("frame", frame);
 
       // Press  ESC on keyboard to  exit
       char c = (char)waitKey(1);
@@ -124,34 +152,37 @@ void findPersonAndDrawTargets(Mat frame, Mat mask) {
             // Draw the bounding box around the vehicle
             rectangle(frame, br, Scalar(0, 255, 0), 5);
             drawContours(mask, contours, i, Scalar(255, 255, 255), -1);
+            personLocation = br;
+            break;
         }
     }
 
-//    detectFacePosition(frame);
+    detectFacePosition(frame);
 }
 
 // Detect's the user's face in the frame and ensures they are looking up when dribbling
 void detectFacePosition(Mat frame) {
+    // Convert image to grayscale for face detection
     Mat frame_gray;
     cvtColor( frame, frame_gray, COLOR_BGR2GRAY );
     equalizeHist( frame_gray, frame_gray );
-    //-- Detect faces
+
+    // Detect the faces from the image
+    bool faceDetected = false;
     std::vector<Rect> faces;
     face_cascade.detectMultiScale( frame_gray, faces );
     for ( size_t i = 0; i < faces.size(); i++ )
     {
         Point center( faces[i].x + faces[i].width/2, faces[i].y + faces[i].height/2 );
         ellipse( frame, center, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4 );
-        Mat faceROI = frame_gray( faces[i] );
-        //-- In each face, detect eyes
-        std::vector<Rect> eyes;
-        eyes_cascade.detectMultiScale( faceROI, eyes );
-        for ( size_t j = 0; j < eyes.size(); j++ )
-        {
-            Point eye_center( faces[i].x + eyes[j].x + eyes[j].width/2, faces[i].y + eyes[j].y + eyes[j].height/2 );
-            int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
-            circle( frame, eye_center, radius, Scalar( 255, 0, 0 ), 4 );
-        }
+        faceDetected = true;
+        break;
+    }
+
+    // Increment number of look downs if no face is detected
+    if (!faceDetected && frameNum-lastFrameFaceDetected > 10) {
+       numLookDowns++;
+       lastFrameFaceDetected = frameNum;
     }
 }
 
@@ -176,10 +207,35 @@ void detectBasketballPosition(Mat frame, Mat mask) {
         // Determine which type of object is detected
         Rect br = boundingRect(contours[i]);
 
-        if (br.area() > 5000) {
+        if (br.area() > 5000 && br.y > personLocation.y+personLocation.height/4) {
             // Draw the bounding box around the vehicle
             rectangle(frame, br, Scalar(0, 0, 255), 5);
+            basketballLocation = br;
+            break;
         }
+    }
+
+    // Draw the target's on the screen
+    leftTarget = Rect(personLocation.x+personLocation.width/2-200, personLocation.y+personLocation.height/2, basketballLocation.width, basketballLocation.height);
+    rightTarget = Rect(personLocation.x+personLocation.width/2+100, personLocation.y+personLocation.height/2, basketballLocation.width, basketballLocation.height);
+
+    rectangle(frame, leftTarget, Scalar(0, 255, 0), 5);
+    rectangle(frame, rightTarget, Scalar(0, 255, 0), 5);
+}
+
+// ======================= New Functions ===================================
+
+// Determines if there was an intersection between the basketball and a target location
+void determineBallTargetIntersection() {
+    // Determine if and where an intersection occurred
+    if (((basketballLocation & leftTarget).area() > 0) && !lastLeftTarget) {
+        // Intersection occurred on the left side, count it
+        numCompletedDribbles++;
+        lastLeftTarget = true;
+    } else if (((basketballLocation & rightTarget).area() > 0) && lastLeftTarget) {
+        // Intersection occurred on the right side, count it
+        numCompletedDribbles++;
+        lastLeftTarget = false;
     }
 }
 
