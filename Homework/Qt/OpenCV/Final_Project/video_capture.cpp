@@ -9,7 +9,7 @@ using namespace std;
 using namespace cv;
 
 void processVideo(VideoCapture cap);
-void findPersonAndDrawTargets(Mat frame, Mat mask);
+void findPersonAndDrawTargets(Mat frame, Mat mask, HOGDescriptor hog);
 void detectFacePosition(Mat frame);
 void detectBasketballPosition(Mat frame, Mat mask);
 
@@ -57,6 +57,9 @@ void processVideo(VideoCapture cap) {
     pBackSub = createBackgroundSubtractorKNN(100, 400.0, false);
     Mat fgMask;
 
+    HOGDescriptor hog = HOGDescriptor();
+    hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
+
     // Create a video writer and process the input video frame by frame
     while(1)
     {
@@ -71,7 +74,7 @@ void processVideo(VideoCapture cap) {
       // Run the background subtraction model
       pBackSub->apply(frame, fgMask);
 
-      findPersonAndDrawTargets(frame, fgMask);
+      findPersonAndDrawTargets(frame, fgMask, hog);
       detectBasketballPosition(frame, fgMask);
 
       // Detect vechicles from the background subtraction mask
@@ -95,23 +98,32 @@ void processVideo(VideoCapture cap) {
 }
 
 // Detects the person in the frame and draws the target ball positions on the screen
-void findPersonAndDrawTargets(Mat frame, Mat mask) {
-    // Threshold to pull out the main part of the object
-    threshold(mask, mask, 200, 255, THRESH_BINARY);
-    int width = 5;
+void findPersonAndDrawTargets(Mat frame, Mat mask, HOGDescriptor hog) {
+
+    int width = 10;
     Mat element = getStructuringElement( MORPH_RECT,
-                       Size( 2*(width+1) + 1, 2*width+1 ),
-                       Point( width+1, width ) );
+                       Size( 2*(0+1) + 1, 2*width+1 ),
+                       Point( 0+1, width ) );
     dilate( mask, mask, element );
 
-    // Create the countour for the person
-    medianBlur(mask, mask, 21);
-    width = 50;
-    element = getStructuringElement( MORPH_RECT,
-                           Size( 2*(width+1) + 1, 2*width+1 ),
-                           Point( width+1, width ) );
-  //  dilate( src, dilation_dst, element );
-    morphologyEx( mask, mask, MORPH_CLOSE, element );
+    //    medianBlur(mask, mask, 3);
+//    // Threshold to pull out the main part of the object
+//    threshold(mask, mask, 200, 255, THRESH_BINARY);
+//    int width = 1;
+//    Mat element = getStructuringElement( MORPH_RECT,
+//                       Size( 2*(0+1) + 1, 2*width+1 ),
+//                       Point( 0+1, width ) );
+//    erode( mask, mask, element );
+//    dilate( mask, mask, element );
+
+//    // Create the countour for the person
+//    medianBlur(mask, mask, 21);
+//    width = 100;
+//    element = getStructuringElement( MORPH_RECT,
+//                           Size( 2*(width+1) + 1, 2*width+1 ),
+//                           Point( width+1, width ) );
+//  //  dilate( src, dilation_dst, element );
+//    morphologyEx( mask, mask, MORPH_CLOSE, element );
 
     // Convert result to CV_8U to support finding contours
     Mat resb;
@@ -133,7 +145,7 @@ void findPersonAndDrawTargets(Mat frame, Mat mask) {
         }
     }
 
-//    detectFacePosition(frame);
+    detectFacePosition(frame);
 }
 
 // Detect's the user's face in the frame and ensures they are looking up when dribbling

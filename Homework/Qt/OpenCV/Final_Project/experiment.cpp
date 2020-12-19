@@ -22,7 +22,7 @@
 //{
 //  // Read in the input image and create separate images for the handle and disk
 //  src = imread("C:\\Users\\mmort\\GIT\\CprE575\\Final Project\\Images\\personOutline.png", IMREAD_GRAYSCALE);
-//  medianBlur(src, src, 11);
+////  medianBlur(src, src, 11);
 ////  Mat src2 = imread("C:\\Users\\mmort\\GIT\\CprE575\\Homework\\Homework2\\HW2_2013\\inputs\\p2\\2b.png", IMREAD_GRAYSCALE);
 
 //  namedWindow( "Erosion Demo", WINDOW_AUTOSIZE );
@@ -61,8 +61,8 @@
 //  Mat element = getStructuringElement( erosion_type,
 //                       Size( 2*erosion_width + 1, 2*erosion_height+1 ),
 //                       Point( erosion_width, erosion_height ) );
-////  erode( src, erosion_dst, element );
-//  morphologyEx( src, erosion_dst, MORPH_OPEN, element );
+//  erode( src, erosion_dst, element );
+////  morphologyEx( src, erosion_dst, MORPH_OPEN, element );
 //  imshow( "Erosion Demo", erosion_dst );
 //}
 //void Dilation( int, void* )
@@ -74,7 +74,7 @@
 //  Mat element = getStructuringElement( dilation_type,
 //                       Size( 2*dilation_width + 1, 2*dilation_height+1 ),
 //                       Point( dilation_width, dilation_height ) );
-////  dilate( src, dilation_dst, element );
-//  morphologyEx( src, dilation_dst, MORPH_CLOSE, element );
+//  dilate( src, dilation_dst, element );
+////  morphologyEx( src, dilation_dst, MORPH_CLOSE, element );
 //  imshow( "Dilation Demo", dilation_dst );
 //}
