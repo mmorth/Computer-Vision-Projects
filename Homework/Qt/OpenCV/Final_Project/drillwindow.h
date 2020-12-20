@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef DRILLWINDOW_H
+#define DRILLWINDOW_H
 
 #include <QMainWindow>
 #include <QDebug>
@@ -10,9 +10,6 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 
-#include <iostream>
-#include <chrono>
-
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -21,36 +18,30 @@
 using namespace std;
 using namespace cv;
 
+// Source: https://amin-ahmadi.com/2018/03/29/how-to-read-process-and-display-videos-using-qt-and-opencv/
 namespace Ui {
-class MainWindow;
+class DrillWindow;
 }
 
-class MainWindow : public QMainWindow
+class DrillWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit DrillWindow(QWidget *parent = nullptr);
+    ~DrillWindow();
 
 protected:
     void closeEvent(QCloseEvent *event);
-    void processVideo(VideoCapture cap);
-    void findPersonAndDrawTargets(Mat frame, Mat mask);
-    void detectFacePosition(Mat f, Mat mask);
-    void detectBasketballPosition(Mat frame, Mat mask);
-    void determineBallTargetIntersection();
-    void executeOpenCV();
 
 private slots:
     void on_startBtn_pressed();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::DrillWindow *ui;
 
     QGraphicsPixmapItem pixmap;
     cv::VideoCapture video;
-
 };
 
-#endif // MAINWINDOW_H
+#endif // DRILLWINDOW_H

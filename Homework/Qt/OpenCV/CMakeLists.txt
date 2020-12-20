@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5Core)
 find_package( OpenCV REQUIRED )
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_executable(OpenCV
   main.cpp
@@ -103,8 +104,15 @@ add_executable(OpenCV
   Final_Project/mainwindow.cpp
   Final_Project/mainwindow.h
   Final_Project/mainwindow.ui
+  Final_Project/main.cpp
+  Final_Project/drillwindow.cpp
+  Final_Project/drillwindow.h
+  Final_Project/drillwindow.ui
+  Final_Project/player.cpp
+  Final_Project/player.h
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 target_link_libraries(OpenCV Qt5::Core)
 target_link_libraries(OpenCV ${OpenCV_LIBS})
+target_link_libraries(OpenCV Qt5::Widgets)
