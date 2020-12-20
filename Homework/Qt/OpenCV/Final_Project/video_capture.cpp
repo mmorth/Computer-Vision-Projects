@@ -9,24 +9,32 @@
 using namespace std;
 using namespace cv;
 
+// Declare function placeholders
 void processVideo(VideoCapture cap);
 void findPersonAndDrawTargets(Mat frame, Mat mask);
-void detectFacePosition(Mat frame);
+void detectFacePosition(Mat f, Mat mask);
 void detectBasketballPosition(Mat frame, Mat mask);
 void determineBallTargetIntersection();
 
+// Variables used for detection
+// Object locations
 Rect personLocation;
 Rect basketballLocation;
 Rect leftTarget;
 Rect rightTarget;
 Point intersectionPoint;
+// Counting variables
 int maxNumReps;
 int numCompletedDribbles;
 int numLookDowns = 0;
 bool lastLeftTarget = false;
 int lastFrameFaceDetected = -10;
 int frameNum = 0;
+// Frame variables
+int frame_width = 0;
+int frame_height = 0;
 
+// Store cascade classifier for face detection
 CascadeClassifier face_cascade;
 CascadeClassifier eyes_cascade;
 
@@ -34,7 +42,7 @@ int main()
 {
     cout << "final_project_code\n";
 
-    //-- 1. Load the cascades
+    // Load the face cascade classifiers
     String face_cascade_name = samples::findFile( "C:\\opencv\\sources\\data\\haarcascades\\haarcascade_frontalface_alt.xml" );
     String eyes_cascade_name = samples::findFile( "C:\\opencv\\sources\\data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml" );
     if( !face_cascade.load( face_cascade_name ) )
@@ -48,7 +56,7 @@ int main()
         return -1;
     };
 
-    // Read input videos
+    // Capture real-time video from device's camera
     VideoCapture cap(1);
     processVideo(cap);
 
@@ -66,15 +74,17 @@ void processVideo(VideoCapture cap) {
       return;
     }
 
+    // Declare the background subtractor
     Ptr<BackgroundSubtractor> pBackSub;
     pBackSub = createBackgroundSubtractorKNN(100, 100.0, true);
     Mat fgMask;
 
-    HOGDescriptor hog = HOGDescriptor();
-    hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
+    // Keep track of the elasped time for the current drill
+    auto start = chrono::steady_clock::now();
 
-    // Start the stopwatch
-    auto start = std::chrono::high_resolution_clock::now();
+    // Default resolution of the frame is obtained.The default resolution is system dependent.
+    frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
+    frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
 
     // Create a video writer and process the input video frame by frame
     while(1)
@@ -82,7 +92,6 @@ void processVideo(VideoCapture cap) {
       // Ready in a frame at a time
       Mat frame;
       cap >> frame;
-
       frameNum++;
 
       // If the frame is empty, break immediately
@@ -92,6 +101,7 @@ void processVideo(VideoCapture cap) {
       // Run the background subtraction model
       pBackSub->apply(frame, fgMask);
 
+      // Detect object locations and draw on the screen
       findPersonAndDrawTargets(frame, fgMask);
       detectBasketballPosition(frame, fgMask);
       determineBallTargetIntersection();
@@ -101,14 +111,18 @@ void processVideo(VideoCapture cap) {
 
       // Display the information on the screen
       string text = "#Reps = " + std::to_string(numCompletedDribbles);
-      putText(frame, text, Point(10, 25), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 0, 0), 3);
+      putText(frame, text, Point(10, 50), FONT_HERSHEY_SIMPLEX, 2, Scalar(1, 255, 11), 3);
       text = "#Look Downs = " + std::to_string(numLookDowns);
-      putText(frame, text, Point(10, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 0, 0), 3);
-      auto finish = std::chrono::high_resolution_clock::now();
-      text = "Time: " + std::to_string((finish-start).count());
-      putText(frame, text, Point(10, 75), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 0, 0), 3);
+      putText(frame, text, Point(10, 100), FONT_HERSHEY_SIMPLEX, 2, Scalar(1, 255, 11), 3);
+      auto finish = chrono::steady_clock::now();
 
-      // Detect vechicles from the background subtraction mask
+      // Use chrono to print the elasped drill time in Minutes:Seconds:Milliseconds format
+      char buffer [50];
+      long duration = std::chrono::duration_cast<chrono::milliseconds>(finish-start).count();
+      sprintf(buffer, "Time: %02d:%02d:%02d", duration/60000, (duration/1000)%60, duration%1000);
+      putText(frame, buffer, Point(10, 150), FONT_HERSHEY_SIMPLEX, 2, Scalar(1, 255, 11), 3);
+
+      // Display the frame on the screen
       imshow("fgMask", fgMask);
       imshow("frame", frame);
 
@@ -127,8 +141,10 @@ void processVideo(VideoCapture cap) {
 
 // Detects the person in the frame and draws the target ball positions on the screen
 void findPersonAndDrawTargets(Mat frame, Mat mask) {
+    // Threshold to remove weak background subtraction detections
     threshold(mask, mask, 200, 255, THRESH_BINARY);
 
+    // Dislate to fill in the detected body more
     int width = 10;
     Mat element = getStructuringElement( MORPH_RECT,
                        Size( 2*(0+1) + 1, 2*width+1 ),
@@ -143,11 +159,12 @@ void findPersonAndDrawTargets(Mat frame, Mat mask) {
     vector<vector<Point>> contours;
     findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
 
-    // Determine whether detected objects are a vehicle or not
+    // Determine all possible locations for the person
     for (int i = 0; i < contours.size(); i++) {
         // Determine which type of object is detected
         Rect br = boundingRect(contours[i]);
 
+        // Only match person location if in certain location
         if (br.area() > 50000) {
             // Draw the bounding box around the vehicle
             rectangle(frame, br, Scalar(0, 255, 0), 5);
@@ -157,11 +174,13 @@ void findPersonAndDrawTargets(Mat frame, Mat mask) {
         }
     }
 
-    detectFacePosition(frame);
+    // Run the face detection
+    detectFacePosition(frame, mask);
 }
 
 // Detect's the user's face in the frame and ensures they are looking up when dribbling
-void detectFacePosition(Mat frame) {
+// Source: https://docs.opencv.org/master/db/d28/tutorial_cascade_classifier.html
+void detectFacePosition(Mat frame, Mat mask) {
     // Convert image to grayscale for face detection
     Mat frame_gray;
     cvtColor( frame, frame_gray, COLOR_BGR2GRAY );
@@ -170,9 +189,10 @@ void detectFacePosition(Mat frame) {
     // Detect the faces from the image
     bool faceDetected = false;
     std::vector<Rect> faces;
-    face_cascade.detectMultiScale( frame_gray, faces );
+    face_cascade.detectMultiScale( frame_gray, faces, 1.5, 1 );
     for ( size_t i = 0; i < faces.size(); i++ )
     {
+        // Draw the location of the face
         Point center( faces[i].x + faces[i].width/2, faces[i].y + faces[i].height/2 );
         ellipse( frame, center, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4 );
         faceDetected = true;
@@ -191,8 +211,16 @@ void detectBasketballPosition(Mat frame, Mat mask) {
     Mat ballMask, frameHSV;
     // Convert from BGR to HSV colorspace
     cvtColor(frame, frameHSV, COLOR_BGR2HSV);
+
+    // Only search the non-background pixels for the basketball
+    threshold(mask, mask, 200, 255, THRESH_BINARY);
+    frameHSV.setTo(0, mask == 0);
+    imshow("frameHSV", frameHSV);
+
     // Detect the object based on HSV Range Values
-    inRange(frameHSV, Scalar(0, 66, 70), Scalar(12, 255, 255), ballMask);
+    inRange(frameHSV, Scalar(0,60, 60), Scalar(12, 255, 255), ballMask);
+
+    imshow("ballMask", ballMask);
 
     // Convert result to CV_8U to support finding contours
     Mat resb;
@@ -202,12 +230,13 @@ void detectBasketballPosition(Mat frame, Mat mask) {
     vector<vector<Point>> contours;
     findContours(resb, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
 
-    // Determine whether detected objects are a vehicle or not
+    // Determine possible locations for the ball
     for (int i = 0; i < contours.size(); i++) {
         // Determine which type of object is detected
         Rect br = boundingRect(contours[i]);
 
-        if (br.area() > 5000 && br.y > personLocation.y+personLocation.height/4) {
+        // Only match the ball if it meets certain parameters
+        if (br.area() > 5000) {
             // Draw the bounding box around the vehicle
             rectangle(frame, br, Scalar(0, 0, 255), 5);
             basketballLocation = br;
@@ -216,8 +245,8 @@ void detectBasketballPosition(Mat frame, Mat mask) {
     }
 
     // Draw the target's on the screen
-    leftTarget = Rect(personLocation.x+personLocation.width/2-200, personLocation.y+personLocation.height/2, basketballLocation.width, basketballLocation.height);
-    rightTarget = Rect(personLocation.x+personLocation.width/2+100, personLocation.y+personLocation.height/2, basketballLocation.width, basketballLocation.height);
+    leftTarget = Rect(frame_width/2-200, personLocation.y+personLocation.height/2, 75, 75);
+    rightTarget = Rect(frame_width/2+150, personLocation.y+personLocation.height/2, 75, 75);
 
     rectangle(frame, leftTarget, Scalar(0, 255, 0), 5);
     rectangle(frame, rightTarget, Scalar(0, 255, 0), 5);
@@ -238,16 +267,3 @@ void determineBallTargetIntersection() {
         lastLeftTarget = false;
     }
 }
-
-// Have the user select the type of dribble drill, the number of reps or time
-// Find the location of the basketball and put a box around it
-    // Store the basketball's location
-// Find the location of the person and draw a box around them
-    // Create a target on each side of the detected person that is the size of the basketball
-    // Store the target's location
-// Detect whether the basketball intersects the target position
-    // If so, ensure that the intersection is a threshold distance away from the last detected intersection
-    // If so, increment the successful dribble counter
-// For face detection, increment the face down counter when the face is not detected on the screen
-    // Only increment this value every nth frame
-// Display the number of reps completed, number of head down situations, and time in each frame

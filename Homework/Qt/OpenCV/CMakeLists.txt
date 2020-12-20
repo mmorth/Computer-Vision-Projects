@@ -100,6 +100,9 @@ add_executable(OpenCV
   Final_Project/video_capture.cpp
   Final_Project/color_filter_finder.cpp
   Final_Project/experiment.cpp
+  Final_Project/mainwindow.cpp
+  Final_Project/mainwindow.h
+  Final_Project/mainwindow.ui
 )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
