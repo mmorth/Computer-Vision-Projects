@@ -43,14 +43,13 @@ protected:
     void executeOpenCV();
 
 private slots:
-    void on_startBtn_pressed();
+    void on_startButton_pressed();
 
 private:
     Ui::MainWindow *ui;
 
     QGraphicsPixmapItem pixmap;
     cv::VideoCapture video;
-
 };
 
 #endif // MAINWINDOW_H

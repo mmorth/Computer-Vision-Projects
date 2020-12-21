@@ -1,14 +1,18 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
+// General imports
 #include <iostream>
 #include <chrono>
 
+// Qt imports
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+
+// OpenCV imports
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 
+// Define namespaces
 using namespace std;
 using namespace cv;
 
@@ -34,32 +38,37 @@ int frame_height = 0;
 CascadeClassifier face_cascade;
 CascadeClassifier eyes_cascade;
 
+// Construct the MainWindow. The MainWindow displays the OpenCV dribble detection application
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    // Setup the UI
     ui->setupUi(this);
 
+    // Set the default graphicsView window
     ui->graphicsView->setScene(new QGraphicsScene(this));
     ui->graphicsView->scene()->addItem(&pixmap);
 }
 
+// Define the MainWindow destructor
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
-void MainWindow::on_startBtn_pressed()
+void MainWindow::on_startButton_pressed()
 {
-    using namespace cv;
-
+    // Check if the video is current opened
     if(video.isOpened())
     {
-        ui->startBtn->setText("Start");
+        // If so, allow the user to start the video
+        ui->startButton->setText("Start");
         video.release();
         return;
     }
 
+    // Check that the video can be opened on the first index
     if(!video.open(1))
     {
         QMessageBox::critical(this,
@@ -69,17 +78,22 @@ void MainWindow::on_startBtn_pressed()
         return;
     }
 
-    ui->startBtn->setText("Stop");
+    // Update the button to allow the user to stop the drill
+    ui->startButton->setText("Stop");
 
+    // Execute the OpenCV part of the application
     executeOpenCV();
 
-    ui->startBtn->setText("Start");
+    // Application is done, change the button to start text again
+    ui->startButton->setText("Start");
 }
 
+// Handles an event where the user attempts to close the window
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if(video.isOpened())
     {
+        // Video is currently opened, prompt user to stop it
         QMessageBox::warning(this,
                              "Warning",
                              "Stop the video before closing the application!");
@@ -87,6 +101,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
     else
     {
+        // Video is currently closed, allow the user to exit the application
         event->accept();
     }
 }
@@ -158,9 +173,6 @@ void MainWindow::processVideo(VideoCapture cap) {
       detectBasketballPosition(frame, fgMask);
       determineBallTargetIntersection();
 
-      // Write the frame into the output video file
-//      video.write(frame);
-
       // Display the information on the screen
       string text = "#Reps = " + std::to_string(numCompletedDribbles);
       putText(frame, text, Point(10, 50), FONT_HERSHEY_SIMPLEX, 2, Scalar(1, 255, 11), 3);
@@ -174,7 +186,7 @@ void MainWindow::processVideo(VideoCapture cap) {
       sprintf(buffer, "Time: %02d:%02d:%02d", duration/60000, (duration/1000)%60, duration%1000);
       putText(frame, buffer, Point(10, 150), FONT_HERSHEY_SIMPLEX, 2, Scalar(1, 255, 11), 3);
 
-      // Display the frame on the screen
+      // Display the OpenCV frame in the Qt application
       if(!frame.empty())
       {
           QImage qimg(frame.data,
