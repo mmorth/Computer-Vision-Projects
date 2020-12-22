@@ -7,8 +7,8 @@
 //const int max_value = 255;
 //const String window_capture_name = "Video Capture";
 //const String window_detection_name = "Object Detection";
-//int low_H = 0, low_S = 0, low_V = 0;
-//int high_H = max_value_H, high_S = max_value, high_V = max_value;
+//int low_H = 0, low_S = 160, low_V = 180;
+//int high_H = 12, high_S = 200, high_V = 200;
 //static void on_low_H_thresh_trackbar(int, void *)
 //{
 //    low_H = min(high_H-1, low_H);
@@ -62,6 +62,14 @@
 //        cvtColor(frame, frame_HSV, COLOR_BGR2HSV);
 //        // Detect the object based on HSV Range Values
 //        inRange(frame_HSV, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), frame_threshold);
+
+//        // Dilate to fill in the detected body more
+//        int width = 20;
+//        Mat element = getStructuringElement( MORPH_RECT,
+//                           Size( 2*(width+1) + 1, 2*width+1 ),
+//                           Point( width+1, width ) );
+//        dilate( frame_threshold, frame_threshold, element );
+
 //        // Show the frames
 //        imshow(window_capture_name, frame);
 //        imshow(window_detection_name, frame_threshold);

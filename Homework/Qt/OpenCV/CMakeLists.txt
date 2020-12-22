@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5Core)
 find_package( OpenCV REQUIRED )
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+#find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_executable(OpenCV
   main.cpp
@@ -115,4 +115,4 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 target_link_libraries(OpenCV Qt5::Core)
 target_link_libraries(OpenCV ${OpenCV_LIBS})
-target_link_libraries(OpenCV Qt5::Widgets)
+#target_link_libraries(OpenCV Qt5::Widgets)
