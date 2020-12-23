@@ -63,12 +63,12 @@
 //        // Detect the object based on HSV Range Values
 //        inRange(frame_HSV, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), frame_threshold);
 
-//        // Dilate to fill in the detected body more
-//        int width = 20;
-//        Mat element = getStructuringElement( MORPH_RECT,
-//                           Size( 2*(width+1) + 1, 2*width+1 ),
-//                           Point( width+1, width ) );
-//        dilate( frame_threshold, frame_threshold, element );
+////        // Dilate to fill in the detected body more
+////        int width = 20;
+////        Mat element = getStructuringElement( MORPH_RECT,
+////                           Size( 2*(width+1) + 1, 2*width+1 ),
+////                           Point( width+1, width ) );
+////        dilate( frame_threshold, frame_threshold, element );
 
 //        // Show the frames
 //        imshow(window_capture_name, frame);

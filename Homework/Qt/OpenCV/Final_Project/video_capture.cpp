@@ -14,15 +14,16 @@ void processVideo(VideoCapture cap);
 void findPersonAndDrawTargets(Mat frame, Mat mask);
 void detectFacePosition(Mat f, Mat mask);
 void detectBasketballPosition(Mat frame, Mat mask);
-void determineBallTargetIntersection();
+void determineBallTargetIntersection(Rect basketballLocation);
 
 // Variables used for detection
 // Object locations
 Rect personLocation;
-Rect basketballLocation;
 Rect leftTarget;
 Rect rightTarget;
 Point intersectionPoint;
+vector<Rect> currentFrameObjects;
+vector<Rect> previousFrameObjects;
 // Counting variables
 int maxNumReps;
 int numCompletedDribbles;
@@ -31,6 +32,7 @@ bool lastLeftTarget = false;
 bool detectFaceFlag = false;
 int frameNum = 0;
 int conseqFrameHeadDown = 0;
+int conseqFrameFaceDetected = 0;
 // Frame variables
 int frame_width = 0;
 int frame_height = 0;
@@ -106,7 +108,6 @@ void processVideo(VideoCapture cap) {
       // Detect object locations and draw on the screen
       findPersonAndDrawTargets(frame, fgMask);
       detectBasketballPosition(frame, fgMask);
-      determineBallTargetIntersection();
 
       // Display the information on the screen
       string text = "#Reps = " + std::to_string(numCompletedDribbles);
@@ -179,6 +180,13 @@ void findPersonAndDrawTargets(Mat frame, Mat mask) {
         }
     }
 
+    // Draw the target's on the screen
+    leftTarget = Rect(frame_width/2-200, personLocation.y+personLocation.height/2.5, 75, 75);
+    rightTarget = Rect(frame_width/2+150, personLocation.y+personLocation.height/2.5, 75, 75);
+
+    rectangle(frame, leftTarget, Scalar(0, 255, 0), 5);
+    rectangle(frame, rightTarget, Scalar(0, 255, 0), 5);
+
     // Run the face detection
     detectFacePosition(frame, mask);
 }
@@ -204,19 +212,28 @@ void detectFacePosition(Mat frame, Mat mask) {
         break;
     }
 
-    printf("%d\n", faceDetected);
-
     // Increment number of look downs if no face is detected
     if (!faceDetected && detectFaceFlag) {
        conseqFrameHeadDown++;
+       conseqFrameFaceDetected = 0;
 
-       if(conseqFrameHeadDown >= 3) {
+       if(conseqFrameHeadDown >= 10) {
            numLookDowns++;
            conseqFrameHeadDown = 0;
            detectFaceFlag = false;
        }
+    } else if (faceDetected && !detectFaceFlag) {
+        conseqFrameHeadDown = 0;
+        conseqFrameFaceDetected++;
+
+        if (conseqFrameFaceDetected >= 10) {
+            conseqFrameFaceDetected = 0;
+            detectFaceFlag = true;
+        }
+    } else if (!faceDetected) {
+        conseqFrameFaceDetected = 0;
     } else if (faceDetected) {
-        detectFaceFlag = true;
+        conseqFrameHeadDown = 0;
     }
 }
 
@@ -232,10 +249,10 @@ void detectBasketballPosition(Mat frame, Mat mask) {
     imshow("frameHSV", frameHSV);
 
     // Detect the object based on HSV Range Values
-    inRange(frameHSV, Scalar(0, 160, 160), Scalar(12, 220, 220), ballMask);
+    inRange(frameHSV, Scalar(0, 150, 150), Scalar(12, 220, 220), ballMask);
 
     // Dilate to fill in the detected body more
-    int width = 10;
+    int width = 30;
     Mat element = getStructuringElement( MORPH_RECT,
                        Size( 2*(width+1) + 1, 2*width+1 ),
                        Point( width+1, width ) );
@@ -257,26 +274,42 @@ void detectBasketballPosition(Mat frame, Mat mask) {
         Rect br = boundingRect(contours[i]);
 
         // Only match the ball if it meets certain parameters
-        if (br.area() > 2000 && abs(br.width-br.height) < 15) {
+        printf("br.area() = %d\n", br.area());
+        if (br.area() > 1000 && br.area() < 15000) {
+            // Compute the centroid of the object
+            Point brCentroid = Point(br.x+br.width/2, br.y+br.height/2);
+
             // Draw the bounding box around the vehicle
-            rectangle(frame, br, Scalar(0, 0, 255), 5);
-            basketballLocation = br;
-            break;
+            bool drawOnScreen = true;
+            for (int i = 0; i < previousFrameObjects.size(); i++) {
+                Point prevCentroid = Point(previousFrameObjects.at(i).x+previousFrameObjects.at(i).width/2, previousFrameObjects.at(i).y+previousFrameObjects.at(i).height/2);
+
+                double distance = cv::norm(brCentroid-prevCentroid);
+                // Check if the detect object's centroid is a minimum distance from an object detected in a previous frame
+                if (distance < 10) {
+                    drawOnScreen = false;
+                    break;
+                }
+            }
+
+            // Draw the object and detect intersection if the object has significantly moved between frames
+            if (drawOnScreen) {
+                rectangle(frame, br, Scalar(0, 0, 255), 5);
+                determineBallTargetIntersection(br);
+            }
+
+            currentFrameObjects.push_back(br);
         }
     }
 
-    // Draw the target's on the screen
-    leftTarget = Rect(frame_width/2-200, personLocation.y+personLocation.height/2, 75, 75);
-    rightTarget = Rect(frame_width/2+150, personLocation.y+personLocation.height/2, 75, 75);
-
-    rectangle(frame, leftTarget, Scalar(0, 255, 0), 5);
-    rectangle(frame, rightTarget, Scalar(0, 255, 0), 5);
+    previousFrameObjects = currentFrameObjects;
+    currentFrameObjects.clear();
 }
 
 // ======================= New Functions ===================================
 
 // Determines if there was an intersection between the basketball and a target location
-void determineBallTargetIntersection() {
+void determineBallTargetIntersection(Rect basketballLocation) {
     // Determine if and where an intersection occurred
     if (((basketballLocation & leftTarget).area() > 0) && !lastLeftTarget) {
         // Intersection occurred on the left side, count it
