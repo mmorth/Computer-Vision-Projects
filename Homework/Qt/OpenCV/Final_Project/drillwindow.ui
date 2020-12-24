@@ -46,6 +46,12 @@
      <height>26</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuBasketball_Dribble_Coach">
+    <property name="title">
+     <string>Basketball Dribble Coach</string>
+    </property>
+   </widget>
+   <addaction name="menuBasketball_Dribble_Coach"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
