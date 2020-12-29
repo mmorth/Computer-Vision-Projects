@@ -1,9 +1,96 @@
-fileName = 'c4-piano.wav';
+% Find the fundamental frequency
+[Y,fs]=audioread('piano-note3.wav');
+x = (Y(:,1) + Y(:,2)) / 2;
+t = (0:size(x,1)-1)/fs;
 
-% Read in the game audio file
-[Y,fs]=audioread(fileName);
+winLength = round(0.2*fs);
+overlapLength = round(0.05*fs);
+[f0,idx] = pitch(x,fs,'Method','SRH','WindowLength',winLength,'OverlapLength',overlapLength);
+tf0 = idx/fs;
 
-Y = (Y(:,1) + Y(:,2)) / 2;
+plot(t,x)
+ylabel('Amplitude')
+title('Audio Signal')
+axis tight
+
+plot(tf0,f0)
+xlabel('Time (s)')
+ylabel('Pitch (Hz)')
+title('Pitch Estimations')
+axis tight
+
+determineNote('c4-piano.wav');
+determineNote('piano-note2.wav');
+determineNote('piano-note3.wav');
+determineNote('piano-note4.wav');
+determineNote('piano-note5.wav');
+determineNote('piano-note6.wav');
+determineNote('piano-note7.wav');
+
+% Source: https://www.phon.ucl.ac.uk/courses/spsci/matlab/lect10.html
+% The code for this function was adapted from the code found in the above
+% link to solve this problem
+function determineNote(fileName)
+    % Read in the game audio file and convert to mono
+    [Y,fs]=audioread(fileName);
+    x = (Y(:,1) + Y(:,2)) / 2;
+
+    % Define the time interval between 
+    ms1=fs/1000;
+    ms20=fs/50;
+
+    % Compute the windowed fourier transformed signal
+    Y=fft(x.*hamming(length(x)));
+
+    % Compute the cepstrum of the resulting frequency-domain wave
+    C=fft(log(abs(Y)+eps));
+
+    % Find the peak that corresponds to the fundamental frequency
+    [c,fx]=max(abs(C(ms1:ms20)));
+    fprintf('Fx=%gHz\n',fs/(ms1+fx-1));
+end
+
+% [Y,fs]=audioread('c4-piano.wav');
+% x = (Y(:,1) + Y(:,2)) / 2;
+% f = abs(fft(x));
+% m = maxk(f, 10);
+
+% p = pitch(Y, fs);
+% 
+% dt = 1/fs;
+% % x = (Y(:,1) + Y(:,2)) / 2;
+% 
+% c = cceps(x);
+% 
+% t = 0:dt:length(x)*dt-dt;
+% 
+% trng = t(t>=2e-3 & t<=10e-3);
+% crng = c(t>=2e-3 & t<=10e-3);
+% 
+% [~,I] = max(crng);
+% 
+% fprintf('Complex cepstrum F0 estimate is %3.2f Hz.\n',1/trng(I))
+% 
+% plot(trng*1e3,crng)
+% xlabel('ms')
+% 
+% hold on
+% plot(trng(I)*1e3,crng(I),'o')
+% hold off
+% 
+% [b0,a0] = butter(2,325/(fs/2));
+% xin = abs(x);
+% xin = filter(b0,a0,xin);
+% xin = xin-mean(xin);
+% x2 = zeros(length(xin),1);
+% x2(1:length(x)-1) = xin(2:length(x));
+% zc = length(find((xin>0 & x2<0) | (xin<0 & x2>0)));
+% F0 = 0.5*fs*zc/length(x);
+% fprintf('Zero-crossing F0 estimate is %3.2f Hz.\n',F0)
+
+% cx = cceps(Y.*hamming(length(Y)));
+% stem(abs(cx));
+% axis tight;
 
 % [pxx, f] = pwelch(Y);
 % plot(f,10*log10(pxx));
@@ -23,13 +110,13 @@ Y = (Y(:,1) + Y(:,2)) / 2;
 % [x, y] = find(f == maximum);
 
 % Obtain the necessary spectrogram variables for processing
-figure; spectrogram(Y, 2048, 256, 2048, fs, 'yaxis'); 
-axis xy; axis tight; colormap(jet); view(0,90);
-title(strcat(strcat('Spectrogram for =', fileName)));
+% figure; spectrogram(Y, 2048, 256, 2048, fs, 'yaxis'); 
+% axis xy; axis tight; colormap(jet); view(0,90);
+% title(strcat(strcat('Spectrogram for =', fileName)));
 % p = pitch(Y, fs);
 % plot(p);
-% [s,f,t,p] = spectrogram(Y, 11635, 128, 11635, fs, 'yaxis');
-% spectrogram(Y, 11635, 128, 11635, fs, 'yaxis');
+% [s,f,t,p] = spectrogram(Y, 1024, 256, 1024, fs, 'yaxis');
+% spectrogram(Y, 1024, 256, 1024, fs, 'yaxis');
 
 % p(10*log10(abs(p)) < -480) = 0;
 
