@@ -1,31 +1,30 @@
+% Try finding the max k points in spectrogram
+% Try the chernogram method again
+% Short look for other solutions
+% Look for intensity thresholds to determine when notes change
+% Look for max k for chord detection
+% Make sure the window is small enough to match the min length of the note
+
 % Find the fundamental frequency
 [Y,fs]=audioread('piano-note3.wav');
 x = (Y(:,1) + Y(:,2)) / 2;
-t = (0:size(x,1)-1)/fs;
 
-winLength = round(0.2*fs);
-overlapLength = round(0.05*fs);
-[f0,idx] = pitch(x,fs,'Method','SRH','WindowLength',winLength,'OverlapLength',overlapLength);
-tf0 = idx/fs;
+[s,f,t,p] = spectrogram(x, 1024, 256, 1024, fs, 'yaxis');
+% spectrogram(Y, 1024, 256, 1024, fs, 'yaxis');
+plot(abs(s));
 
-plot(t,x)
-ylabel('Amplitude')
-title('Audio Signal')
-axis tight
+p(10*log10(abs(p)) < -480) = 0;
 
-plot(tf0,f0)
-xlabel('Time (s)')
-ylabel('Pitch (Hz)')
-title('Pitch Estimations')
-axis tight
+maximum = max(max(p));
+[x, y] = find(p == maximum);
 
-determineNote('c4-piano.wav');
-determineNote('piano-note2.wav');
-determineNote('piano-note3.wav');
-determineNote('piano-note4.wav');
-determineNote('piano-note5.wav');
-determineNote('piano-note6.wav');
-determineNote('piano-note7.wav');
+% determineNote('c4-piano.wav');
+% determineNote('piano-note2.wav');
+% determineNote('piano-note3.wav');
+% determineNote('piano-note4.wav');
+% determineNote('piano-note5.wav');
+% determineNote('piano-note6.wav');
+% determineNote('piano-note7.wav');
 
 % Source: https://www.phon.ucl.ac.uk/courses/spsci/matlab/lect10.html
 % The code for this function was adapted from the code found in the above

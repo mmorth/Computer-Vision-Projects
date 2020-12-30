@@ -1,11 +1,13 @@
-fileName = 'short-melody-1.wav';
+fileName = 'c4-guitar.wav';
 
 % Read in the game audio file
 [Y,fs]=audioread(fileName);
 
 Y = (Y(:,1) + Y(:,2)) / 2;
-p = pitch(Y, fs);
-plot(p);
+music.note2freq(Y);
 
-figure; spectrogram(Y, 2048, 256, 2048, fs, 'yaxis'); 
-title(strcat(strcat('Spectrogram for =', fileName)));
+% p = pitch(Y, fs);
+% plot(p);
+% 
+% figure; spectrogram(Y, 2048, 256, 2048, fs, 'yaxis'); 
+% title(strcat(strcat('Spectrogram for =', fileName)));
