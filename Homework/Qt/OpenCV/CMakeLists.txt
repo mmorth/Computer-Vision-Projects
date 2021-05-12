@@ -18,6 +18,8 @@ find_package(Qt5 COMPONENTS Widgets REQUIRED)
 add_executable(OpenCV
   main.cpp
 
+  OpenCV_Course/submission.cpp
+
   HW2_2013/p1_opencv_code.cpp
   HW2_2013/p2_opencv_code.cpp
   HW2_2013/trackbar_example.cpp
