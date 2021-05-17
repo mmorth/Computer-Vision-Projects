@@ -22,6 +22,8 @@ add_executable(OpenCV
   OpenCV_Course/dataPath.hpp
   OpenCV_Course/assignment3.cpp
   OpenCV_Course/quiz1.cpp
+  OpenCV_Course/blemish_removal.cpp
+  OpenCV_Course/chroma_keying.cpp
 
   HW2_2013/p1_opencv_code.cpp
   HW2_2013/p2_opencv_code.cpp
