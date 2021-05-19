@@ -22,36 +22,27 @@
 //int greenScreenValue = 0;
 
 //// function which will be called on mouse input
-//void removeBlemish(int action, int x, int y, int flags, void *userdata)
+//void chooseGreenscreenColor(int action, int x, int y, int flags, void *userdata)
 //{
-//  // Action to be taken when left mouse button is pressed
-//  if( action == EVENT_LBUTTONDBLCLK )
-//  {
-//    Point blemishLocation = Point(x,y);
-
 //    // Action to be taken when left mouse button is pressed
 //    if( action == EVENT_LBUTTONDOWN )
 //    {
 //      // Mark top left corner of selection
 //      topLeft = Point(x,y);
-//   }
+//    }
 //    // Action to be taken when left mouse button is released
 //    else if( action == EVENT_LBUTTONUP)
 //    {
 //      // Mark bottom right corner of selection
 //      bottomRight = Point(x,y);
-//      // Write face to image file
-//      Mat gsRoi = source(Range(topLeft.y, bottomRight.y), Range(topLeft.x, bottomRight.x));
 
+//      // Find the mean color based on the selection made
+//      Mat gsRoi = source(Range(topLeft.y, bottomRight.y), Range(topLeft.x, bottomRight.x));
 //      greenScreenColor = mean(gsRoi);
 
-//      // Draw rectangle selection on image
-//      rectangle(source, topLeft, bottomRight, Scalar(255, 0, 255), 5, LINE_8);
-//      imshow("Window", source);
-//      waitKey(100);
+//      // Specify that the image has been correctly detected
 //      greenScreenSelected = true;
 //    }
-//  }
 //}
 
 //// This function processes the greenscreen from the video frame by frame
@@ -59,12 +50,21 @@
 //{
 //    // Implement desired greenscreen detections
 //    Mat mask;
-//    Scalar lowRange(greenScreenColor[0], max(0, static_cast<int>(greenScreenColor[1])-greenScreenValue), greenScreenColor[2]);
-//    Scalar highRange(greenScreenColor[0], min(255, static_cast<int>(greenScreenColor[1])+greenScreenValue), greenScreenColor[2]);
+//    int lowBlue = max(0, static_cast<int>(greenScreenColor[0])-greenScreenValue/2);
+//    int lowGreen = max(0, static_cast<int>(greenScreenColor[1])-greenScreenValue);
+//    int lowRed = max(0, static_cast<int>(greenScreenColor[2])-greenScreenValue/2);
+//    int highBlue = min(255, static_cast<int>(greenScreenColor[0])+greenScreenValue/2);
+//    int highGreen = min(255, static_cast<int>(greenScreenColor[1])+greenScreenValue);
+//    int highRed = min(255, static_cast<int>(greenScreenColor[2])+greenScreenValue/2);
+//    Scalar lowRange(lowBlue, lowGreen, lowRed);
+//    Scalar highRange(highBlue, highGreen, highRed);
 //    inRange(frame, lowRange, highRange, mask);
 
 //    Mat maskBackground;
-//    bitwise_and(background, frame, maskBackground);
+//    cvtColor(mask, mask, COLOR_GRAY2BGR);
+//    bitwise_and(background, mask, maskBackground);
+
+//    imshow("maskBackground", maskBackground);
 
 //    bitwise_not(mask, mask);
 //    bitwise_and(frame, mask, frame);
@@ -77,18 +77,19 @@
 //    // Create a window to display results
 //    namedWindow("Window", WINDOW_AUTOSIZE);
 
+//    // highgui function called when mouse events occur
+//    setMouseCallback("Window", chooseGreenscreenColor);
 
 //    // ================================== First Video =================================
 
 //    // TODO: Show sample frame from video and have user select region to use as greenscreen color background
 //    source = imread("demo.png");
-
-//    background = imread("background.png");
-//    resize(background, background, Size(source.rows, source.cols));
+//    background = imread("sample.jpg");
+//    resize(background, background, Size(source.cols, source.rows));
 
 //    Mat dummy = source.clone();
 //    int k = 0;
-//    while(greenScreenSelected)
+//    while(!greenScreenSelected)
 //    {
 //      imshow("Window", source );
 //      putText(source,"Drag greenscreen region" ,Point(10,30), FONT_HERSHEY_SIMPLEX, 0.7,Scalar(255,255,255), 2 );
@@ -105,9 +106,6 @@
 //    createTrackbar("Green Screen Slides", "Window", &greenScreenValue, 100);
 
 //    VideoCapture cap("greenscreen-demo.mp4");
-
-//    // highgui function called when mouse events occur
-//    setMouseCallback("Window", removeBlemish);
 
 //    // Check if camera opened successfully
 //    if(!cap.isOpened()){
@@ -139,58 +137,58 @@
 
 //    // ====================== Second Video ====================================
 
-//    source = imread("asteroid.png");
+////    source = imread("asteroid.png");
 
-//    resize(background, background, Size(source.rows, source.cols));
+////    resize(background, background, Size(source.cols, source.rows));
 
-//    dummy = source.clone();
-//    while(greenScreenSelected)
-//    {
-//      imshow("Window", source );
-//      putText(source,"Drag greenscreen region" ,Point(10,30), FONT_HERSHEY_SIMPLEX, 0.7,Scalar(255,255,255), 2 );
-//      k= waitKey(20) & 0xFF;
-//      if(k== 99) {
-//              // Another way of cloning
-//              dummy.copyTo(source);
-//      } else if (k == 27) {
-//          return -1;
-//      }
-//    }
+////    dummy = source.clone();
+////    while(greenScreenSelected)
+////    {
+////      imshow("Window", source );
+////      putText(source,"Drag greenscreen region" ,Point(10,30), FONT_HERSHEY_SIMPLEX, 0.7,Scalar(255,255,255), 2 );
+////      k= waitKey(20) & 0xFF;
+////      if(k== 99) {
+////              // Another way of cloning
+////              dummy.copyTo(source);
+////      } else if (k == 27) {
+////          return -1;
+////      }
+////    }
 
-//    cap.release();
+////    cap.release();
 
-//    VideoCapture cap2("greenscreen-asteroid.mp4");
+////    VideoCapture cap2("greenscreen-asteroid.mp4");
 
-//    greenScreenSelected = false;
+////    greenScreenSelected = false;
 
-//    // Check if camera opened successfully
-//    if(!cap2.isOpened()){
-//        cout << "Error opening video stream or file" << endl;
-//    }
+////    // Check if camera opened successfully
+////    if(!cap2.isOpened()){
+////        cout << "Error opening video stream or file" << endl;
+////    }
 
-//    // Read until video is completed
-//    while(cap2.isOpened()){
+////    // Read until video is completed
+////    while(cap2.isOpened()){
 
-//        Mat frame;
+////        Mat frame;
 
-//        // cap2ture frame-by-frame
-//        cap2 >> frame;
+////        // cap2ture frame-by-frame
+////        cap2 >> frame;
 
-//        // If the frame is empty, break immediately
-//        if (frame.empty())
-//          break;
+////        // If the frame is empty, break immediately
+////        if (frame.empty())
+////          break;
 
-//        greenScreenDetector(frame);
+////        greenScreenDetector(frame);
 
-//        // Write the frame into the file 'outputChaplin.mp4'
-//        imshow("Frame", frame);
+////        // Write the frame into the file 'outputChaplin.mp4'
+////        imshow("Frame", frame);
 
-//        // Wait for 25 ms before moving on to the next frame
-//        // This will slow down the video
-//        waitKey(25);
-//    }
+////        // Wait for 25 ms before moving on to the next frame
+////        // This will slow down the video
+////        waitKey(25);
+////    }
 
-//    cap2.release();
+////    cap2.release();
 
 //    return 0;
 //}
