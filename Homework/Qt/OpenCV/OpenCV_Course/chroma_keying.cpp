@@ -24,24 +24,29 @@
 //// function which will be called on mouse input
 //void chooseGreenscreenColor(int action, int x, int y, int flags, void *userdata)
 //{
-//    // Action to be taken when left mouse button is pressed
-//    if( action == EVENT_LBUTTONDOWN )
+//    if (!greenScreenSelected)
 //    {
-//      // Mark top left corner of selection
-//      topLeft = Point(x,y);
-//    }
-//    // Action to be taken when left mouse button is released
-//    else if( action == EVENT_LBUTTONUP)
-//    {
-//      // Mark bottom right corner of selection
-//      bottomRight = Point(x,y);
+//        // Action to be taken when left mouse button is pressed
+//        if( action == EVENT_LBUTTONDOWN )
+//        {
+//          // Mark top left corner of selection
+//          topLeft = Point(x,y);
+//        }
+//        // Action to be taken when left mouse button is released
+//        else if( action == EVENT_LBUTTONUP)
+//        {
+//          // Mark bottom right corner of selection
+//          bottomRight = Point(x,y);
 
-//      // Find the mean color based on the selection made
-//      Mat gsRoi = source(Range(topLeft.y, bottomRight.y), Range(topLeft.x, bottomRight.x));
-//      greenScreenColor = mean(gsRoi);
+//          // Find the mean color based on the selection made
+//          Mat gsRoi = source(Range(topLeft.y, bottomRight.y), Range(topLeft.x, bottomRight.x));
+//          greenScreenColor = mean(gsRoi);
 
-//      // Specify that the image has been correctly detected
-//      greenScreenSelected = true;
+//          cout << greenScreenColor << endl;
+
+//          // Specify that the image has been correctly detected
+//          greenScreenSelected = true;
+//        }
 //    }
 //}
 
@@ -63,8 +68,6 @@
 //    Mat maskBackground;
 //    cvtColor(mask, mask, COLOR_GRAY2BGR);
 //    bitwise_and(background, mask, maskBackground);
-
-//    imshow("maskBackground", maskBackground);
 
 //    bitwise_not(mask, mask);
 //    bitwise_and(frame, mask, frame);

@@ -98,7 +98,7 @@
 //  while(k!=27)
 //  {
 //    imshow("Window", source );
-//    putText(source, "Click on blemish to remove and c to clear", Point(10,30), FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 0, 0), 2);
+//    putText(source, "Double click center of blemish to remove or c to reset.", Point(10,30), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 0), 2);
 //    k= waitKey(20) & 0xFF;
 
 //    if(k== 99)
