@@ -26,6 +26,8 @@ add_executable(OpenCV
   OpenCV_Course/chroma_keying.cpp
   OpenCV_Course/skin_smoothing.cpp
   OpenCV_Course/document_scanner.cpp
+  OpenCV_Course/selfie_app.cpp
+  OpenCV_Course/Detection_Tracking.cpp
 
   HW2_2013/p1_opencv_code.cpp
   HW2_2013/p2_opencv_code.cpp
