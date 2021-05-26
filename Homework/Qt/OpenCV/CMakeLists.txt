@@ -25,6 +25,7 @@ add_executable(OpenCV
   OpenCV_Course/blemish_removal.cpp
   OpenCV_Course/chroma_keying.cpp
   OpenCV_Course/skin_smoothing.cpp
+  OpenCV_Course/document_scanner.cpp
 
   HW2_2013/p1_opencv_code.cpp
   HW2_2013/p2_opencv_code.cpp
