@@ -17,8 +17,8 @@ using namespace dnn;
 #define SSTR( x ) static_cast< std::ostringstream & >( ( std::ostringstream() << std::dec << x ) ).str()
 
 // Initialize the YOLO parameters
-float objectnessThreshold = 0.5; // Objectness threshold
-float confThreshold = 0.5; // Confidence threshold
+float objectnessThreshold = 0.4; // Objectness threshold
+float confThreshold = 0.4; // Confidence threshold
 float nmsThreshold = 0.4;  // Non-maximum suppression threshold
 int inpWidth = 416;  // Width of network's input image
 int inpHeight = 416; // Height of network's input image
@@ -77,7 +77,7 @@ bool drawPred(int classId, float conf, int left, int top, int right, int bottom,
 }
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-Rect postprocess(Mat& frame, const vector<Mat>& outs)
+Rect2d postprocess(Mat& frame, const vector<Mat>& outs)
 {
     vector<int> classIds;
     vector<float> confidences;
@@ -119,7 +119,7 @@ Rect postprocess(Mat& frame, const vector<Mat>& outs)
     for (size_t i = 0; i < indices.size(); ++i)
     {
         int idx = indices[i];
-        Rect box = boxes[idx];
+        Rect2d box = boxes[idx];
         bool success = drawPred(classIds[idx], confidences[idx], box.x, box.y,
                  box.x + box.width, box.y + box.height, frame);
 
@@ -129,12 +129,12 @@ Rect postprocess(Mat& frame, const vector<Mat>& outs)
         }
     }
 
-    Rect empty(0, 0, 0, 0);
+    Rect2d empty(0, 0, 0, 0);
     return empty;
 }
 
 // Detects the location of the ball and returns location
-Rect findBallLocation(Mat frame)
+Rect2d findBallLocation(Mat frame)
 {
     // Use detection to find the location of the ball
     // Load names of classes
@@ -197,7 +197,7 @@ bool trackBall(Ptr<Tracker> tracker, Mat frame, Rect2d location)
 int main()
 {
     // Create a KCF tracker
-    Ptr<Tracker> tracker = TrackerKCF::create();
+    Ptr<Tracker> tracker = TrackerCSRT::create();
 
     // Read video
     VideoCapture cap("soccer-ball.mp4");
@@ -207,6 +207,13 @@ int main()
     {
         cout << "Could not read video file" << endl;
     }
+
+    // Default resolutions of the frame are obtained.The default resolutions are system dependent.
+    int frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
+    int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
+
+    // Define the codec and create VideoWriter object.
+    VideoWriter out("trackBall.avi",VideoWriter::fourcc('M','J','P','G'),25, Size(frame_width,frame_height));
 
     // Read first frame
     Mat frame;
@@ -226,7 +233,7 @@ int main()
 
     // Read until video is completed
     Rect location;
-    bool foundLastFrame = false;
+    bool foundLastFrame = true;
     while(cap.isOpened()){
 
         Mat frame;
@@ -238,27 +245,42 @@ int main()
         if (frame.empty())
           break;
 
+        // Check if detection is required
         if (!foundLastFrame)
         {
             location = findBallLocation(frame);
         }
 
+        // Perform tracking
         if (!foundLastFrame && location.height != 0)
         {
+            // Restart the tracker
+            tracker = TrackerCSRT::create();
+            tracker->init(frame, location);
+            foundLastFrame = true;
+        }
+        else if (foundLastFrame)
+        {
+            // Continue tracking ball
             foundLastFrame = trackBall(tracker, frame, location);
         }
         else
         {
+            // Ball not detected or tracked
             putText(frame, "Ball Not Found in Frame", Point(100,20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 255),2);
         }
 
         // Display the found ball location
-        imshow("Window", frame);
+//        imshow("Window", frame);
+        out.write(frame);
 
         // Wait for 25 ms before moving on to the next frame
         // This will slow down the video
         waitKey(25);
     }
+
+    cap.release();
+    out.release();
 
     return 0;
 }
