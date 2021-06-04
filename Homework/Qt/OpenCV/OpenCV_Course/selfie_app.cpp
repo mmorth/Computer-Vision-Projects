@@ -1,96 +1,96 @@
-//#include <iostream>
+#include <iostream>
 
-//#include <opencv2/opencv.hpp>
-//#include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv2/highgui/highgui.hpp>
-//#include <opencv2/imgcodecs/imgcodecs.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgcodecs/imgcodecs.hpp>
 
-//using namespace std;
-//using namespace cv;
+using namespace std;
+using namespace cv;
 
-//// Executes the skin smoothing using Haar Cascades and Histograms
-//Mat smoothSkin(Mat image)
-//{
-//    // Execute Haar Cascades to find the location of the faces
-
-
-//    // Iterate over the detected faces
-//    // Use grabcut to detect the skin region on the face
+// Executes the skin smoothing using Haar Cascades and Histograms
+Mat smoothSkin(Mat image)
+{
+    // Execute Haar Cascades to find the location of the faces
 
 
-//        // Create a histogram of colors within the face region
+    // Iterate over the detected faces
+    // Use grabcut to detect the skin region on the face
 
 
-//        // Flatten out the histogram to remove peaks and valleys (smooth)
-//        // Can also apply a smoothing filter on the face region
-
-//}
-
-//// Applies the sunglasses filter to the detected face
-//// Play around to see how to do it manually first, then implement
-//Mat applySunglassesFilter(Mat image, Mat sunglasses)
-//{
-//    // Use Haar Cascades to find the location of the eyes
+        // Create a histogram of colors within the face region
 
 
-//    // Apply math/bitwise operations to place the sunglasses on the face
+        // Flatten out the histogram to remove peaks and valleys (smooth)
+        // Can also apply a smoothing filter on the face region
+
+}
+
+// Applies the sunglasses filter to the detected face
+// Play around to see how to do it manually first, then implement
+Mat applySunglassesFilter(Mat image, Mat sunglasses)
+{
+    // Use Haar Cascades to find the location of the eyes
 
 
-//    // Use alpha Matting to give transparency effect to sunglasses lens
+    // Apply math/bitwise operations to place the sunglasses on the face
 
-//}
 
-//int main()
-//{
-//    // ================================== First Video =================================
+    // Use alpha Matting to give transparency effect to sunglasses lens
 
-//    // TODO: Show sample frame from video and have user select region to use as greenscreen color background
-//    Mat source = imread("musk.jpg");
-//    Mat sunglasses = imread("sunglass.png");
+}
 
-//    Mat smoothedImage = smoothSkin(source);
+int main()
+{
+    // ================================== First Video =================================
 
-//    Mat result = applySunglassesFilter(source, sunglasses);
+    // TODO: Show sample frame from video and have user select region to use as greenscreen color background
+    Mat source = imread("musk.jpg");
+    Mat sunglasses = imread("sunglass.png");
 
-//    imshow("Smoothed", smoothedImage);
-//    imshow("Sunglasses Filter", result);
-//    waitKey(0);
+    Mat smoothedImage = smoothSkin(source);
 
-//    // TODO: Uncomment when done testing on test image
-////    // TODO: Change number to the number camera you have
-////    // Read video from webcam
-////    VideoCapture cap(1);
+    Mat result = applySunglassesFilter(source, sunglasses);
 
-////    // Check if camera opened successfully
-////    if(!cap.isOpened()){
-////        cout << "Error opening video stream or file" << endl;
-////    }
+    imshow("Smoothed", smoothedImage);
+    imshow("Sunglasses Filter", result);
+    waitKey(0);
 
-////    // Read until video is completed
-////    while(cap.isOpened()){
+    // TODO: Uncomment when done testing on test image
+//    // TODO: Change number to the number camera you have
+//    // Read video from webcam
+//    VideoCapture cap(1);
 
-////        Mat frame;
+//    // Check if camera opened successfully
+//    if(!cap.isOpened()){
+//        cout << "Error opening video stream or file" << endl;
+//    }
 
-////        // Capture frame-by-frame
-////        cap >> frame;
+//    // Read until video is completed
+//    while(cap.isOpened()){
 
-////        // If the frame is empty, break immediately
-////        if (frame.empty())
-////          break;
+//        Mat frame;
 
-////        Mat smoothedImage = smoothSkin(frame);
+//        // Capture frame-by-frame
+//        cap >> frame;
 
-////        Mat result = applySunglassesFilter(frame, sunglasses);
+//        // If the frame is empty, break immediately
+//        if (frame.empty())
+//          break;
 
-////        // Write the frame into the file 'outputChaplin.mp4'
-////        imshow("Original", frame);
-////        imshow("Smoothed", smoothedImage);
-////        imshow("Sunglasses Filter", result);
+//        Mat smoothedImage = smoothSkin(frame);
 
-////        // Wait for 25 ms before moving on to the next frame
-////        // This will slow down the video
-////        waitKey(25);
-////    }
+//        Mat result = applySunglassesFilter(frame, sunglasses);
 
-//    return 0;
-//}
+//        // Write the frame into the file 'outputChaplin.mp4'
+//        imshow("Original", frame);
+//        imshow("Smoothed", smoothedImage);
+//        imshow("Sunglasses Filter", result);
+
+//        // Wait for 25 ms before moving on to the next frame
+//        // This will slow down the video
+//        waitKey(25);
+//    }
+
+    return 0;
+}
