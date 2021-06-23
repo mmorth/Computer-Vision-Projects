@@ -1,3 +1,5 @@
 Linear Algebra:
 	Vectors
 	Matrices
+	Matrix Spaces and Operations
+	EigenVectors and EigenValues
