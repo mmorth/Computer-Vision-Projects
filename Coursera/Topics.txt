@@ -5,4 +5,5 @@ Linear Algebra:
 	EigenVectors and EigenValues
 
 Embedded Software Development:
-	
+	Microcontrollers
+	Build Systems
