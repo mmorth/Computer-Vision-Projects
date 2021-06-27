@@ -7,3 +7,4 @@ Linear Algebra:
 Embedded Software Development:
 	Microcontrollers
 	Build Systems
+	Memory Mangement
