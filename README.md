@@ -1,2 +1,2 @@
-# OpenCV CprE 575
-This repository contains the code from CprE 575 and the OpenCV Computer Vision I Course
+# Computer Vision
+This repository contains the code from various self-learnings, courses, and certificates I have taken in Computer Vision
